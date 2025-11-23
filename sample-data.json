@@ -1,0 +1,86 @@
+[
+  {
+    "date": "2025-11-22",
+    "workoutType": "A",
+    "exercises": [
+      {
+        "exerciseId": "A1",
+        "weight": 30,
+        "sets": [
+          { "setNumber": 1, "reps": 12 },
+          { "setNumber": 2, "reps": 10 },
+          { "setNumber": 3, "reps": 10 }
+        ]
+      },
+      {
+        "exerciseId": "A7",
+        "weight": 47.3,
+        "sets": [
+          { "setNumber": 1, "reps": 10 },
+          { "setNumber": 2, "reps": 10 },
+          { "setNumber": 3, "reps": 10 }
+        ]
+      },
+      {
+        "exerciseId": "A6",
+        "weight": 29.3,
+        "sets": [
+          { "setNumber": 1, "reps": 12 },
+          { "setNumber": 2, "reps": 12 },
+          { "setNumber": 3, "reps": 12 }
+        ]
+      },
+      {
+        "exerciseId": "A2",
+        "weight": 61.3,
+        "sets": [
+          { "setNumber": 1, "reps": 12 },
+          { "setNumber": 2, "reps": 12 },
+          { "setNumber": 3, "reps": 12 }
+        ]
+      },
+      {
+        "exerciseId": "A5",
+        "weight": 52,
+        "sets": [
+          { "setNumber": 1, "reps": 10 },
+          { "setNumber": 2, "reps": 10 },
+          { "setNumber": 3, "reps": 9 }
+        ]
+      }
+    ]
+  },
+    {
+    "date": "2025-11-22",
+    "workoutType": "B",
+    "exercises": [
+      {
+        "exerciseId": "B4",
+        "weight": 22.5,
+        "sets": [
+          { "setNumber": 1, "reps": 15 },
+          { "setNumber": 2, "reps": 13 },
+          { "setNumber": 3, "reps": 14 }
+        ]
+      },
+      {
+        "exerciseId": "B7",
+        "weight": 30,
+        "sets": [
+          { "setNumber": 1, "reps": 13 },
+          { "setNumber": 2, "reps": 11 },
+          { "setNumber": 3, "reps": 10 }
+        ]
+      },
+      {
+        "exerciseId": "B6",
+        "weight": 84,
+        "sets": [
+          { "setNumber": 1, "reps": 14 },
+          { "setNumber": 2, "reps": 9 },
+          { "setNumber": 3, "reps": 6 }
+        ]
+      }
+    ]
+  }
+]

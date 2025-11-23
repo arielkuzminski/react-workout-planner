@@ -111,7 +111,7 @@ export default function Workout() {
                 <label className="block text-xs text-gray-600 mb-1">Ciężar</label>
                 <input
                   type="number"
-                  step="0.5"
+                  step="2.3"
                   value={weights[exercise.id] || ''}
                   onChange={e => handleWeightChange(exercise.id, parseFloat(e.target.value) || 0)}
                   className="w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"

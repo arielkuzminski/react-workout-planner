@@ -7,7 +7,7 @@ export const workoutPlans: WorkoutPlan[] = [
     exercises: [
       {
         id: 'A1',
-        name: 'Hantle skos + (główne)',
+        name: 'Decline Chest Press Machine (Matrix)',
         sets: 4,
         repRange: { min: 6, max: 10 },
         startWeight: 30,
@@ -15,31 +15,31 @@ export const workoutPlans: WorkoutPlan[] = [
       },
       {
         id: 'A2',
-        name: 'Wiosłowanie hantlem/bramą',
+        name: 'Seated Cable Row (Neutral Grip)',
         sets: 4,
         repRange: { min: 8, max: 12 },
-        startWeight: 45,
+        startWeight: 55,
         type: 'weight'
       },
       {
         id: 'A3',
-        name: 'Przysiad goblet',
+        name: 'Leg Press',
         sets: 4,
         repRange: { min: 8, max: 12 },
-        startWeight: 26,
+        startWeight: 100,
         type: 'weight'
       },
       {
         id: 'A4',
-        name: 'OHP hantlami',
+        name: 'Dumbbell Shoulder Press',
         sets: 3,
         repRange: { min: 8, max: 12 },
-        startWeight: 24,
+        startWeight: 15,
         type: 'weight'
       },
       {
         id: 'A5',
-        name: 'Ściąganie drążka/brama na plecy',
+        name: 'Lat Pulldown (Medium Grip)',
         sets: 3,
         repRange: { min: 10, max: 12 },
         startWeight: 55,
@@ -47,18 +47,18 @@ export const workoutPlans: WorkoutPlan[] = [
       },
       {
         id: 'A6',
-        name: 'Triceps brama',
+        name: 'Cable Triceps Extension (Overhead)',
         sets: 3,
         repRange: { min: 12, max: 15 },
-        startWeight: 25,
+        startWeight: 29.3,
         type: 'weight'
       },
       {
         id: 'A7',
-        name: 'Biceps linka',
+        name: 'Cable Biceps Curl (Facing Away, Low Pulley)',
         sets: 3,
         repRange: { min: 10, max: 15 },
-        startWeight: 22,
+        startWeight: 47.3,
         type: 'weight'
       }
     ]
@@ -69,7 +69,7 @@ export const workoutPlans: WorkoutPlan[] = [
     exercises: [
       {
         id: 'B1',
-        name: 'Rumuński martwy na hantlach',
+        name: 'Dumbbell Romanian Deadlift',
         sets: 4,
         repRange: { min: 8, max: 12 },
         startWeight: 50,
@@ -77,7 +77,7 @@ export const workoutPlans: WorkoutPlan[] = [
       },
       {
         id: 'B2',
-        name: 'Ściąganie drążka szeroko',
+        name: 'Lat Pulldown (Wide Grip)',
         sets: 4,
         repRange: { min: 8, max: 12 },
         startWeight: 60,
@@ -85,42 +85,42 @@ export const workoutPlans: WorkoutPlan[] = [
       },
       {
         id: 'B3',
-        name: 'Wykroki chodzone',
+        name: 'Walking Lunges',
         sets: 3,
         repRange: { min: 10, max: 10 },
-        startWeight: 18,
+        startWeight: 14,
         type: 'weight'
       },
       {
         id: 'B4',
-        name: 'Ławka płaska hantel',
+        name: 'Flat Dumbbell Bench Press',
         sets: 3,
         repRange: { min: 8, max: 12 },
-        startWeight: 34,
+        startWeight: 22.5,
         type: 'weight'
       },
       {
         id: 'B5',
-        name: 'Face pull',
+        name: 'Face Pull (Cable)',
         sets: 3,
         repRange: { min: 15, max: 20 },
-        startWeight: 18,
+        startWeight: 17.5,
         type: 'weight'
       },
       {
         id: 'B6',
-        name: 'Triceps maszyna',
+        name: 'Triceps Press Machine (Matrix)',
         sets: 3,
         repRange: { min: 10, max: 12 },
-        startWeight: 32,
+        startWeight: 84,
         type: 'weight'
       },
       {
         id: 'B7',
-        name: 'Biceps stojąc',
+        name: 'EZ-Bar Biceps Curl',
         sets: 3,
         repRange: { min: 8, max: 12 },
-        startWeight: 24,
+        startWeight: 30,
         type: 'weight'
       }
     ]
@@ -131,23 +131,23 @@ export const workoutPlans: WorkoutPlan[] = [
     exercises: [
       {
         id: 'C1',
-        name: 'Hantle skos ciężej niż w A',
+        name: 'Decline Chest Press Machine (Matrix)',
         sets: 4,
         repRange: { min: 6, max: 8 },
-        startWeight: 34,
+        startWeight: 32.5,
         type: 'weight'
       },
       {
         id: 'C2',
-        name: 'Wiosło brama ciężej',
+        name: 'Seated Cable Row (Neutral Grip)',
         sets: 4,
         repRange: { min: 6, max: 8 },
-        startWeight: 52,
+        startWeight: 64,
         type: 'weight'
       },
       {
         id: 'C3',
-        name: 'Hip thrust / glute bridge',
+        name: 'Hip Thrust (Barbell or Smith Machine)',
         sets: 4,
         repRange: { min: 10, max: 12 },
         startWeight: 80,
@@ -155,15 +155,15 @@ export const workoutPlans: WorkoutPlan[] = [
       },
       {
         id: 'C4',
-        name: 'Maszyna na barki / Arnold press',
+        name: 'Dumbbell Shoulder Press',
         sets: 3,
         repRange: { min: 8, max: 12 },
-        startWeight: 26,
+        startWeight: 15,
         type: 'weight'
       },
       {
         id: 'C5',
-        name: 'Unoszenie bokiem',
+        name: 'Dumbbell Lateral Raise',
         sets: 3,
         repRange: { min: 12, max: 15 },
         startWeight: 10,
@@ -171,7 +171,7 @@ export const workoutPlans: WorkoutPlan[] = [
       },
       {
         id: 'C6',
-        name: 'Core: plank',
+        name: 'Plank',
         sets: 3,
         repRange: { min: 45, max: 60 },
         startWeight: 0,
