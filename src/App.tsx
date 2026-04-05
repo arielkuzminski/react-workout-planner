@@ -5,6 +5,7 @@ import Session from './pages/Session';
 import History from './pages/History';
 import Dashboard from './pages/Dashboard';
 import Import from './pages/Import';
+import SessionRecap from './pages/SessionRecap';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/session" element={<Session />} />
+          <Route path="/recap" element={<SessionRecap />} />
           <Route path="/history" element={<History />} />
           <Route path="/progress" element={<Dashboard />} />
           <Route path="/import" element={<Import />} />

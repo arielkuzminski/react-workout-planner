@@ -28,6 +28,14 @@ export default function Home() {
   const importCompletedSessions = useWorkoutStore((state) => state.importCompletedSessions);
   const [isLoadingSample, setIsLoadingSample] = useState(false);
 
+  const suggestedTemplateId = useMemo(() => {
+    const rotation: Array<'A' | 'B' | 'C'> = ['A', 'B', 'C'];
+    const lastTemplateSession = completedSessions.find((s) => s.templateId);
+    if (!lastTemplateSession?.templateId) return 'A';
+    const lastIndex = rotation.indexOf(lastTemplateSession.templateId);
+    return rotation[(lastIndex + 1) % rotation.length];
+  }, [completedSessions]);
+
   const handleStart = (templateId?: 'A' | 'B' | 'C') => {
     if (activeSession && !window.confirm('Masz aktywną sesję. Rozpocząć nową? Obecna zostanie utracona.')) {
       return;
@@ -73,17 +81,31 @@ export default function Home() {
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {templates.map((template) => (
-          <button
-            key={template.id}
-            onClick={() => handleStart(template.id)}
-            className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 text-left hover:border-blue-300 hover:shadow-md transition-all"
-          >
-            <p className="text-sm font-semibold text-blue-700">Template {template.id}</p>
-            <h3 className="text-xl font-bold text-gray-900 mt-1">{template.name}</h3>
-            <p className="text-sm text-gray-600 mt-2">{template.description}</p>
-          </button>
-        ))}
+        {templates.map((template) => {
+          const isSuggested = template.id === suggestedTemplateId;
+          return (
+            <button
+              key={template.id}
+              onClick={() => handleStart(template.id)}
+              className={`rounded-2xl border shadow-sm p-5 text-left transition-all ${
+                isSuggested
+                  ? 'bg-blue-50 border-blue-400 ring-2 ring-blue-200 hover:border-blue-500 hover:shadow-md'
+                  : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-blue-700">Template {template.id}</p>
+                {isSuggested && (
+                  <span className="text-xs font-medium bg-blue-700 text-white px-2 py-0.5 rounded-full">
+                    Następny
+                  </span>
+                )}
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mt-1">{template.name}</h3>
+              <p className="text-sm text-gray-600 mt-2">{template.description}</p>
+            </button>
+          );
+        })}
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">

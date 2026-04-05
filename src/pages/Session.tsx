@@ -1,13 +1,28 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CheckCircle2, Plus, Trash2 } from 'lucide-react';
 import ExerciseLogger from '../components/ExerciseLogger';
 import ProgressIndicator from '../components/ProgressIndicator';
+import RestTimer from '../components/RestTimer';
 import { ExerciseDefinition, SessionEntry } from '../types';
 import { useWorkoutStore } from '../store';
 
 export default function Session() {
   const navigate = useNavigate();
+
+  // Wake Lock — keep screen on during active session
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  useEffect(() => {
+    const acquire = async () => {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLockRef.current = await navigator.wakeLock.request('screen');
+        }
+      } catch {}
+    };
+    acquire();
+    return () => { wakeLockRef.current?.release(); wakeLockRef.current = null; };
+  }, []);
   const activeSession = useWorkoutStore((state) => state.activeSession);
   const exerciseLibrary = useWorkoutStore((state) => state.exerciseLibrary);
   const completedSessions = useWorkoutStore((state) => state.completedSessions);
@@ -79,7 +94,7 @@ export default function Session() {
 
   const handleComplete = () => {
     completeActiveSession();
-    navigate('/history');
+    navigate('/recap');
   };
 
   return (
@@ -167,6 +182,7 @@ export default function Session() {
 
               <ExerciseLogger
                 entry={entry}
+                previousEntry={previousEntryMap.get(entry.exerciseId)}
                 onSetChange={(setId, patch) => updateSetInActiveSession(entry.id, setId, patch)}
                 onAddSet={() => addSetToEntry(entry.id)}
                 onNotesChange={(notes) => updateEntryNotes(entry.id, notes)}
@@ -177,6 +193,8 @@ export default function Session() {
                 entry={entry}
                 previousEntry={previousEntryMap.get(entry.exerciseId)}
               />
+
+              <RestTimer />
             </div>
           );
         })}
