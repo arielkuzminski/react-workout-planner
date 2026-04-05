@@ -64,14 +64,14 @@ export default function Home() {
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => handleStart()}
-            className="px-5 py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-semibold"
+            className="px-5 py-3 rounded-xl bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             Zacznij nową sesję
           </button>
           {activeSession && (
             <button
               onClick={() => navigate('/session')}
-              className="px-5 py-3 rounded-xl bg-gray-900 hover:bg-black text-white font-semibold flex items-center justify-center gap-2"
+              className="px-5 py-3 rounded-xl bg-gray-900 hover:bg-black active:bg-gray-800 text-white font-semibold flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               <RotateCcw className="w-4 h-4" />
               Wróć do aktywnej sesji
@@ -87,7 +87,7 @@ export default function Home() {
             <button
               key={template.id}
               onClick={() => handleStart(template.id)}
-              className={`rounded-2xl border shadow-sm p-5 text-left transition-all ${
+              className={`rounded-2xl border shadow-sm p-5 text-left transition-all focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:outline-none ${
                 isSuggested
                   ? 'bg-blue-50 border-blue-400 ring-2 ring-blue-200 hover:border-blue-500 hover:shadow-md'
                   : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md'
@@ -132,7 +132,7 @@ export default function Home() {
           <button
             onClick={handleLoadSample}
             disabled={isLoadingSample}
-            className="w-full px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-semibold flex items-center justify-center gap-2"
+            className="w-full px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             {isLoadingSample ? <Loader className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
             {isLoadingSample ? 'Ładowanie...' : 'Załaduj przykładowe sesje'}

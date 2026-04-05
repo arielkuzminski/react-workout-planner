@@ -148,14 +148,14 @@ export default function Import() {
           <div className="mt-4 flex flex-wrap gap-3">
             <button
               onClick={handleExportJson}
-              className="inline-flex items-center gap-2 rounded-2xl bg-stone-900 px-4 py-3 font-semibold text-white transition hover:bg-stone-700"
+              className="inline-flex items-center gap-2 rounded-2xl bg-stone-900 px-4 py-3 font-semibold text-white transition-colors hover:bg-stone-700 active:bg-stone-800 focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               <Download className="h-4 w-4" />
               Export JSON
             </button>
             <button
               onClick={handleExportCsv}
-              className="inline-flex items-center gap-2 rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700 transition hover:bg-stone-200"
+              className="inline-flex items-center gap-2 rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700 transition-colors hover:bg-stone-200 active:bg-stone-300 focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               <Download className="h-4 w-4" />
               Export CSV
@@ -167,7 +167,7 @@ export default function Import() {
           <h3 className="text-lg font-semibold">Import</h3>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-3 font-semibold text-white transition hover:bg-emerald-600"
+            className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-3 font-semibold text-white transition-colors hover:bg-emerald-600 active:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             <Upload className="h-4 w-4" />
             Wybierz plik

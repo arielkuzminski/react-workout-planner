@@ -80,11 +80,12 @@ export default function Progress() {
       </section>
 
       <section className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm">
-        <label className="text-sm font-semibold">Ćwiczenie</label>
+        <label htmlFor="exercise-select" className="text-sm font-semibold">Ćwiczenie</label>
         <select
+          id="exercise-select"
           value={selectedExerciseId}
           onChange={(event) => setSelectedExerciseId(event.target.value)}
-          className="mt-3 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3"
+          className="mt-3 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
         >
           <option value="">Wybierz ćwiczenie</option>
           {usedExerciseIds.map((exerciseId) => {

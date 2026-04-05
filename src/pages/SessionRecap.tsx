@@ -81,13 +81,13 @@ export default function SessionRecap() {
       <div className="flex flex-col sm:flex-row gap-3">
         <Link
           to="/history"
-          className="flex-1 px-5 py-3 rounded-xl bg-gray-900 hover:bg-black text-white font-semibold text-center"
+          className="flex-1 px-5 py-3 rounded-xl bg-gray-900 hover:bg-black active:bg-gray-800 text-white font-semibold text-center transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
           Zobacz historię
         </Link>
         <Link
           to="/"
-          className="flex-1 px-5 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold text-center"
+          className="flex-1 px-5 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-900 font-semibold text-center transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
           Wróć do startu
         </Link>

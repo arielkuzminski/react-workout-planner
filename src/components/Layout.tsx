@@ -5,7 +5,9 @@ export default function Layout() {
   const location = useLocation();
 
   const isActive = (path: string) =>
-    location.pathname === path ? 'text-blue-700 border-b-2 border-blue-700' : 'text-gray-600';
+    location.pathname === path
+      ? 'text-blue-700 border-b-2 border-blue-700'
+      : 'text-gray-600 hover:text-gray-900';
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -25,27 +27,27 @@ export default function Layout() {
 
       <nav className="fixed bottom-0 left-0 right-0 md:static bg-white border-t shadow-lg md:shadow-none">
         <div className="max-w-5xl mx-auto flex">
-          <Link to="/" className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 ${isActive('/')}`}>
+          <Link to="/" className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 transition-colors ${isActive('/')}`}>
             <Activity className="w-5 h-5" />
             <span className="hidden md:inline">Start</span>
           </Link>
           <Link
             to="/history"
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 ${isActive('/history')}`}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 transition-colors ${isActive('/history')}`}
           >
             <History className="w-5 h-5" />
             <span className="hidden md:inline">Historia</span>
           </Link>
           <Link
             to="/progress"
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 ${isActive('/progress')}`}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 transition-colors ${isActive('/progress')}`}
           >
             <BarChart3 className="w-5 h-5" />
             <span className="hidden md:inline">Progres</span>
           </Link>
           <Link
             to="/import"
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 ${isActive('/import')}`}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 transition-colors ${isActive('/import')}`}
           >
             <Upload className="w-5 h-5" />
             <span className="hidden md:inline">Import / Export</span>

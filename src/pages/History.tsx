@@ -49,7 +49,7 @@ export default function History() {
             </div>
             <button
               onClick={() => deleteCompletedSession(session.id)}
-              className="rounded-xl p-2 text-stone-400 transition hover:bg-rose-50 hover:text-rose-600"
+              className="rounded-xl p-2 text-stone-400 transition-colors hover:bg-rose-50 hover:text-rose-600 active:bg-rose-100 cursor-pointer focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:outline-none"
               aria-label="Usuń sesję"
             >
               <Trash2 className="h-5 w-5" />

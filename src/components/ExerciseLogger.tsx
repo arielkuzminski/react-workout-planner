@@ -46,7 +46,7 @@ const WeightSetRow = ({
           min="0"
           value={weight}
           onChange={(e) => onChange({ weight: parseFloat(e.target.value) || 0 })}
-          className="w-full min-w-0 px-2 py-2 border border-gray-300 rounded-lg text-center text-sm"
+          className="w-full min-w-0 px-2 py-2 border border-gray-300 rounded-lg text-center text-sm transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
           aria-label={`Ciężar set ${set.setNumber}`}
         />
         <StepButton onClick={() => onChange({ weight: weight + 2.5 })} label="+2.5kg">
@@ -63,7 +63,7 @@ const WeightSetRow = ({
           min="0"
           value={reps}
           onChange={(e) => onChange({ reps: parseInt(e.target.value, 10) || 0 })}
-          className="w-full min-w-0 px-2 py-2 border border-gray-300 rounded-lg text-center text-sm"
+          className="w-full min-w-0 px-2 py-2 border border-gray-300 rounded-lg text-center text-sm transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
           aria-label={`Powtórzenia set ${set.setNumber}`}
         />
         <StepButton onClick={() => onChange({ reps: reps + 1 })} label="+1 rep">
@@ -102,7 +102,7 @@ const TimeSetRow = ({
           min="0"
           value={duration}
           onChange={(e) => onChange({ durationSec: parseInt(e.target.value, 10) || 0 })}
-          className="w-full min-w-0 px-2 py-2 border border-gray-300 rounded-lg text-center text-sm"
+          className="w-full min-w-0 px-2 py-2 border border-gray-300 rounded-lg text-center text-sm transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
           aria-label={`Czas set ${set.setNumber}`}
         />
         <StepButton onClick={() => onChange({ durationSec: duration + 5 })} label="+5s">
@@ -151,7 +151,7 @@ export default function ExerciseLogger({
       <button
         type="button"
         onClick={onAddSet}
-        className="text-sm font-medium text-blue-700 hover:text-blue-900"
+        className="text-sm font-medium text-blue-700 hover:text-blue-900 active:opacity-80 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
       >
         + Dodaj serię
       </button>
@@ -161,7 +161,7 @@ export default function ExerciseLogger({
         onChange={(event) => onNotesChange(event.target.value)}
         placeholder="Opcjonalna notatka do ćwiczenia"
         rows={2}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
       />
     </div>
   );

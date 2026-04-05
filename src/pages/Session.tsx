@@ -116,13 +116,13 @@ export default function Session() {
                 abandonActiveSession();
                 navigate('/');
               }}
-              className="px-4 py-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold"
+              className="px-4 py-3 rounded-xl bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-700 font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               Porzuć
             </button>
             <button
               onClick={handleComplete}
-              className="px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2"
+              className="px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold flex items-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               <CheckCircle2 className="w-4 h-4" />
               Zakończ sesję
@@ -134,7 +134,7 @@ export default function Session() {
           <select
             value={selectedExerciseId}
             onChange={(event) => setSelectedExerciseId(event.target.value)}
-            className="px-3 py-3 rounded-xl border border-gray-300"
+            className="px-3 py-3 rounded-xl border border-gray-300 cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
           >
             <option value="">Dodaj ćwiczenie do sesji</option>
             {availableExercises.map((exercise) => (
@@ -146,7 +146,7 @@ export default function Session() {
           <button
             onClick={handleAddExercise}
             disabled={!selectedExerciseId}
-            className="px-4 py-3 rounded-xl bg-gray-900 hover:bg-black disabled:bg-gray-400 text-white font-semibold flex items-center justify-center gap-2"
+            className="px-4 py-3 rounded-xl bg-gray-900 hover:bg-black active:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             <Plus className="w-4 h-4" />
             Dodaj
@@ -174,7 +174,7 @@ export default function Session() {
                 </div>
                 <button
                   onClick={() => removeEntryFromActiveSession(entry.id)}
-                  className="p-2 rounded-lg text-red-600 hover:bg-red-50"
+                  className="p-2 rounded-lg text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>
