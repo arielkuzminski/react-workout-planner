@@ -1,7 +1,7 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
-import SelectWorkout from './pages/SelectWorkout';
-import Workout from './pages/Workout';
+import Home from './pages/Home';
+import Session from './pages/Session';
 import History from './pages/History';
 import Dashboard from './pages/Dashboard';
 import Import from './pages/Import';
@@ -11,10 +11,10 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route element={<Layout />}>
-          <Route path="/" element={<SelectWorkout />} />
-          <Route path="/workout/:type" element={<Workout />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/session" element={<Session />} />
           <Route path="/history" element={<History />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/progress" element={<Dashboard />} />
           <Route path="/import" element={<Import />} />
         </Route>
       </Routes>

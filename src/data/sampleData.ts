@@ -1,254 +1,78 @@
-import { WorkoutSession } from '../types';
+import { getExerciseDefinition, workoutTemplates } from './workoutPlans';
+import { SessionEntry, SessionSet, TemplateId, WorkoutSession } from '../types';
+import { createId } from '../utils/sessionUtils';
 
-/**
- * Generuje przykładowe dane z ostatnich 6 tygodni
- * 3 treningi tygodniowo (A→B→C)
- */
+const createSet = (
+  setNumber: number,
+  weight: number,
+  reps: number,
+  durationSec?: number
+): SessionSet => ({
+  id: createId('set'),
+  setNumber,
+  weight,
+  reps,
+  durationSec,
+  completed: true,
+});
+
+const buildEntry = (exerciseId: string, multiplier: number): SessionEntry => {
+  const definition = getExerciseDefinition(exerciseId);
+
+  if (!definition) {
+    throw new Error(`Missing exercise definition for ${exerciseId}`);
+  }
+
+  const sets = Array.from({ length: definition.targetSets }).map((_, index) => {
+    const setNumber = index + 1;
+
+    if (definition.type === 'time') {
+      const duration = Math.round(definition.repRange.min + 2 + Math.random() * 8);
+      return createSet(setNumber, 0, duration, duration);
+    }
+
+    const reps = Math.round(
+      definition.repRange.min + Math.random() * (definition.repRange.max - definition.repRange.min)
+    );
+    const weight = Math.round(definition.defaultWeight * multiplier * 2) / 2;
+    return createSet(setNumber, weight, reps);
+  });
+
+  return {
+    id: createId('entry'),
+    exerciseId: definition.id,
+    exerciseName: definition.name,
+    exerciseNameSnapshot: definition.name,
+    exerciseType: definition.type,
+    targetSets: definition.targetSets,
+    repRange: definition.repRange,
+    unit: definition.unit,
+    sets,
+    notes: '',
+  };
+};
+
 export const generateSampleData = (): WorkoutSession[] => {
   const sessions: WorkoutSession[] = [];
   const startDate = new Date();
-  startDate.setDate(startDate.getDate() - 42); // 6 tygodni wstecz
+  startDate.setDate(startDate.getDate() - 42);
 
-  const workoutOrder: ('A' | 'B' | 'C')[] = ['A', 'B', 'C'];
-  let workoutIndex = 0;
-
-  // Symulacja treningu co 2 dni
-  for (let i = 0; i < 18; i++) {
+  for (let i = 0; i < 18; i += 1) {
+    const template = workoutTemplates[i % workoutTemplates.length];
     const sessionDate = new Date(startDate);
-    sessionDate.setDate(sessionDate.getDate() + i * 2.5);
+    sessionDate.setDate(sessionDate.getDate() + i * 2);
+    const multiplier = 1 + i * 0.02;
 
-    const workoutType = workoutOrder[workoutIndex % 3];
-    workoutIndex++;
-
-    // Generowanie realistycznych danych - progresywny wzrost
-    const baseMultiplier = 1 + (i * 0.02); // Stopniowy wzrost wydajności
-
-    const session = generateSessionByType(workoutType, sessionDate, baseMultiplier);
-    sessions.push(session);
+    sessions.push({
+      id: createId('sample'),
+      startedAt: sessionDate.toISOString(),
+      completedAt: new Date(sessionDate.getTime() + 45 * 60 * 1000).toISOString(),
+      status: 'completed',
+      templateId: template.id as TemplateId,
+      notes: '',
+      entries: template.exerciseIds.map((exerciseId) => buildEntry(exerciseId, multiplier)),
+    });
   }
 
   return sessions;
 };
-
-function generateSessionByType(
-  type: 'A' | 'B' | 'C',
-  date: Date,
-  baseMultiplier: number
-): WorkoutSession {
-  const id = `sample_${Date.now()}_${Math.random()}`;
-
-  if (type === 'A') {
-    return {
-      id,
-      date,
-      workoutType: 'A',
-      exercises: [
-        {
-          exerciseId: 'A1',
-          weight: Math.round(30 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 7 + Math.random() * 3 },
-            { setNumber: 2, reps: 7 + Math.random() * 3 },
-            { setNumber: 3, reps: 6 + Math.random() * 3 },
-            { setNumber: 4, reps: 6 + Math.random() * 3 }
-          ]
-        },
-        {
-          exerciseId: 'A2',
-          weight: Math.round(45 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 9 + Math.random() * 3 },
-            { setNumber: 2, reps: 9 + Math.random() * 3 },
-            { setNumber: 3, reps: 8 + Math.random() * 3 },
-            { setNumber: 4, reps: 8 + Math.random() * 3 }
-          ]
-        },
-        {
-          exerciseId: 'A3',
-          weight: Math.round(26 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 10 + Math.random() * 2 },
-            { setNumber: 2, reps: 10 + Math.random() * 2 },
-            { setNumber: 3, reps: 9 + Math.random() * 2 },
-            { setNumber: 4, reps: 9 + Math.random() * 2 }
-          ]
-        },
-        {
-          exerciseId: 'A4',
-          weight: Math.round(24 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 10 + Math.random() * 2 },
-            { setNumber: 2, reps: 9 + Math.random() * 2 },
-            { setNumber: 3, reps: 8 + Math.random() * 2 }
-          ]
-        },
-        {
-          exerciseId: 'A5',
-          weight: Math.round(55 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 11 + Math.random() * 1 },
-            { setNumber: 2, reps: 11 + Math.random() * 1 },
-            { setNumber: 3, reps: 10 + Math.random() * 1 }
-          ]
-        },
-        {
-          exerciseId: 'A6',
-          weight: Math.round(25 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 13 + Math.random() * 2 },
-            { setNumber: 2, reps: 13 + Math.random() * 2 },
-            { setNumber: 3, reps: 12 + Math.random() * 2 }
-          ]
-        },
-        {
-          exerciseId: 'A7',
-          weight: Math.round(22 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 12 + Math.random() * 3 },
-            { setNumber: 2, reps: 12 + Math.random() * 3 },
-            { setNumber: 3, reps: 11 + Math.random() * 3 }
-          ]
-        }
-      ]
-    };
-  } else if (type === 'B') {
-    return {
-      id,
-      date,
-      workoutType: 'B',
-      exercises: [
-        {
-          exerciseId: 'B1',
-          weight: Math.round(50 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 10 + Math.random() * 2 },
-            { setNumber: 2, reps: 10 + Math.random() * 2 },
-            { setNumber: 3, reps: 9 + Math.random() * 2 },
-            { setNumber: 4, reps: 8 + Math.random() * 2 }
-          ]
-        },
-        {
-          exerciseId: 'B2',
-          weight: Math.round(60 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 10 + Math.random() * 2 },
-            { setNumber: 2, reps: 10 + Math.random() * 2 },
-            { setNumber: 3, reps: 9 + Math.random() * 2 },
-            { setNumber: 4, reps: 9 + Math.random() * 2 }
-          ]
-        },
-        {
-          exerciseId: 'B3',
-          weight: Math.round(18 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 10 + Math.random() * 2 },
-            { setNumber: 2, reps: 10 + Math.random() * 2 },
-            { setNumber: 3, reps: 9 + Math.random() * 2 }
-          ]
-        },
-        {
-          exerciseId: 'B4',
-          weight: Math.round(34 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 10 + Math.random() * 2 },
-            { setNumber: 2, reps: 9 + Math.random() * 2 },
-            { setNumber: 3, reps: 8 + Math.random() * 2 }
-          ]
-        },
-        {
-          exerciseId: 'B5',
-          weight: Math.round(18 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 17 + Math.random() * 3 },
-            { setNumber: 2, reps: 16 + Math.random() * 3 },
-            { setNumber: 3, reps: 15 + Math.random() * 3 }
-          ]
-        },
-        {
-          exerciseId: 'B6',
-          weight: Math.round(32 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 11 + Math.random() * 1 },
-            { setNumber: 2, reps: 10 + Math.random() * 1 },
-            { setNumber: 3, reps: 10 + Math.random() * 1 }
-          ]
-        },
-        {
-          exerciseId: 'B7',
-          weight: Math.round(24 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 10 + Math.random() * 2 },
-            { setNumber: 2, reps: 9 + Math.random() * 2 },
-            { setNumber: 3, reps: 8 + Math.random() * 2 }
-          ]
-        }
-      ]
-    };
-  } else {
-    // Type C
-    return {
-      id,
-      date,
-      workoutType: 'C',
-      exercises: [
-        {
-          exerciseId: 'C1',
-          weight: Math.round(34 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 7 + Math.random() * 1 },
-            { setNumber: 2, reps: 7 + Math.random() * 1 },
-            { setNumber: 3, reps: 6 + Math.random() * 1 },
-            { setNumber: 4, reps: 6 + Math.random() * 1 }
-          ]
-        },
-        {
-          exerciseId: 'C2',
-          weight: Math.round(52 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 7 + Math.random() * 1 },
-            { setNumber: 2, reps: 7 + Math.random() * 1 },
-            { setNumber: 3, reps: 6 + Math.random() * 1 },
-            { setNumber: 4, reps: 6 + Math.random() * 1 }
-          ]
-        },
-        {
-          exerciseId: 'C3',
-          weight: Math.round(80 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 11 + Math.random() * 1 },
-            { setNumber: 2, reps: 11 + Math.random() * 1 },
-            { setNumber: 3, reps: 10 + Math.random() * 1 },
-            { setNumber: 4, reps: 10 + Math.random() * 1 }
-          ]
-        },
-        {
-          exerciseId: 'C4',
-          weight: Math.round(26 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 10 + Math.random() * 2 },
-            { setNumber: 2, reps: 9 + Math.random() * 2 },
-            { setNumber: 3, reps: 8 + Math.random() * 2 }
-          ]
-        },
-        {
-          exerciseId: 'C5',
-          weight: Math.round(10 * baseMultiplier * 2) / 2,
-          sets: [
-            { setNumber: 1, reps: 13 + Math.random() * 2 },
-            { setNumber: 2, reps: 13 + Math.random() * 2 },
-            { setNumber: 3, reps: 12 + Math.random() * 2 }
-          ]
-        },
-        {
-          exerciseId: 'C6',
-          weight: 0, // Plank nie ma wagi, wartość to czas
-          sets: [
-            { setNumber: 1, reps: 47 + Math.random() * 5 },
-            { setNumber: 2, reps: 45 + Math.random() * 5 },
-            { setNumber: 3, reps: 43 + Math.random() * 5 }
-          ]
-        }
-      ]
-    };
-  }
-}

@@ -1,47 +1,97 @@
 import { useRef, useState } from 'react';
-import { useWorkoutStore } from '../store';
-import { WorkoutSession } from '../types';
 import Papa from 'papaparse';
-import { Upload, Check, AlertCircle } from 'lucide-react';
+import { Download, Upload } from 'lucide-react';
+import { useWorkoutStore } from '../store';
+import { LegacyWorkoutSession } from '../types';
+import { createId, legacySessionToV2 } from '../utils/sessionUtils';
 
-interface ImportedSession {
-  id: string;
-  date: Date;
-  workoutType: 'A' | 'B' | 'C';
-  exercises: any[];
-}
+const downloadBlob = (filename: string, content: string, mimeType: string) => {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+};
 
 export default function Import() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const addSession = useWorkoutStore(state => state.addSession);
-  const [importedData, setImportedData] = useState<ImportedSession[]>([]);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const completedSessions = useWorkoutStore((state) => state.completedSessions);
+  const importCompletedSessions = useWorkoutStore((state) => state.importCompletedSessions);
+  const [message, setMessage] = useState('');
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleExportJson = () => {
+    downloadBlob(
+      `silka-export-${new Date().toISOString().slice(0, 10)}.json`,
+      JSON.stringify(
+        {
+          schemaVersion: 2,
+          completedSessions,
+        },
+        null,
+        2
+      ),
+      'application/json'
+    );
+    setMessage('Wyeksportowano JSON backup.');
+  };
 
-    setError('');
-    setSuccess('');
-    setImportedData([]);
+  const handleExportCsv = () => {
+    const rows = completedSessions.flatMap((session) =>
+      session.entries.flatMap((entry) =>
+        entry.sets.map((set) => ({
+          date: session.completedAt ?? session.startedAt,
+          workoutType: session.templateId ?? '',
+          exerciseId: entry.exerciseId,
+          weight: set.weight ?? 0,
+          reps: entry.exerciseType === 'time' ? set.durationSec ?? 0 : set.reps ?? 0,
+        }))
+      )
+    );
 
-    const fileType = file.name.endsWith('.json') ? 'json' : 'csv';
+    downloadBlob(
+      `silka-export-${new Date().toISOString().slice(0, 10)}.csv`,
+      Papa.unparse(rows),
+      'text/csv'
+    );
+    setMessage('Wyeksportowano CSV backup.');
+  };
 
-    if (fileType === 'json') {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    setMessage('');
+
+    if (file.name.endsWith('.json')) {
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = (loadEvent) => {
         try {
-          const json = JSON.parse(event.target?.result as string);
-          const sessions = Array.isArray(json) ? json : json.sessions || [];
-          setImportedData(
-            sessions.map((s: any) => ({
-              ...s,
-              date: new Date(s.date)
-            }))
-          );
-        } catch (err) {
-          setError('Błąd parsowania JSON: ' + (err instanceof Error ? err.message : 'Nieznany błąd'));
+          const parsed = JSON.parse(String(loadEvent.target?.result || '{}'));
+
+          if (parsed.schemaVersion === 2 && Array.isArray(parsed.completedSessions)) {
+            const valid = parsed.completedSessions.filter(
+              (s: unknown) =>
+                s && typeof s === 'object' &&
+                'id' in s && 'startedAt' in s && 'entries' in s &&
+                Array.isArray((s as { entries: unknown }).entries)
+            );
+            if (valid.length === 0) {
+              setMessage('Plik JSON nie zawiera prawidłowych sesji.');
+              return;
+            }
+            importCompletedSessions(valid);
+          } else {
+            const sessions = (Array.isArray(parsed) ? parsed : parsed.sessions || []) as LegacyWorkoutSession[];
+            importCompletedSessions(sessions.map((session) => legacySessionToV2(session)));
+          }
+
+          setMessage('Zaimportowano dane z JSON.');
+        } catch (error) {
+          setMessage(`Błąd JSON: ${error instanceof Error ? error.message : 'unknown error'}`);
         }
       };
       reader.readAsText(file);
@@ -49,152 +99,97 @@ export default function Import() {
       Papa.parse(file, {
         header: true,
         complete: (results) => {
-          try {
-            const sessions = results.data
-              .filter((row: any) => row.date && row.workoutType)
-              .map((row: any) => ({
-                id: `imported_${Date.now()}_${Math.random()}`,
-                date: new Date(row.date),
-                workoutType: row.workoutType as 'A' | 'B' | 'C',
-                exercises: [
-                  {
-                    exerciseId: row.exerciseId || '',
-                    weight: parseFloat(row.weight) || 0,
-                    sets: row.reps ? [{ setNumber: 1, reps: parseInt(row.reps) }] : []
-                  }
-                ]
-              })) as ImportedSession[];
+          const rows = results.data as Array<Record<string, string>>;
+          const sessionsMap = new Map<string, LegacyWorkoutSession>();
 
-            setImportedData(sessions);
-          } catch (err) {
-            setError('Błąd parsowania CSV: ' + (err instanceof Error ? err.message : 'Nieznany błąd'));
-          }
+          rows.forEach((row) => {
+            if (!row.date || !row.workoutType) {
+              return;
+            }
+            const key = `${row.date}-${row.workoutType}`;
+            if (!sessionsMap.has(key)) {
+              sessionsMap.set(key, {
+                id: createId('legacy'),
+                date: row.date,
+                workoutType: row.workoutType as 'A' | 'B' | 'C',
+                exercises: [],
+              });
+            }
+            sessionsMap.get(key)?.exercises.push({
+              exerciseId: row.exerciseId || '',
+              weight: Number(row.weight || 0),
+              sets: row.reps ? [{ setNumber: 1, reps: Number(row.reps || 0) }] : [],
+            });
+          });
+
+          importCompletedSessions(
+            Array.from(sessionsMap.values()).map((session) => legacySessionToV2(session))
+          );
+          setMessage('Zaimportowano dane z CSV.');
         },
-        error: (err) => {
-          setError('Błąd odczytu pliku: ' + err.message);
-        }
       });
     }
 
-    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
-    }
-  };
-
-  const handleImport = () => {
-    if (importedData.length === 0) {
-      setError('Brak danych do importu');
-      return;
-    }
-
-    try {
-      importedData.forEach(session => {
-        addSession(session as WorkoutSession);
-      });
-      setSuccess(`✅ Zaimportowano ${importedData.length} sesji!`);
-      setImportedData([]);
-    } catch (err) {
-      setError('Błąd importu: ' + (err instanceof Error ? err.message : 'Nieznany błąd'));
     }
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">Import Danych</h2>
-        <p className="text-gray-600">Importuj historię treningów z CSV lub JSON</p>
+        <h2 className="text-3xl font-bold tracking-tight">Backup i import</h2>
+        <p className="mt-1 text-stone-500">Local-first znaczy, że backup musi być prosty i szybki.</p>
       </div>
 
-      {/* Upload Area */}
-      <div
-        className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer"
-        onClick={() => fileInputRef.current?.click()}
-      >
-        <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-        <p className="text-lg font-semibold text-gray-700 mb-1">Przeciągnij plik tutaj</p>
-        <p className="text-sm text-gray-600">lub kliknij aby wybrać (CSV lub JSON)</p>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".csv,.json"
-          onChange={handleFileChange}
-          className="hidden"
-        />
-      </div>
-
-      {/* Messages */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-          <p className="text-red-800">{error}</p>
-        </div>
-      )}
-
-      {success && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
-          <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-          <p className="text-green-800">{success}</p>
-        </div>
-      )}
-
-      {/* Preview */}
-      {importedData.length > 0 && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Podgląd ({importedData.length} sesji)
-          </h3>
-          <div className="space-y-2 max-h-64 overflow-y-auto">
-            {importedData.slice(0, 10).map((session, idx) => (
-              <div key={idx} className="flex justify-between text-sm text-gray-700 bg-gray-50 p-2 rounded">
-                <span>{new Date(session.date).toLocaleDateString('pl-PL')}</span>
-                <span>Trening {session.workoutType}</span>
-                <span>{session.exercises.length} ćwiczeń</span>
-              </div>
-            ))}
-            {importedData.length > 10 && (
-              <p className="text-sm text-gray-600 text-center py-2">
-                ... i {importedData.length - 10} więcej
-              </p>
-            )}
+      <section className="grid gap-4 md:grid-cols-2">
+        <div className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm">
+          <h3 className="text-lg font-semibold">Eksport</h3>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button
+              onClick={handleExportJson}
+              className="inline-flex items-center gap-2 rounded-2xl bg-stone-900 px-4 py-3 font-semibold text-white transition hover:bg-stone-700"
+            >
+              <Download className="h-4 w-4" />
+              Export JSON
+            </button>
+            <button
+              onClick={handleExportCsv}
+              className="inline-flex items-center gap-2 rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700 transition hover:bg-stone-200"
+            >
+              <Download className="h-4 w-4" />
+              Export CSV
+            </button>
           </div>
+        </div>
 
+        <div className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm">
+          <h3 className="text-lg font-semibold">Import</h3>
           <button
-            onClick={handleImport}
-            className="w-full mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+            onClick={() => fileInputRef.current?.click()}
+            className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-3 font-semibold text-white transition hover:bg-emerald-600"
           >
-            Importuj dane
+            <Upload className="h-4 w-4" />
+            Wybierz plik
           </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json,.csv"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          <p className="mt-3 text-sm text-stone-500">
+            Obsługiwane: v2 JSON, legacy JSON, legacy CSV.
+          </p>
+        </div>
+      </section>
+
+      {message && (
+        <div className="rounded-[2rem] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800">
+          {message}
         </div>
       )}
-
-      {/* Sample Data */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-blue-900 mb-3">📋 Format CSV:</h3>
-        <pre className="bg-white p-3 rounded text-xs overflow-x-auto text-gray-700 mb-4">
-{`date,workoutType,exerciseId,weight,reps
-2024-01-01,A,A1,30,10
-2024-01-01,A,A2,45,12
-2024-01-03,B,B1,50,10`}
-        </pre>
-
-        <h3 className="text-lg font-semibold text-blue-900 mb-3">📋 Format JSON:</h3>
-        <pre className="bg-white p-3 rounded text-xs overflow-x-auto text-gray-700">
-{`[
-  {
-    "date": "2024-01-01",
-    "workoutType": "A",
-    "exercises": [
-      {
-        "exerciseId": "A1",
-        "weight": 30,
-        "sets": [{"setNumber": 1, "reps": 10}]
-      }
-    ]
-  }
-]`}
-        </pre>
-      </div>
     </div>
   );
 }

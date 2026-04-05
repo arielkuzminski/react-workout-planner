@@ -1,44 +1,78 @@
-import { Exercise, SetResult } from '../types';
+import { SessionEntry } from '../types';
 
 interface ExerciseLoggerProps {
-  exercise: Exercise;
-  results: SetResult[];
-  onSetResult: (exerciseId: string, setNumber: number, reps: number) => void;
+  entry: SessionEntry;
+  onSetChange: (setId: string, patch: { weight?: number; reps?: number; durationSec?: number }) => void;
+  onAddSet: () => void;
+  onNotesChange: (notes: string) => void;
 }
 
 export default function ExerciseLogger({
-  exercise,
-  results,
-  onSetResult
+  entry,
+  onSetChange,
+  onAddSet,
+  onNotesChange,
 }: ExerciseLoggerProps) {
   return (
     <div className="space-y-3">
-      {Array.from({ length: exercise.sets }).map((_, index) => {
-        const setNumber = index + 1;
-        const currentResult = results.find(r => r.setNumber === setNumber);
+      {entry.sets.map((set) => (
+        <div key={set.id} className="grid grid-cols-[56px_1fr_1fr] gap-3 items-center">
+          <span className="text-sm font-medium text-gray-600">Set {set.setNumber}</span>
+          {entry.exerciseType === 'weight' ? (
+            <>
+              <input
+                type="number"
+                step="0.5"
+                min="0"
+                value={set.weight ?? 0}
+                onChange={(event) => onSetChange(set.id, { weight: parseFloat(event.target.value) || 0 })}
+                className="px-3 py-2 border border-gray-300 rounded-lg"
+                placeholder="kg"
+              />
+              <input
+                type="number"
+                min="0"
+                value={set.reps ?? 0}
+                onChange={(event) => onSetChange(set.id, { reps: parseInt(event.target.value, 10) || 0 })}
+                className="px-3 py-2 border border-gray-300 rounded-lg"
+                placeholder="powt."
+              />
+            </>
+          ) : (
+            <>
+              <div className="px-3 py-2 border border-gray-100 rounded-lg bg-gray-50 text-sm text-gray-500">
+                plank
+              </div>
+              <input
+                type="number"
+                min="0"
+                value={set.durationSec ?? 0}
+                onChange={(event) =>
+                  onSetChange(set.id, { durationSec: parseInt(event.target.value, 10) || 0 })
+                }
+                className="px-3 py-2 border border-gray-300 rounded-lg"
+                placeholder="sek."
+              />
+            </>
+          )}
+        </div>
+      ))}
 
-        return (
-          <div key={`${exercise.id}-set-${setNumber}`} className="flex items-center gap-3">
-            <label className="w-20 text-sm font-medium text-gray-700">
-              Set {setNumber}:
-            </label>
-            <input
-              type="number"
-              min="0"
-              value={currentResult?.reps || ''}
-              onChange={e => {
-                const reps = parseInt(e.target.value) || 0;
-                onSetResult(exercise.id, setNumber, reps);
-              }}
-              placeholder={`${exercise.repRange.min}-${exercise.repRange.max}`}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-            />
-            <span className="w-16 text-right text-sm text-gray-600">
-              {exercise.type === 'time' ? 'sek' : 'powtórzeń'}
-            </span>
-          </div>
-        );
-      })}
+      <button
+        type="button"
+        onClick={onAddSet}
+        className="text-sm font-medium text-blue-700 hover:text-blue-900"
+      >
+        + Dodaj serię
+      </button>
+
+      <textarea
+        value={entry.notes ?? ''}
+        onChange={(event) => onNotesChange(event.target.value)}
+        placeholder="Opcjonalna notatka do ćwiczenia"
+        rows={2}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+      />
     </div>
   );
 }

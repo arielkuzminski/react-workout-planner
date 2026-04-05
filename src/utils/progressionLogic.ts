@@ -1,87 +1,64 @@
-import { Exercise, ProgressionSuggestion, SetResult } from '../types';
+import { ExerciseDefinition, ProgressionSuggestion, SessionEntry } from '../types';
 
-/**
- * Sprawdza, czy wszystkie serie osiągnęły górny zakres powtórzeń
- */
-export const hasReachedMaxReps = (
-  exercise: Exercise,
-  setResults: SetResult[]
-): boolean => {
-  // Jeśli seria nie ma żadnych wyników, zwracaj false
-  if (setResults.length === 0) return false;
+export const formatPerformance = (entry: SessionEntry) => {
+  const completedSets = entry.sets.filter((set) => set.completed);
+  const sourceSets = completedSets.length > 0 ? completedSets : entry.sets;
 
-  // Sprawdzanie dla ćwiczeń siłowych
-  if (exercise.type === 'weight') {
-    // Wszystkie serie muszą być >= do górnego zakresu
-    return setResults.every(set => set.reps >= exercise.repRange.max);
-  }
-
-  // Sprawdzanie dla planka (czas)
-  if (exercise.type === 'time') {
-    // Wszystkie serie muszą być >= do górnego zakresu (w sekundach)
-    return setResults.every(set => set.reps >= exercise.repRange.max);
-  }
-
-  return false;
+  return sourceSets
+    .map((set) => {
+      if (entry.exerciseType === 'time') {
+        return `${set.durationSec ?? 0}s`;
+      }
+      return `${set.weight ?? 0}kg x ${set.reps ?? 0}`;
+    })
+    .join(' • ');
 };
 
-/**
- * Generuje sugestię progresji dla ćwiczenia
- */
 export const calculateProgressionSuggestion = (
-  exercise: Exercise,
-  currentWeight: number,
-  setResults: SetResult[]
+  definition: ExerciseDefinition,
+  entry: SessionEntry
 ): ProgressionSuggestion => {
-  const allSetsCompleted = setResults.length === exercise.sets;
+  const completedSets = entry.sets.filter((set) =>
+    definition.type === 'time' ? (set.durationSec ?? 0) > 0 : (set.reps ?? 0) > 0
+  );
 
-  // Jeśli nie wszystkie serie zostały wykonane, nie sugeruj progresji
-  if (!allSetsCompleted) {
+  const currentWeight = completedSets[0]?.weight ?? definition.defaultWeight;
+
+  if (completedSets.length < definition.targetSets) {
     return {
-      exerciseId: exercise.id,
-      exerciseName: exercise.name,
+      exerciseId: definition.id,
+      exerciseName: definition.name,
       currentWeight,
       suggestion: 'maintain',
-      reason: 'Nie wszystkie serie zostały wykonane'
+      reason: 'Dokończ wszystkie serie zanim podbijesz obciążenie.',
     };
   }
 
-  const reachedMax = hasReachedMaxReps(exercise, setResults);
+  const reachedTopRange = completedSets.every((set) => {
+    const metric = definition.type === 'time' ? set.durationSec ?? 0 : set.reps ?? 0;
+    return metric >= definition.repRange.max;
+  });
 
-  if (reachedMax) {
-    // Sprawdzenie minimalnego zakresu - wszystkie serie powinny być >= max
-    const allSetsAboveMin = setResults.every(set => set.reps >= exercise.repRange.min);
-
-    if (allSetsAboveMin) {
-      const increment = exercise.type === 'time' ? 5 : 2.5;
-      const newWeight = Number((currentWeight + increment).toFixed(2));
-
-      return {
-        exerciseId: exercise.id,
-        exerciseName: exercise.name,
-        currentWeight,
-        suggestion: 'increase',
-        newWeight,
-        reason: `Wszystkie serie ${exercise.repRange.min}-${exercise.repRange.max}! Zwiększ o +${increment}${exercise.type === 'time' ? 's' : ' kg'}`
-      };
-    }
+  if (reachedTopRange) {
+    const increment = definition.type === 'time' ? 5 : 2.5;
+    return {
+      exerciseId: definition.id,
+      exerciseName: definition.name,
+      currentWeight,
+      suggestion: 'increase',
+      newWeight: Number((currentWeight + increment).toFixed(1)),
+      reason:
+        definition.type === 'time'
+          ? 'Wszystkie serie są na górze zakresu. Dodaj 5 sekund.'
+          : 'Wszystkie serie są na górze zakresu. Dodaj 2.5 kg.',
+    };
   }
 
   return {
-    exerciseId: exercise.id,
-    exerciseName: exercise.name,
+    exerciseId: definition.id,
+    exerciseName: definition.name,
     currentWeight,
     suggestion: 'maintain',
-    reason: `Nie wszystkie serie w górnym zakresie. Pracuj nad tym!`
+    reason: 'Zostań przy tym ustawieniu i dobij pełny zakres powtórzeń.',
   };
-};
-
-/**
- * Formatuje wagę na string (2 miejsca po przecinku)
- */
-export const formatWeight = (weight: number, type: 'weight' | 'time'): string => {
-  if (type === 'time') {
-    return `${weight}s`;
-  }
-  return `${weight.toFixed(1)} kg`;
 };

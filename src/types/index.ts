@@ -1,52 +1,94 @@
-// Typ ćwiczenia
 export type ExerciseType = 'weight' | 'time';
+export type TemplateId = 'A' | 'B' | 'C';
+export type SessionStatus = 'active' | 'completed' | 'abandoned';
+export type ExerciseUnit = 'kg' | 'sec';
 
-// Zakres powtórzeń
 export interface RepRange {
   min: number;
   max: number;
 }
 
-// Ćwiczenie
-export interface Exercise {
+export interface ExerciseDefinition {
   id: string;
   name: string;
-  sets: number;
+  type: ExerciseType;
+  targetSets: number;
   repRange: RepRange;
-  startWeight: number;
-  type: ExerciseType; // 'weight' lub 'time' (dla planka)
+  defaultWeight: number;
+  unit: ExerciseUnit;
+  tags?: string[];
 }
 
-// Plan treningowy (A, B lub C)
-export interface WorkoutPlan {
-  id: 'A' | 'B' | 'C';
+export type ExerciseLibraryItem = ExerciseDefinition;
+
+export interface WorkoutTemplate {
+  id: TemplateId;
   name: string;
-  exercises: Exercise[];
+  description: string;
+  exerciseIds: string[];
 }
 
-// Seria w treningu
-export interface SetResult {
+export interface SessionSet {
+  id: string;
   setNumber: number;
-  reps: number; // albo liczba powtórzeń, albo liczba sekund dla planka
+  weight?: number;
+  reps?: number;
+  durationSec?: number;
+  completed: boolean;
 }
 
-// Wynik ćwiczenia
-export interface ExerciseResult {
+export type SetEntry = SessionSet;
+
+export interface SessionEntry {
+  id: string;
   exerciseId: string;
-  weight: number;
-  sets: SetResult[];
-  notes?: string;
+  exerciseName: string;
+  exerciseNameSnapshot: string;
+  exerciseType: ExerciseType;
+  targetSets: number;
+  repRange: RepRange;
+  unit: ExerciseUnit;
+  sets: SessionSet[];
+  notes: string;
 }
 
-// Sesja treningowa
 export interface WorkoutSession {
   id: string;
-  date: Date;
-  workoutType: 'A' | 'B' | 'C';
-  exercises: ExerciseResult[];
+  startedAt: string;
+  completedAt?: string;
+  endedAt?: string;
+  status: SessionStatus;
+  templateId?: TemplateId;
+  notes: string;
+  entries: SessionEntry[];
 }
 
-// Rekomendacja progresji
+export type Session = WorkoutSession;
+
+export interface ExerciseHistorySummary {
+  exerciseId: string;
+  exerciseName: string;
+  lastWeight?: number;
+  lastReps?: number;
+  lastDurationSec?: number;
+  lastCompletedAt?: string;
+}
+
+export interface ExercisePerformanceSummary {
+  exerciseId: string;
+  exerciseName: string;
+  lastWeight?: number;
+  lastReps?: number;
+  lastDurationSec?: number;
+  completedAt: string;
+}
+
+export interface ExerciseHistoryPoint {
+  sessionId: string;
+  completedAt: string;
+  entry: SessionEntry;
+}
+
 export interface ProgressionSuggestion {
   exerciseId: string;
   exerciseName: string;
@@ -54,4 +96,30 @@ export interface ProgressionSuggestion {
   suggestion: 'increase' | 'maintain';
   newWeight?: number;
   reason: string;
+}
+
+export interface ExportPayload {
+  schemaVersion: number;
+  exportedAt: string;
+  activeSession: Session | null;
+  completedSessions: Session[];
+}
+
+export interface LegacySetResult {
+  setNumber: number;
+  reps: number;
+}
+
+export interface LegacyExerciseResult {
+  exerciseId: string;
+  weight: number;
+  sets: LegacySetResult[];
+  notes?: string;
+}
+
+export interface LegacyWorkoutSession {
+  id?: string;
+  date: string | Date;
+  workoutType?: TemplateId;
+  exercises: LegacyExerciseResult[];
 }

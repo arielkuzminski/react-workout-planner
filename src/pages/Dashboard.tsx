@@ -1,176 +1,130 @@
-import { useWorkoutStore } from '../store';
-import { workoutPlans } from '../data/workoutPlans';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  LineChart,
+  CartesianGrid,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  BarChart,
-  Bar
 } from 'recharts';
-import { format } from 'date-fns';
-import { pl } from 'date-fns/locale';
+import { useWorkoutStore } from '../store';
 
-export default function Dashboard() {
-  const sessions = useWorkoutStore(state => state.getSessions());
-  const [selectedExercise, setSelectedExercise] = useState<string>('');
+export default function Progress() {
+  const completedSessions = useWorkoutStore((state) => state.completedSessions);
+  const exerciseLibrary = useWorkoutStore((state) => state.exerciseLibrary);
+  const [selectedExerciseId, setSelectedExerciseId] = useState('');
 
-  // Pozbierz wszystkie ćwiczenia z planu treningowego
-  const allExercises = workoutPlans
-    .flatMap(plan => plan.exercises)
-    .reduce((acc, exercise) => {
-      if (!acc.find(e => e.id === exercise.id)) {
-        acc.push(exercise);
-      }
-      return acc;
-    }, [] as typeof workoutPlans[0]['exercises']);
-
-  // Przygotuj dane dla wykresu wybranego ćwiczenia
-  const getExerciseProgressionData = (exerciseId: string) => {
-    return sessions
-      .filter(session => session.exercises.some(e => e.exerciseId === exerciseId))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .map(session => {
-        const exercise = session.exercises.find(e => e.exerciseId === exerciseId);
-        const avgReps = exercise && exercise.sets.length > 0
-          ? Math.round(exercise.sets.reduce((sum, s) => sum + s.reps, 0) / exercise.sets.length * 10) / 10
-          : 0;
-
-        return {
-          date: format(new Date(session.date), 'd MMM', { locale: pl }),
-          weight: exercise?.weight || 0,
-          reps: avgReps,
-          fullDate: new Date(session.date).getTime()
-        };
-      });
-  };
-
-  // Statystyki ogólne
-  const totalSessions = sessions.length;
-  const averageExercises = sessions.length > 0
-    ? Math.round(sessions.reduce((sum, s) => sum + s.exercises.filter(e => e.sets.length > 0).length, 0) / sessions.length * 10) / 10
-    : 0;
-
-  // Najcięższa seria (Personal Record)
-  let maxWeight = 0;
-  let maxExerciseName = '';
-  sessions.forEach(session => {
-    session.exercises.forEach(exercise => {
-      const exerciseInfo = allExercises.find(e => e.id === exercise.exerciseId);
-      if (exercise.weight > maxWeight) {
-        maxWeight = exercise.weight;
-        maxExerciseName = exerciseInfo?.name || '';
-      }
+  const usedExerciseIds = useMemo(() => {
+    const ids = new Set<string>();
+    completedSessions.forEach((session) => {
+      session.entries.forEach((entry) => ids.add(entry.exerciseId));
     });
-  });
+    return Array.from(ids);
+  }, [completedSessions]);
 
-  const selectedExerciseData = selectedExercise ? getExerciseProgressionData(selectedExercise) : [];
+  const selectedExercise = exerciseLibrary.find((exercise) => exercise.id === selectedExerciseId);
+
+  const progressionData = useMemo(() => {
+    if (!selectedExerciseId) {
+      return [];
+    }
+
+    return completedSessions
+      .slice()
+      .reverse()
+      .flatMap((session) => {
+        const entry = session.entries.find((candidate) => candidate.exerciseId === selectedExerciseId);
+        if (!entry) {
+          return [];
+        }
+
+        const firstSet = entry.sets[0];
+        return [
+          {
+            date: new Date(session.completedAt ?? session.startedAt).toLocaleDateString('pl-PL'),
+            primary: entry.exerciseType === 'time' ? firstSet?.durationSec ?? 0 : firstSet?.weight ?? 0,
+            secondary:
+              entry.exerciseType === 'time'
+                ? entry.sets.reduce((sum, set) => sum + (set.durationSec ?? 0), 0)
+                : entry.sets.reduce((sum, set) => sum + (set.reps ?? 0), 0),
+          },
+        ];
+      });
+  }, [completedSessions, selectedExerciseId]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">Dyaszboard Progresu</h2>
-        <p className="text-gray-600">Analiza twoich postępów treningowych</p>
+        <h2 className="text-3xl font-bold tracking-tight">Progres</h2>
+        <p className="mt-1 text-stone-500">Lekki widok trendu zamiast ciężkiego dashboardu.</p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-gray-600 text-sm mb-2">Razem sesji</p>
-          <p className="text-3xl font-bold text-blue-600">{totalSessions}</p>
+      <section className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm">
+          <p className="text-sm text-stone-500">Zakończone sesje</p>
+          <p className="mt-2 text-4xl font-bold">{completedSessions.length}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-gray-600 text-sm mb-2">Średnia ćwiczeń na sesję</p>
-          <p className="text-3xl font-bold text-green-600">{averageExercises}</p>
+        <div className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm">
+          <p className="text-sm text-stone-500">Ćwiczenia w obiegu</p>
+          <p className="mt-2 text-4xl font-bold">{usedExerciseIds.length}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-gray-600 text-sm mb-2">Osobisty rekord (kg)</p>
-          <div>
-            <p className="text-3xl font-bold text-purple-600">{maxWeight}</p>
-            <p className="text-xs text-gray-600 mt-2 truncate">{maxExerciseName}</p>
-          </div>
+        <div className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm">
+          <p className="text-sm text-stone-500">Ostatnia sesja</p>
+          <p className="mt-2 text-xl font-bold">
+            {completedSessions[0]
+              ? new Date(completedSessions[0].completedAt ?? completedSessions[0].startedAt).toLocaleDateString('pl-PL')
+              : 'Brak'}
+          </p>
         </div>
-      </div>
+      </section>
 
-      {/* Exercise Selection */}
-      {allExercises.length > 0 && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Wybierz ćwiczenie do analizy</h3>
-          <select
-            value={selectedExercise}
-            onChange={e => setSelectedExercise(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-          >
-            <option value="">-- Wybierz ćwiczenie --</option>
-            {allExercises.map(exercise => (
-              <option key={exercise.id} value={exercise.id}>
-                {exercise.name}
+      <section className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm">
+        <label className="text-sm font-semibold">Ćwiczenie</label>
+        <select
+          value={selectedExerciseId}
+          onChange={(event) => setSelectedExerciseId(event.target.value)}
+          className="mt-3 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3"
+        >
+          <option value="">Wybierz ćwiczenie</option>
+          {usedExerciseIds.map((exerciseId) => {
+            const exercise = exerciseLibrary.find((item) => item.id === exerciseId);
+            return (
+              <option key={exerciseId} value={exerciseId}>
+                {exercise?.name || exerciseId}
               </option>
-            ))}
-          </select>
-        </div>
-      )}
+            );
+          })}
+        </select>
+      </section>
 
-      {/* Charts */}
-      {selectedExercise && selectedExerciseData.length > 0 && (
-        <div className="space-y-6">
-          {/* Weight Progress */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Progres Ciężaru</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={selectedExerciseData}>
-                <CartesianGrid strokeDasharray="3 3" />
+      {selectedExercise && progressionData.length > 0 ? (
+        <section className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm space-y-4">
+          <div>
+            <h3 className="text-xl font-semibold">{selectedExercise.name}</h3>
+            <p className="mt-1 text-sm text-stone-500">
+              {selectedExercise.type === 'time'
+                ? 'Primary = czas pierwszej serii, secondary = suma sekund'
+                : 'Primary = ciężar pierwszej serii, secondary = suma reps'}
+            </p>
+          </div>
+
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={progressionData}>
+                <CartesianGrid strokeDasharray="4 4" />
                 <XAxis dataKey="date" />
                 <YAxis />
                 <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="weight"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  dot={{ fill: '#3b82f6' }}
-                  name="Ciężar (kg)"
-                />
+                <Line type="monotone" dataKey="primary" stroke="#10b981" strokeWidth={3} />
+                <Line type="monotone" dataKey="secondary" stroke="#1f2937" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
-
-          {/* Reps Average */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Średnia Powtórzeń</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={selectedExerciseData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar
-                  dataKey="reps"
-                  fill="#10b981"
-                  name="Średnia powtórzeń"
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      )}
-
-      {selectedExercise && selectedExerciseData.length === 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-          <p className="text-yellow-800">Brak danych dla wybranego ćwiczenia</p>
-        </div>
-      )}
-
-      {sessions.length === 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-          <p className="text-blue-800">Zaloguj kilka treningów aby zobaczyć wykresy</p>
+        </section>
+      ) : (
+        <div className="rounded-[2rem] border border-dashed border-stone-300 bg-white p-8 text-center text-stone-500">
+          Wybierz ćwiczenie, żeby zobaczyć trend.
         </div>
       )}
     </div>
