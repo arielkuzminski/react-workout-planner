@@ -1,3 +1,24 @@
+# TASK-014: Architektura tokenow CSS + @theme
+
+## Cel
+Zdefiniowac pelny zestaw semantycznych tokenow kolorystycznych w `src/index.css` przy uzyciu Tailwind v4 `@theme`, z wariantami per motyw via `[data-theme]`.
+
+## Pliki
+- **Modyfikuj:** `src/index.css` (rewrite)
+- **Usun:** `tailwind.config.js` (TW4 z @tailwindcss/postcss nie potrzebuje configa)
+
+## Implementacja
+
+### 1. Usun `tailwind.config.js`
+Tailwind v4 z `@tailwindcss/postcss` automatycznie skanuje pliki. Gdyby auto-detekcja zawiodla, dodaj:
+```css
+@source "../index.html";
+@source "./";
+```
+
+### 2. Zdefiniuj tokeny w `@theme` bloku (domyslny = Light)
+
+```css
 @import "tailwindcss";
 
 @theme {
@@ -63,9 +84,6 @@
   --color-scrollbar-thumb: #9ca3af;
   --color-scrollbar-hover: #6b7280;
 
-  /* Overlay */
-  --color-overlay: rgb(15 23 42 / 0.25);
-
   /* Navigation */
   --color-nav-active: #1d4ed8;
   --color-nav-active-bg: #eff6ff;
@@ -78,8 +96,11 @@
   --color-btn-dark-hover: #000000;
   --color-btn-dark-active: #374151;
 }
+```
 
-/* ─── Dark theme ─── */
+### 3. Dark theme override
+
+```css
 [data-theme="dark"] {
   --color-surface: #0f172a;
   --color-surface-card: #1e293b;
@@ -94,13 +115,13 @@
   --color-border: #334155;
   --color-border-strong: #475569;
 
-  --color-brand: #fbbf24;
-  --color-brand-hover: #fcd34d;
-  --color-brand-active: #fde68a;
-  --color-brand-soft: #451a03;
-  --color-brand-border: #b45309;
-  --color-brand-text: #fcd34d;
-  --color-brand-ring: #fbbf24;
+  --color-brand: #3b82f6;
+  --color-brand-hover: #60a5fa;
+  --color-brand-active: #93c5fd;
+  --color-brand-soft: #172554;
+  --color-brand-border: #1e40af;
+  --color-brand-text: #60a5fa;
+  --color-brand-ring: #3b82f6;
 
   --color-success: #10b981;
   --color-success-hover: #34d399;
@@ -127,16 +148,14 @@
 
   --color-chart-line: #34d399;
   --color-chart-track: #334155;
-  --color-chart-fill: #fbbf24;
+  --color-chart-fill: #60a5fa;
 
   --color-scrollbar-track: #1e293b;
   --color-scrollbar-thumb: #475569;
   --color-scrollbar-hover: #64748b;
 
-  --color-overlay: rgb(2 6 23 / 0.45);
-
-  --color-nav-active: #fcd34d;
-  --color-nav-active-bg: #451a03;
+  --color-nav-active: #60a5fa;
+  --color-nav-active-bg: #172554;
   --color-nav-inactive: #94a3b8;
   --color-nav-inactive-hover: #f1f5f9;
   --color-nav-inactive-hover-bg: #334155;
@@ -145,8 +164,11 @@
   --color-btn-dark-hover: #f8fafc;
   --color-btn-dark-active: #cbd5e1;
 }
+```
 
-/* ─── Pink theme ─── */
+### 4. Pink theme override
+
+```css
 [data-theme="pink"] {
   --color-surface: #fdf2f8;
   --color-surface-card: #ffffff;
@@ -200,8 +222,6 @@
   --color-scrollbar-thumb: #f9a8d4;
   --color-scrollbar-hover: #ec4899;
 
-  --color-overlay: rgb(80 7 36 / 0.18);
-
   --color-nav-active: #be185d;
   --color-nav-active-bg: #fdf2f8;
   --color-nav-inactive: #9d174d;
@@ -212,62 +232,24 @@
   --color-btn-dark-hover: #500724;
   --color-btn-dark-active: #9d174d;
 }
+```
 
-/* ─── Global styles ─── */
-html {
-  scroll-behavior: smooth;
-}
+### 5. Globalne style (zachowaj istniejace + tokenizuj)
 
-body {
-  background-color: var(--color-surface);
-}
+```css
+html { scroll-behavior: smooth; }
+body { background-color: var(--color-surface); }
 
-*,
-*::before,
-*::after {
-  transition:
-    background-color 150ms ease-in-out,
-    border-color 150ms ease-in-out,
-    color 150ms ease-in-out,
-    fill 150ms ease-in-out,
-    stroke 150ms ease-in-out;
-}
+button, [role="button"], select, a { cursor: pointer; }
+button:disabled, [aria-disabled="true"] { cursor: not-allowed; }
 
-html.no-transitions,
-html.no-transitions *,
-html.no-transitions *::before,
-html.no-transitions *::after {
-  transition: none !important;
-}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background-color: var(--color-scrollbar-track); }
+::-webkit-scrollbar-thumb { background-color: var(--color-scrollbar-thumb); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--color-scrollbar-hover); }
+```
 
-/* Interactive elements — always show pointer cursor */
-button,
-[role="button"],
-select,
-a {
-  cursor: pointer;
-}
-
-button:disabled,
-[aria-disabled="true"] {
-  cursor: not-allowed;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background-color: var(--color-scrollbar-track);
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: var(--color-scrollbar-thumb);
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-scrollbar-hover);
-}
+## Weryfikacja
+1. `npm run dev` startuje bez bledow
+2. Klasy `bg-surface`, `text-brand`, `border-border` itp. sa rozpoznawane przez Tailwind
+3. Dodanie `data-theme="dark"` na `<html>` w DevTools zmienia kolory

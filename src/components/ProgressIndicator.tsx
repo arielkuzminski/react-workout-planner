@@ -17,7 +17,7 @@ export default function ProgressIndicator({
   return (
     <div className="space-y-3">
       {previousEntry && (
-        <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-900">
+        <div className="rounded-lg border border-brand-border bg-brand-soft p-3 text-sm text-brand-text">
           <p className="font-semibold">Ostatni wynik</p>
           <p className="break-words">{formatPerformance(previousEntry)}</p>
         </div>
@@ -26,8 +26,8 @@ export default function ProgressIndicator({
       <div
         className={`rounded-lg border p-3 text-sm ${
           suggestion.suggestion === 'increase'
-            ? 'border-green-200 bg-green-50 text-green-900'
-            : 'border-yellow-200 bg-yellow-50 text-yellow-900'
+            ? 'border-success-border bg-success-soft text-success-text'
+            : 'border-warning-border bg-warning-soft text-warning-text'
         }`}
       >
         <p className="font-semibold">

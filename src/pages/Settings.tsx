@@ -161,26 +161,26 @@ export default function Settings() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight">Konfiguracja</h2>
-        <p className="mt-1 text-stone-500">Zarządzaj planami treningowymi, danymi pomocniczymi, backupem i importem aplikacji.</p>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-text-primary">Konfiguracja</h2>
+        <p className="mt-1 text-text-secondary">Zarządzaj planami treningowymi, danymi pomocniczymi, backupem i importem aplikacji.</p>
       </div>
 
-      <section className="rounded-[2rem] border border-blue-200 bg-blue-50 p-4 sm:p-5 shadow-sm">
+      <section className="rounded-[2rem] border border-brand-border bg-brand-soft p-4 sm:p-5 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-start gap-3">
-            <div className="rounded-2xl bg-blue-600 p-3 text-white shadow-sm">
+            <div className="rounded-2xl bg-brand p-3 text-text-inverted shadow-sm">
               <ClipboardList className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-blue-950">Plany treningowe</h3>
-              <p className="mt-1 text-sm text-blue-900/80">
+              <h3 className="text-lg font-semibold text-brand-text">Plany treningowe</h3>
+              <p className="mt-1 text-sm text-brand-text">
                 Twórz własne splity, zapisuj aktywną sesję jako plan i ustawiaj, które plany mają być aktywne.
               </p>
             </div>
           </div>
           <Link
             to="/plans"
-            className="inline-flex w-full md:w-auto items-center justify-center gap-2 rounded-2xl bg-blue-700 px-4 py-3 font-semibold text-white transition-colors hover:bg-blue-800 active:bg-blue-900 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+            className="inline-flex w-full md:w-auto items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-3 font-semibold text-text-inverted transition-colors hover:bg-brand-hover active:bg-brand-active focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             Otwórz plany
             <ChevronRight className="h-4 w-4" />
@@ -188,18 +188,18 @@ export default function Settings() {
         </div>
       </section>
 
-      <section className="rounded-[2rem] border border-emerald-200 bg-emerald-50 p-4 sm:p-5 shadow-sm">
+      <section className="rounded-[2rem] border border-success-border bg-success-soft p-4 sm:p-5 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-emerald-950">Dane przykładowe</h3>
-            <p className="mt-1 text-sm text-emerald-900/80">
+            <h3 className="text-lg font-semibold text-success-text">Dane przykładowe</h3>
+            <p className="mt-1 text-sm text-success-text">
               Załaduj przykładowe sesje, jeśli chcesz szybko zobaczyć historię i progres bez ręcznego logowania.
             </p>
           </div>
           <button
             onClick={handleLoadSample}
             disabled={isLoadingSample}
-            className="inline-flex w-full md:w-auto items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-emerald-700 active:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-emerald-300 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+            className="inline-flex w-full md:w-auto items-center justify-center gap-2 rounded-2xl bg-success px-4 py-3 font-semibold text-text-inverted transition-colors hover:bg-success-hover active:bg-success-active disabled:cursor-not-allowed disabled:bg-success-border focus-visible:ring-2 focus-visible:ring-success-ring focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             {isLoadingSample ? <Loader className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}
             {isLoadingSample ? 'Ładowanie...' : 'Załaduj przykładowe sesje'}
@@ -209,24 +209,24 @@ export default function Settings() {
 
       <section className="space-y-4">
         <div>
-          <h3 className="text-2xl font-bold tracking-tight text-stone-900">Backup i import</h3>
-          <p className="mt-1 text-stone-500">Local-first znaczy, że backup musi być prosty i szybki.</p>
+          <h3 className="text-2xl font-bold tracking-tight text-text-primary">Backup i import</h3>
+          <p className="mt-1 text-text-secondary">Local-first znaczy, że backup musi być prosty i szybki.</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm">
-            <h4 className="text-lg font-semibold">Eksport</h4>
+          <div className="rounded-[2rem] border border-border bg-surface-card p-4 sm:p-5 shadow-sm">
+            <h4 className="text-lg font-semibold text-text-primary">Eksport</h4>
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <button
                 onClick={handleExportJson}
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-stone-900 px-4 py-3 font-semibold text-white transition-colors hover:bg-stone-700 active:bg-stone-800 focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-btn-dark px-4 py-3 font-semibold text-text-inverted transition-colors hover:bg-btn-dark-hover active:bg-btn-dark-active focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2 focus-visible:outline-none"
               >
                 <Download className="h-4 w-4" />
                 Export JSON
               </button>
               <button
                 onClick={handleExportCsv}
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700 transition-colors hover:bg-stone-200 active:bg-stone-300 focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-surface-raised px-4 py-3 font-semibold text-text-primary transition-colors hover:bg-surface-inset active:bg-surface-inset focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2 focus-visible:outline-none"
               >
                 <Download className="h-4 w-4" />
                 Export CSV
@@ -234,11 +234,11 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm">
-            <h4 className="text-lg font-semibold">Import</h4>
+          <div className="rounded-[2rem] border border-border bg-surface-card p-4 sm:p-5 shadow-sm">
+            <h4 className="text-lg font-semibold text-text-primary">Import</h4>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="mt-4 inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-4 py-3 font-semibold text-white transition-colors hover:bg-emerald-600 active:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+              className="mt-4 inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-success px-4 py-3 font-semibold text-text-inverted transition-colors hover:bg-success-hover active:bg-success-active focus-visible:ring-2 focus-visible:ring-success-ring focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               <Upload className="h-4 w-4" />
               Wybierz plik
@@ -250,7 +250,7 @@ export default function Settings() {
               onChange={handleFileChange}
               className="hidden"
             />
-            <p className="mt-3 text-sm text-stone-500">
+            <p className="mt-3 text-sm text-text-secondary">
               Obsługiwane: v2 JSON, legacy JSON, legacy CSV.
             </p>
           </div>
@@ -258,7 +258,7 @@ export default function Settings() {
       </section>
 
       {message && (
-        <div className="rounded-[2rem] border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm font-medium text-emerald-800 break-words sm:px-5">
+        <div className="rounded-[2rem] border border-success-border bg-success-soft px-4 py-4 text-sm font-medium text-success-text break-words sm:px-5">
           {message}
         </div>
       )}

@@ -78,12 +78,12 @@ export default function Session() {
 
   if (!activeSession) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-center">
-        <h2 className="text-2xl font-bold text-gray-900">Brak aktywnej sesji</h2>
-        <p className="text-gray-600 mt-2">Wróć na start i zacznij nową sesję albo wybierz plan treningowy.</p>
+      <div className="bg-surface-card rounded-2xl border border-border shadow-sm p-6 text-center">
+        <h2 className="text-2xl font-bold text-text-primary">Brak aktywnej sesji</h2>
+        <p className="text-text-secondary mt-2">Wróć na start i zacznij nową sesję albo wybierz plan treningowy.</p>
         <Link
           to="/"
-          className="inline-flex mt-4 px-4 py-3 rounded-xl bg-blue-700 text-white font-semibold"
+          className="inline-flex mt-4 px-4 py-3 rounded-xl bg-brand text-text-inverted font-semibold"
         >
           Wróć do startu
         </Link>
@@ -107,14 +107,14 @@ export default function Session() {
 
   return (
     <div className="space-y-6">
-      <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-4">
+      <section className="bg-surface-card rounded-2xl border border-border shadow-sm p-4 sm:p-6 space-y-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-blue-700">
+            <p className="text-sm font-semibold text-brand-text">
               {getPlanNameById(plans, activeSession.planId, 'Quick log')}
             </p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">Aktywna sesja</h2>
-            <p className="text-gray-600 mt-1">
+            <h2 className="text-2xl sm:text-3xl font-bold text-text-primary leading-tight">Aktywna sesja</h2>
+            <p className="text-text-secondary mt-1">
               Zacznij od gotowego planu albo dynamicznie dodawaj ćwiczenia.
             </p>
           </div>
@@ -124,13 +124,13 @@ export default function Session() {
                 abandonActiveSession();
                 navigate('/');
               }}
-              className="min-h-14 px-3 sm:px-4 py-3 rounded-xl bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-700 font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+              className="min-h-14 px-3 sm:px-4 py-3 rounded-xl bg-danger-soft hover:bg-danger-hover-bg active:bg-danger-active-bg text-danger-text font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-danger-ring focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               Porzuć
             </button>
             <button
               onClick={handleComplete}
-              className="min-h-14 px-3 sm:px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+              className="min-h-14 px-3 sm:px-4 py-3 rounded-xl bg-success hover:bg-success-hover active:bg-success-active text-text-inverted font-semibold flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-success-ring focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span className="leading-tight text-center">Zakończ sesję</span>
@@ -158,19 +158,19 @@ export default function Session() {
           }
 
           return (
-            <div key={entry.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-4">
+            <div key={entry.id} className="bg-surface-card rounded-2xl border border-border shadow-sm p-4 sm:p-6 space-y-4">
               <div className="flex items-start gap-3">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm text-gray-500">Ćwiczenie {index + 1}</p>
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight break-words">{entry.exerciseName}</h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-text-secondary">Ćwiczenie {index + 1}</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-text-primary leading-tight break-words">{entry.exerciseName}</h3>
+                  <p className="text-sm text-text-secondary">
                     Target: {entry.targetSets} serii • {entry.repRange.min}-{entry.repRange.max}{' '}
                     {entry.exerciseType === 'time' ? 'sek.' : 'powt.'}
                   </p>
                 </div>
                 <button
                   onClick={() => removeEntryFromActiveSession(entry.id)}
-                  className="p-2 rounded-lg text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none shrink-0"
+                  className="p-2 rounded-lg text-danger-text hover:bg-danger-soft active:bg-danger-hover-bg transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-danger-ring focus-visible:outline-none shrink-0"
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>

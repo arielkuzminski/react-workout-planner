@@ -70,22 +70,22 @@ export default function Progress() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight">Progres</h2>
-        <p className="mt-1 text-stone-500">Lekki widok trendu zamiast ciężkiego dashboardu.</p>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-text-primary">Progres</h2>
+        <p className="mt-1 text-text-secondary">Lekki widok trendu zamiast ciężkiego dashboardu.</p>
       </div>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm">
-          <p className="text-sm text-stone-500">Zakończone sesje</p>
-          <p className="mt-2 text-3xl sm:text-4xl font-bold">{completedSessions.length}</p>
+        <div className="rounded-[2rem] border border-border bg-surface-card p-4 sm:p-5 shadow-sm">
+          <p className="text-sm text-text-secondary">Zakończone sesje</p>
+          <p className="mt-2 text-3xl sm:text-4xl font-bold text-text-primary">{completedSessions.length}</p>
         </div>
-        <div className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm">
-          <p className="text-sm text-stone-500">Ćwiczenia w obiegu</p>
-          <p className="mt-2 text-3xl sm:text-4xl font-bold">{usedExerciseIds.length}</p>
+        <div className="rounded-[2rem] border border-border bg-surface-card p-4 sm:p-5 shadow-sm">
+          <p className="text-sm text-text-secondary">Ćwiczenia w obiegu</p>
+          <p className="mt-2 text-3xl sm:text-4xl font-bold text-text-primary">{usedExerciseIds.length}</p>
         </div>
-        <div className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm">
-          <p className="text-sm text-stone-500">Ostatnia sesja</p>
-          <p className="mt-2 text-lg sm:text-xl font-bold break-words">
+        <div className="rounded-[2rem] border border-border bg-surface-card p-4 sm:p-5 shadow-sm">
+          <p className="text-sm text-text-secondary">Ostatnia sesja</p>
+          <p className="mt-2 text-lg sm:text-xl font-bold break-words text-text-primary">
             {completedSessions[0]
               ? new Date(completedSessions[0].completedAt ?? completedSessions[0].startedAt).toLocaleDateString('pl-PL')
               : 'Brak'}
@@ -93,8 +93,8 @@ export default function Progress() {
         </div>
       </section>
 
-      <section className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm">
-        <p className="text-sm font-semibold">Ćwiczenie</p>
+      <section className="rounded-[2rem] border border-border bg-surface-card p-4 sm:p-5 shadow-sm">
+        <p className="text-sm font-semibold text-text-primary">Ćwiczenie</p>
         <div className="mt-3">
           <ExercisePicker
             exercises={usedExercises}
@@ -113,11 +113,11 @@ export default function Progress() {
       </section>
 
       {selectedExercise && progressionData.length > 0 ? (
-        <section className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm space-y-4">
+        <section className="rounded-[2rem] border border-border bg-surface-card p-4 sm:p-5 shadow-sm space-y-4">
           <div>
-            <h3 className="text-lg sm:text-xl font-semibold break-words">{selectedExercise.name}</h3>
-            <div className="mt-2 flex flex-wrap items-center gap-1.5 text-sm text-stone-600">
-              <span className="inline-block h-3 w-3 rounded-full bg-emerald-500" />
+            <h3 className="text-lg sm:text-xl font-semibold break-words text-text-primary">{selectedExercise.name}</h3>
+            <div className="mt-2 flex flex-wrap items-center gap-1.5 text-sm text-text-secondary">
+              <span className="inline-block h-3 w-3 rounded-full bg-success" />
               {selectedExercise.type === 'time' ? 'Czas łączny (s)' : 'Objętość (kg)'}
             </div>
           </div>
@@ -132,22 +132,22 @@ export default function Progress() {
                   if (!active || !payload?.[0]) return null;
                   const data = payload[0].payload as { date: string; volume: number; topSet: string };
                   return (
-                    <div className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm shadow-md">
-                      <p className="font-medium">{data.date}</p>
-                      <p className="text-emerald-600">
+                    <div className="rounded-xl border border-border bg-surface-card px-3 py-2 text-sm shadow-md">
+                      <p className="font-medium text-text-primary">{data.date}</p>
+                      <p className="text-success-text">
                         {selectedExercise?.type === 'time' ? 'Czas' : 'Objętość'}: {data.volume.toLocaleString('pl-PL')}{selectedExercise?.type === 'time' ? 's' : ' kg'}
                       </p>
-                      <p className="text-stone-500">Top set: {data.topSet}</p>
+                      <p className="text-text-secondary">Top set: {data.topSet}</p>
                     </div>
                   );
                 }} />
-                <Line type="monotone" dataKey="volume" stroke="#10b981" strokeWidth={3} />
+                <Line type="monotone" dataKey="volume" stroke="var(--color-chart-line)" strokeWidth={3} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </section>
       ) : (
-        <div className="rounded-[2rem] border border-dashed border-stone-300 bg-white p-6 sm:p-8 text-center text-stone-500">
+        <div className="rounded-[2rem] border border-dashed border-border-strong bg-surface-card p-6 sm:p-8 text-center text-text-secondary">
           Wybierz ćwiczenie, żeby zobaczyć trend.
         </div>
       )}

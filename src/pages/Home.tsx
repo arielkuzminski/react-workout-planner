@@ -48,10 +48,10 @@ export default function Home() {
 
   return (
     <div className="space-y-6">
-      <section className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 space-y-4">
+      <section className="bg-surface-card rounded-2xl shadow-sm border border-border p-4 sm:p-6 space-y-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">Loguj trening szybciej niż wiadomość do siebie</h2>
-          <p className="text-gray-600 mt-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-text-primary leading-tight">Loguj trening szybciej niż wiadomość do siebie</h2>
+          <p className="text-text-secondary mt-2">
             Startuj pustą sesję albo użyj gotowych planów treningowych. Draft zapisuje się automatycznie.
           </p>
         </div>
@@ -59,14 +59,14 @@ export default function Home() {
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => handleStart()}
-            className="px-5 py-3 rounded-xl bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+            className="px-5 py-3 rounded-xl bg-brand hover:bg-brand-hover active:bg-brand-active text-text-inverted font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             Zacznij nową sesję
           </button>
           {activeSession && (
             <button
               onClick={() => navigate('/session')}
-              className="px-5 py-3 rounded-xl bg-gray-900 hover:bg-black active:bg-gray-800 text-white font-semibold flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+              className="px-5 py-3 rounded-xl bg-btn-dark hover:bg-btn-dark-hover active:bg-btn-dark-active text-text-inverted font-semibold flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               <RotateCcw className="w-4 h-4" />
               Wróć do aktywnej sesji
@@ -82,45 +82,45 @@ export default function Home() {
             <button
               key={plan.id}
               onClick={() => handleStart(plan.id)}
-              className={`rounded-2xl border shadow-sm p-5 text-left transition-all focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:outline-none ${
+              className={`rounded-2xl border shadow-sm p-5 text-left transition-all focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2 focus-visible:outline-none ${
                 isSuggested
-                  ? 'bg-blue-50 border-blue-400 ring-2 ring-blue-200 hover:border-blue-500 hover:shadow-md'
-                  : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md'
+                  ? 'bg-brand-soft border-brand-border ring-2 ring-brand-ring hover:border-brand hover:shadow-md'
+                  : 'bg-surface-card border-border hover:border-brand hover:shadow-md'
               }`}
             >
               <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-blue-700">
+                <p className="text-sm font-semibold text-brand-text">
                   {plan.source === 'system' ? 'Plan systemowy' : 'Twój plan'}
                 </p>
                 {isSuggested && (
-                  <span className="text-xs font-medium bg-blue-700 text-white px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-medium bg-brand text-text-inverted px-2 py-0.5 rounded-full">
                     Następny
                   </span>
                 )}
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mt-1 break-words">{plan.name}</h3>
-              <p className="text-sm text-gray-600 mt-2">{plan.description || 'Brak opisu'}</p>
+              <h3 className="text-xl font-bold text-text-primary mt-1 break-words">{plan.name}</h3>
+              <p className="text-sm text-text-secondary mt-2">{plan.description || 'Brak opisu'}</p>
             </button>
           );
         })}
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-5">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Ostatnio używane ćwiczenia</h3>
+        <div className="bg-surface-card rounded-2xl border border-border shadow-sm p-4 sm:p-5">
+          <h3 className="text-lg font-semibold text-text-primary mb-3">Ostatnio używane ćwiczenia</h3>
           {recentExercises.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {recentExercises.map((exercise) => (
                 <span
                   key={exercise.id}
-                  className="px-3 py-2 rounded-full bg-gray-100 text-sm text-gray-700"
+                  className="px-3 py-2 rounded-full bg-surface-raised text-sm text-text-primary"
                 >
                   {exercise.name}
                 </span>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500">Brak historii. Załaduj przykładowe sesje w Konfiguracji albo zaloguj pierwszą sesję.</p>
+            <p className="text-sm text-text-secondary">Brak historii. Załaduj przykładowe sesje w Konfiguracji albo zaloguj pierwszą sesję.</p>
           )}
         </div>
       </section>

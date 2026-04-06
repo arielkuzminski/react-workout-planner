@@ -28,11 +28,11 @@ const ExerciseListEditor = ({
         return (
           <div
             key={`${exerciseId}-${index}`}
-            className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-3 py-3"
+            className="flex items-center gap-3 rounded-2xl border border-border bg-surface-card px-3 py-3"
           >
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-gray-900 break-words">{exercise.name}</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-sm font-semibold text-text-primary break-words">{exercise.name}</p>
+              <p className="text-xs text-text-secondary">
                 {exercise.targetSets} serii • {exercise.repRange.min}-{exercise.repRange.max}{' '}
                 {exercise.type === 'time' ? 'sek.' : 'powt.'}
               </p>
@@ -43,7 +43,7 @@ const ExerciseListEditor = ({
                   type="button"
                   onClick={() => onMove(index, index - 1)}
                   disabled={index === 0}
-                  className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-surface-raised hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
                   aria-label="Przesuń wyżej"
                 >
                   <ArrowUp className="h-4 w-4" />
@@ -52,7 +52,7 @@ const ExerciseListEditor = ({
                   type="button"
                   onClick={() => onMove(index, index + 1)}
                   disabled={index === exerciseIds.length - 1}
-                  className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-surface-raised hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
                   aria-label="Przesuń niżej"
                 >
                   <ArrowDown className="h-4 w-4" />
@@ -60,7 +60,7 @@ const ExerciseListEditor = ({
                 <button
                   type="button"
                   onClick={() => onRemove(exerciseId)}
-                  className="rounded-lg p-2 text-rose-600 transition-colors hover:bg-rose-50"
+                  className="rounded-lg p-2 text-danger-text transition-colors hover:bg-danger-soft"
                   aria-label="Usuń ćwiczenie"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -71,7 +71,7 @@ const ExerciseListEditor = ({
         );
       })
     ) : (
-      <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-sm text-gray-500">
+      <div className="rounded-2xl border border-dashed border-border bg-surface px-4 py-6 text-sm text-text-secondary">
         Brak ćwiczeń w planie.
       </div>
     )}
@@ -172,11 +172,11 @@ export default function Plans() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[2rem] border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+      <section className="rounded-[2rem] border border-border bg-surface-card p-5 sm:p-6 shadow-sm">
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
           <div className="space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight">Plany Treningowe</h2>
-            <p className="text-sm sm:text-base text-gray-600">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-text-primary">Plany Treningowe</h2>
+            <p className="text-sm sm:text-base text-text-secondary">
               Zarządzaj gotowymi planami treningowymi, twórz własne zestawy ćwiczeń i ukrywaj plany systemowe.
             </p>
           </div>
@@ -187,7 +187,7 @@ export default function Plans() {
                 setShowCreateForm((value) => !value);
                 setShowSaveSessionForm(false);
               }}
-              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-blue-700 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-800"
+              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3 text-sm font-semibold text-text-inverted transition-colors hover:bg-brand-hover"
             >
               <FolderPlus className="h-4 w-4" />
               Nowy plan
@@ -199,7 +199,7 @@ export default function Plans() {
                 setShowCreateForm(false);
               }}
               disabled={!activeSession}
-              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:bg-gray-300"
+              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-btn-dark px-4 py-3 text-sm font-semibold text-text-inverted transition-colors hover:bg-btn-dark-hover disabled:cursor-not-allowed disabled:bg-border-strong"
             >
               <Save className="h-4 w-4" />
               Zapisz aktywny plan
@@ -209,27 +209,27 @@ export default function Plans() {
       </section>
 
       {showCreateForm && (
-        <section className="rounded-[2rem] border border-blue-200 bg-blue-50/70 p-5 sm:p-6 shadow-sm space-y-4">
+        <section className="rounded-[2rem] border border-brand-border bg-brand-soft p-5 sm:p-6 shadow-sm space-y-4">
           <div>
-            <h3 className="text-xl font-bold text-gray-900">Nowy plan</h3>
-            <p className="text-sm text-gray-600 mt-1">Nazwa jest obowiązkowa. Opis jest opcjonalny i po zapisie pozostanie tylko do odczytu.</p>
+            <h3 className="text-xl font-bold text-text-primary">Nowy plan</h3>
+            <p className="text-sm text-text-secondary mt-1">Nazwa jest obowiązkowa. Opis jest opcjonalny i po zapisie pozostanie tylko do odczytu.</p>
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-gray-700">Nazwa</span>
+              <span className="text-sm font-semibold text-text-primary">Nazwa</span>
               <input
                 value={createName}
                 onChange={(event) => setCreateName(event.target.value)}
-                className="w-full rounded-xl border border-gray-300 px-3 py-3 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
+                className="w-full rounded-xl border border-border-strong px-3 py-3 focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
                 placeholder="Np. Góra - szybki miks"
               />
             </label>
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-gray-700">Opis</span>
+              <span className="text-sm font-semibold text-text-primary">Opis</span>
               <input
                 value={createDescription}
                 onChange={(event) => setCreateDescription(event.target.value)}
-                className="w-full rounded-xl border border-gray-300 px-3 py-3 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
+                className="w-full rounded-xl border border-border-strong px-3 py-3 focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
                 placeholder="Opcjonalny opis"
               />
             </label>
@@ -264,7 +264,7 @@ export default function Plans() {
               type="button"
               onClick={handleCreatePlan}
               disabled={!createName.trim() || createExerciseIds.length === 0}
-              className="rounded-xl bg-blue-700 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-gray-300"
+              className="rounded-xl bg-brand px-4 py-3 text-sm font-semibold text-text-inverted transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-border-strong"
             >
               Zapisz plan
             </button>
@@ -277,7 +277,7 @@ export default function Plans() {
                 setCreateExerciseIds([]);
                 setCreatePickerSelection([]);
               }}
-              className="rounded-xl bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100"
+              className="rounded-xl bg-surface-card px-4 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-raised"
             >
               Anuluj
             </button>
@@ -286,10 +286,10 @@ export default function Plans() {
       )}
 
       {showSaveSessionForm && (
-        <section className="rounded-[2rem] border border-emerald-200 bg-emerald-50/70 p-5 sm:p-6 shadow-sm space-y-4">
+        <section className="rounded-[2rem] border border-success-border bg-success-soft p-5 sm:p-6 shadow-sm space-y-4">
           <div>
-            <h3 className="text-xl font-bold text-gray-900">Zapisz aktywną sesję jako plan</h3>
-            <p className="text-sm text-gray-600 mt-1">
+            <h3 className="text-xl font-bold text-text-primary">Zapisz aktywną sesję jako plan</h3>
+            <p className="text-sm text-text-secondary mt-1">
               Zapisujemy kolejność ćwiczeń z bieżącej sesji. Wyniki serii i ciężary nie są kopiowane.
             </p>
           </div>
@@ -297,20 +297,20 @@ export default function Plans() {
             <>
               <div className="grid gap-4 lg:grid-cols-2">
                 <label className="space-y-2">
-                  <span className="text-sm font-semibold text-gray-700">Nazwa</span>
+                  <span className="text-sm font-semibold text-text-primary">Nazwa</span>
                   <input
                     value={saveName}
                     onChange={(event) => setSaveName(event.target.value)}
-                    className="w-full rounded-xl border border-gray-300 px-3 py-3 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
+                    className="w-full rounded-xl border border-border-strong px-3 py-3 focus-visible:ring-2 focus-visible:ring-success-ring focus-visible:outline-none"
                     placeholder="Np. Mój plan na pośladki"
                   />
                 </label>
                 <label className="space-y-2">
-                  <span className="text-sm font-semibold text-gray-700">Opis</span>
+                  <span className="text-sm font-semibold text-text-primary">Opis</span>
                   <input
                     value={saveDescription}
                     onChange={(event) => setSaveDescription(event.target.value)}
-                    className="w-full rounded-xl border border-gray-300 px-3 py-3 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
+                    className="w-full rounded-xl border border-border-strong px-3 py-3 focus-visible:ring-2 focus-visible:ring-success-ring focus-visible:outline-none"
                     placeholder="Opcjonalny opis"
                   />
                 </label>
@@ -327,7 +327,7 @@ export default function Plans() {
                   type="button"
                   onClick={handleSaveActiveSessionPlan}
                   disabled={!saveName.trim() || activeSession.entries.length === 0}
-                  className="rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+                  className="rounded-xl bg-success px-4 py-3 text-sm font-semibold text-text-inverted transition-colors hover:bg-success-hover disabled:cursor-not-allowed disabled:bg-border-strong"
                 >
                   Zapisz z sesji
                 </button>
@@ -338,14 +338,14 @@ export default function Plans() {
                     setSaveName('');
                     setSaveDescription('');
                   }}
-                  className="rounded-xl bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100"
+                  className="rounded-xl bg-surface-card px-4 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-raised"
                 >
                   Anuluj
                 </button>
               </div>
             </>
           ) : (
-            <p className="text-sm text-gray-600">Brak aktywnej sesji do zapisania.</p>
+            <p className="text-sm text-text-secondary">Brak aktywnej sesji do zapisania.</p>
           )}
         </section>
       )}
@@ -353,22 +353,22 @@ export default function Plans() {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.9fr)] xl:items-start">
         <section className="space-y-6">
           <div className="space-y-3">
-            <h3 className="text-lg font-bold text-gray-900">Aktywne plany systemowe</h3>
+            <h3 className="text-lg font-bold text-text-primary">Aktywne plany systemowe</h3>
             {activeSystemPlans.map((plan) => (
-              <article key={plan.id} className="rounded-[2rem] border border-gray-200 bg-white p-5 shadow-sm space-y-4">
+              <article key={plan.id} className="rounded-[2rem] border border-border bg-surface-card p-5 shadow-sm space-y-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">Systemowy</span>
-                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Aktywny</span>
+                      <span className="rounded-full bg-brand-soft px-3 py-1 text-xs font-semibold text-brand-text">Systemowy</span>
+                      <span className="rounded-full bg-success-soft px-3 py-1 text-xs font-semibold text-success-text">Aktywny</span>
                     </div>
-                    <h4 className="mt-3 text-xl font-bold text-gray-900 break-words">{plan.name}</h4>
-                    <p className="mt-1 text-sm text-gray-600">{plan.description}</p>
+                    <h4 className="mt-3 text-xl font-bold text-text-primary break-words">{plan.name}</h4>
+                    <p className="mt-1 text-sm text-text-secondary">{plan.description}</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setPlanActive(plan.id, false)}
-                    className="rounded-xl bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-100"
+                    className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger-text transition-colors hover:bg-danger-hover-bg"
                   >
                     Wyłącz
                   </button>
@@ -385,33 +385,33 @@ export default function Plans() {
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-lg font-bold text-gray-900">Twoje plany treningowe</h3>
+            <h3 className="text-lg font-bold text-text-primary">Twoje plany treningowe</h3>
             {customPlans.length > 0 ? (
               customPlans.map((plan) => (
-                <article key={plan.id} className="rounded-[2rem] border border-gray-200 bg-white p-5 shadow-sm space-y-4">
+                <article key={plan.id} className="rounded-[2rem] border border-border bg-surface-card p-5 shadow-sm space-y-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">Własny</span>
-                        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                        <span className="rounded-full bg-surface-raised px-3 py-1 text-xs font-semibold text-accent-violet">Własny</span>
+                        <span className="rounded-full bg-surface-raised px-3 py-1 text-xs font-semibold text-text-secondary">
                           {plan.exerciseIds.length} ćwiczeń
                         </span>
                       </div>
-                      <h4 className="mt-3 text-xl font-bold text-gray-900 break-words">{plan.name}</h4>
-                      <p className="mt-1 text-sm text-gray-600">{plan.description || 'Brak opisu'}</p>
+                      <h4 className="mt-3 text-xl font-bold text-text-primary break-words">{plan.name}</h4>
+                      <p className="mt-1 text-sm text-text-secondary">{plan.description || 'Brak opisu'}</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
                         onClick={() => openEditPlan(plan)}
-                        className="rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-black"
+                        className="rounded-xl bg-btn-dark px-4 py-3 text-sm font-semibold text-text-inverted transition-colors hover:bg-btn-dark-hover"
                       >
                         Edytuj ćwiczenia
                       </button>
                       <button
                         type="button"
                         onClick={() => deleteCustomPlan(plan.id)}
-                        className="rounded-xl bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-100"
+                        className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger-text transition-colors hover:bg-danger-hover-bg"
                       >
                         Usuń
                       </button>
@@ -427,7 +427,7 @@ export default function Plans() {
                 </article>
               ))
             ) : (
-              <div className="rounded-[2rem] border border-dashed border-gray-300 bg-white p-6 text-sm text-gray-500">
+              <div className="rounded-[2rem] border border-dashed border-border-strong bg-surface-card p-6 text-sm text-text-secondary">
                 Nie masz jeszcze własnych planów treningowych.
               </div>
             )}
@@ -435,22 +435,22 @@ export default function Plans() {
 
           {inactiveSystemPlans.length > 0 && (
             <div className="space-y-3">
-              <h3 className="text-lg font-bold text-gray-900">Wyłączone plany systemowe</h3>
+              <h3 className="text-lg font-bold text-text-primary">Wyłączone plany systemowe</h3>
               {inactiveSystemPlans.map((plan) => (
-                <article key={plan.id} className="rounded-[2rem] border border-gray-200 bg-white p-5 shadow-sm space-y-4">
+                <article key={plan.id} className="rounded-[2rem] border border-border bg-surface-card p-5 shadow-sm space-y-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">Systemowy</span>
-                        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-500">Wyłączony</span>
+                        <span className="rounded-full bg-brand-soft px-3 py-1 text-xs font-semibold text-brand-text">Systemowy</span>
+                        <span className="rounded-full bg-surface-raised px-3 py-1 text-xs font-semibold text-text-secondary">Wyłączony</span>
                       </div>
-                      <h4 className="mt-3 text-xl font-bold text-gray-900 break-words">{plan.name}</h4>
-                      <p className="mt-1 text-sm text-gray-600">{plan.description}</p>
+                      <h4 className="mt-3 text-xl font-bold text-text-primary break-words">{plan.name}</h4>
+                      <p className="mt-1 text-sm text-text-secondary">{plan.description}</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => setPlanActive(plan.id, true)}
-                      className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+                      className="inline-flex items-center gap-2 rounded-xl bg-success px-4 py-3 text-sm font-semibold text-text-inverted transition-colors hover:bg-success-hover"
                     >
                       <RotateCcw className="h-4 w-4" />
                       Przywróć
@@ -464,17 +464,17 @@ export default function Plans() {
 
         <aside className="space-y-4">
           <div className="space-y-3">
-            <h3 className="text-lg font-bold text-gray-900">Edycja planu treningowego</h3>
+            <h3 className="text-lg font-bold text-text-primary">Edycja planu treningowego</h3>
             <section
               ref={editorPanelRef}
-              className="rounded-[2rem] border border-gray-200 bg-white p-5 shadow-sm xl:sticky xl:top-6"
+              className="rounded-[2rem] border border-border bg-surface-card p-5 shadow-sm xl:sticky xl:top-6"
             >
             {editingPlan ? (
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Własny plan</p>
-                  <h4 className="mt-2 text-xl font-bold text-gray-900 break-words">{editingPlan.name}</h4>
-                  <p className="mt-1 text-sm text-gray-600">{editingPlan.description || 'Brak opisu'}</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-tertiary">Własny plan</p>
+                  <h4 className="mt-2 text-xl font-bold text-text-primary break-words">{editingPlan.name}</h4>
+                  <p className="mt-1 text-sm text-text-secondary">{editingPlan.description || 'Brak opisu'}</p>
                 </div>
                 <ExercisePicker
                   exercises={editingAvailableExercises}
@@ -511,7 +511,7 @@ export default function Plans() {
                       setEditingPickerSelection([]);
                     }}
                     disabled={editingExerciseIds.length === 0}
-                    className="rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:bg-gray-300"
+                    className="rounded-xl bg-btn-dark px-4 py-3 text-sm font-semibold text-text-inverted transition-colors hover:bg-btn-dark-hover disabled:cursor-not-allowed disabled:bg-border-strong"
                   >
                     Zapisz skład planu
                   </button>
@@ -522,14 +522,14 @@ export default function Plans() {
                       setEditingExerciseIds([]);
                       setEditingPickerSelection([]);
                     }}
-                    className="rounded-xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200"
+                    className="rounded-xl bg-surface-raised px-4 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-inset"
                   >
                     Zamknij edycję
                   </button>
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-text-secondary">
                 Wybierz własny plan z listy i kliknij „Edytuj ćwiczenia”, żeby zmienić jego skład lub kolejność.
               </p>
             )}

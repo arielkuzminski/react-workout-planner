@@ -14,7 +14,7 @@ const StepButton = ({ onClick, label, children }: { onClick: () => void; label: 
     type="button"
     onClick={onClick}
     aria-label={label}
-    className="w-10 h-10 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 transition-colors shrink-0"
+    className="w-10 h-10 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg bg-surface-raised hover:bg-surface-inset active:bg-surface-inset text-text-primary transition-colors shrink-0"
   >
     {children}
   </button>
@@ -34,10 +34,10 @@ const WeightSetRow = ({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-[56px_1fr_1fr] gap-2 sm:gap-3 items-start sm:items-center">
-      <span className="text-sm font-medium text-gray-600">Set {set.setNumber}</span>
+      <span className="text-sm font-medium text-text-secondary">Set {set.setNumber}</span>
 
       <div className="space-y-1">
-        <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide sm:hidden">kg</span>
+        <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wide sm:hidden">kg</span>
         <div className="flex items-center gap-1 min-w-0">
           <StepButton onClick={() => onChange({ weight: Math.max(0, weight - 2.5) })} label="-2.5kg">
             <Minus className="w-3.5 h-3.5" />
@@ -48,7 +48,7 @@ const WeightSetRow = ({
             min="0"
             value={weight}
             onChange={(e) => onChange({ weight: parseFloat(e.target.value) || 0 })}
-            className="w-full min-w-0 px-2 py-2 border border-gray-300 rounded-lg text-center text-sm transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
+            className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg text-center text-sm transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
             aria-label={`Ciężar set ${set.setNumber}`}
           />
           <StepButton onClick={() => onChange({ weight: weight + 2.5 })} label="+2.5kg">
@@ -58,7 +58,7 @@ const WeightSetRow = ({
       </div>
 
       <div className="space-y-1">
-        <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide sm:hidden">powt.</span>
+        <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wide sm:hidden">powt.</span>
         <div className="flex items-center gap-1 min-w-0">
           <StepButton onClick={() => onChange({ reps: Math.max(0, reps - 1) })} label="-1 rep">
             <Minus className="w-3.5 h-3.5" />
@@ -68,7 +68,7 @@ const WeightSetRow = ({
             min="0"
             value={reps}
             onChange={(e) => onChange({ reps: parseInt(e.target.value, 10) || 0 })}
-            className="w-full min-w-0 px-2 py-2 border border-gray-300 rounded-lg text-center text-sm transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
+            className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg text-center text-sm transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
             aria-label={`Powtórzenia set ${set.setNumber}`}
           />
           <StepButton onClick={() => onChange({ reps: reps + 1 })} label="+1 rep">
@@ -95,12 +95,12 @@ const TimeSetRow = ({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-[56px_1fr_1fr] gap-2 sm:gap-3 items-start sm:items-center">
-      <span className="text-sm font-medium text-gray-600">Set {set.setNumber}</span>
-      <div className="px-3 py-2 border border-gray-100 rounded-lg bg-gray-50 text-sm text-gray-500 break-words">
+      <span className="text-sm font-medium text-text-secondary">Set {set.setNumber}</span>
+      <div className="px-3 py-2 border border-border rounded-lg bg-surface text-sm text-text-secondary break-words">
         {exerciseName}
       </div>
       <div className="space-y-1">
-        <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide sm:hidden">sek.</span>
+        <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wide sm:hidden">sek.</span>
         <div className="flex items-center gap-1 min-w-0">
           <StepButton onClick={() => onChange({ durationSec: Math.max(0, duration - 5) })} label="-5s">
             <Minus className="w-3.5 h-3.5" />
@@ -110,7 +110,7 @@ const TimeSetRow = ({
             min="0"
             value={duration}
             onChange={(e) => onChange({ durationSec: parseInt(e.target.value, 10) || 0 })}
-            className="w-full min-w-0 px-2 py-2 border border-gray-300 rounded-lg text-center text-sm transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
+            className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg text-center text-sm transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
             aria-label={`Czas set ${set.setNumber}`}
           />
           <StepButton onClick={() => onChange({ durationSec: duration + 5 })} label="+5s">
@@ -131,7 +131,7 @@ export default function ExerciseLogger({
 }: ExerciseLoggerProps) {
   return (
     <div className="space-y-3">
-      <div className="hidden sm:grid grid-cols-[56px_1fr_1fr] gap-2 items-center text-xs font-semibold text-gray-400 uppercase tracking-wide">
+      <div className="hidden sm:grid grid-cols-[56px_1fr_1fr] gap-2 items-center text-xs font-semibold text-text-tertiary uppercase tracking-wide">
         <span />
         <span>{entry.exerciseType === 'weight' ? 'kg' : ''}</span>
         <span>{entry.exerciseType === 'weight' ? 'powt.' : 'sek.'}</span>
@@ -160,7 +160,7 @@ export default function ExerciseLogger({
       <button
         type="button"
         onClick={onAddSet}
-        className="text-sm font-medium text-blue-700 hover:text-blue-900 active:opacity-80 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+        className="text-sm font-medium text-brand-text hover:text-brand-text active:opacity-80 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
       >
         + Dodaj serię
       </button>
@@ -170,7 +170,7 @@ export default function ExerciseLogger({
         onChange={(event) => onNotesChange(event.target.value)}
         placeholder="Opcjonalna notatka do ćwiczenia"
         rows={2}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
+        className="w-full px-3 py-2 border border-border-strong rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
       />
     </div>
   );

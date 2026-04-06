@@ -58,17 +58,17 @@ export default function RestTimer({ defaultSeconds = 90 }: RestTimerProps) {
   return (
     <div className={`flex flex-wrap items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${
       hasFinished
-        ? 'bg-emerald-50 border border-emerald-200'
+        ? 'bg-success-soft border border-success-border'
         : isRunning
-          ? 'bg-blue-50 border border-blue-200'
-          : 'bg-gray-50 border border-gray-200'
+          ? 'bg-brand-soft border border-brand-border'
+          : 'bg-surface border border-border'
     }`}>
       <div className="relative w-10 h-10 flex-shrink-0">
         <svg viewBox="0 0 36 36" className="w-10 h-10 -rotate-90">
-          <circle cx="18" cy="18" r="16" fill="none" stroke="#e5e7eb" strokeWidth="3" />
+          <circle cx="18" cy="18" r="16" fill="none" stroke="var(--color-chart-track)" strokeWidth="3" />
           <circle
             cx="18" cy="18" r="16" fill="none"
-            stroke={hasFinished ? '#10b981' : '#3b82f6'}
+            stroke={hasFinished ? 'var(--color-chart-line)' : 'var(--color-chart-fill)'}
             strokeWidth="3"
             strokeDasharray={`${progress * 100.5} 100.5`}
             strokeLinecap="round"
@@ -79,23 +79,23 @@ export default function RestTimer({ defaultSeconds = 90 }: RestTimerProps) {
         </span>
       </div>
 
-      <span className="font-medium text-gray-700 flex-1 min-w-[120px]">
+      <span className="font-medium text-text-primary flex-1 min-w-[120px]">
         {hasFinished ? 'Przerwa zakończona!' : isRunning ? 'Odpoczywaj...' : 'Timer przerwy'}
       </span>
 
       <div className="ml-auto flex gap-1">
         {!isRunning && !hasFinished && (
-          <button onClick={start} className="p-2 rounded-lg hover:bg-gray-200" aria-label="Start timer">
-            <Play className="w-4 h-4 text-blue-700" />
+          <button onClick={start} className="p-2 rounded-lg hover:bg-surface-inset" aria-label="Start timer">
+            <Play className="w-4 h-4 text-brand-text" />
           </button>
         )}
         {isRunning && (
-          <button onClick={stop} className="p-2 rounded-lg hover:bg-gray-200" aria-label="Pause timer">
-            <Pause className="w-4 h-4 text-gray-700" />
+          <button onClick={stop} className="p-2 rounded-lg hover:bg-surface-inset" aria-label="Pause timer">
+            <Pause className="w-4 h-4 text-text-primary" />
           </button>
         )}
-        <button onClick={reset} className="p-2 rounded-lg hover:bg-gray-200" aria-label="Reset timer">
-          <RotateCcw className="w-4 h-4 text-gray-500" />
+        <button onClick={reset} className="p-2 rounded-lg hover:bg-surface-inset" aria-label="Reset timer">
+          <RotateCcw className="w-4 h-4 text-text-secondary" />
         </button>
       </div>
     </div>

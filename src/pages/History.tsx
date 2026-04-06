@@ -11,9 +11,9 @@ export default function History() {
 
   if (completedSessions.length === 0) {
     return (
-      <div className="rounded-[2rem] border border-stone-200 bg-white p-6 sm:p-8 text-center shadow-sm">
-        <h2 className="text-2xl font-bold">Brak historii</h2>
-        <p className="mt-2 text-stone-500">Zakończ pierwszą sesję, żeby zobaczyć recap treningów.</p>
+      <div className="rounded-[2rem] border border-border bg-surface-card p-6 sm:p-8 text-center shadow-sm">
+        <h2 className="text-2xl font-bold text-text-primary">Brak historii</h2>
+        <p className="mt-2 text-text-secondary">Zakończ pierwszą sesję, żeby zobaczyć recap treningów.</p>
       </div>
     );
   }
@@ -21,29 +21,29 @@ export default function History() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight">Historia</h2>
-        <p className="mt-1 text-stone-500">{completedSessions.length} ukończonych sesji</p>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-text-primary">Historia</h2>
+        <p className="mt-1 text-text-secondary">{completedSessions.length} ukończonych sesji</p>
       </div>
 
       {completedSessions.map((session) => (
         <article
           key={session.id}
-          className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm"
+          className="rounded-[2rem] border border-border bg-surface-card p-4 sm:p-5 shadow-sm"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-lg font-semibold break-words">
+                <h3 className="text-lg font-semibold break-words text-text-primary">
                   {getPlanLabelBySession(plans, session, 'Freestyle session')}
                 </h3>
-                <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-500">
+                <span className="rounded-full bg-surface-raised px-3 py-1 text-xs font-semibold text-text-secondary">
                   {formatDistanceToNowStrict(new Date(session.endedAt || session.startedAt), {
                     addSuffix: true,
                     locale: pl,
                   })}
                 </span>
               </div>
-              <p className="mt-2 text-sm text-stone-500">
+              <p className="mt-2 text-sm text-text-secondary">
                 {session.entries.length} ćwiczeń •{' '}
                 {session.entries.reduce((sum, entry) => sum + entry.sets.filter((set) => set.completed).length, 0)}{' '}
                 ukończonych serii
@@ -51,7 +51,7 @@ export default function History() {
             </div>
             <button
               onClick={() => deleteCompletedSession(session.id)}
-              className="rounded-xl p-2 text-stone-400 transition-colors hover:bg-rose-50 hover:text-rose-600 active:bg-rose-100 cursor-pointer focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:outline-none"
+              className="rounded-xl p-2 text-text-tertiary transition-colors hover:bg-danger-soft hover:text-danger-text active:bg-danger-hover-bg cursor-pointer focus-visible:ring-2 focus-visible:ring-danger-ring focus-visible:outline-none"
               aria-label="Usuń sesję"
             >
               <Trash2 className="h-5 w-5" />
@@ -59,7 +59,7 @@ export default function History() {
           </div>
 
           {session.notes && (
-            <p className="mt-4 rounded-2xl bg-stone-50 px-4 py-3 text-sm text-stone-600">
+            <p className="mt-4 rounded-2xl bg-surface px-4 py-3 text-sm text-text-secondary">
               {session.notes}
             </p>
           )}
@@ -68,11 +68,11 @@ export default function History() {
             {session.entries.map((entry) => (
               <div
                 key={entry.id}
-                className="rounded-2xl bg-stone-50 px-4 py-3 text-sm text-stone-700"
+                className="rounded-2xl bg-surface px-4 py-3 text-sm text-text-primary"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-semibold break-words">{entry.exerciseNameSnapshot}</span>
-                  <span className="text-stone-500">
+                  <span className="text-text-secondary">
                     {entry.sets.filter((set) => set.completed).length} serii
                   </span>
                 </div>
@@ -82,7 +82,7 @@ export default function History() {
                     .map((set) => (
                       <span
                         key={set.id}
-                        className="rounded-full bg-white px-3 py-1 text-xs font-medium text-stone-600"
+                        className="rounded-full bg-surface-card px-3 py-1 text-xs font-medium text-text-secondary"
                       >
                         {entry.exerciseType === 'time'
                           ? `${set.durationSec || 0}s`

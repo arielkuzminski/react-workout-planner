@@ -144,32 +144,32 @@ export default function ExercisePicker({
   const selectedCountLabel = value.length === 1 ? '1 ćwiczenie zaznaczone' : `${value.length} ćwiczenia zaznaczone`;
 
   const panelBody = (
-    <div className="mx-auto flex max-h-[78vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[28px] border border-gray-200 bg-white shadow-2xl sm:max-h-[32rem] sm:rounded-[28px]">
-      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 sm:hidden">
+    <div className="mx-auto flex max-h-[78vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[28px] border border-border bg-surface-card shadow-2xl sm:max-h-[32rem] sm:rounded-[28px]">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:hidden">
         <div>
-          <p className="text-sm font-semibold text-gray-900">{title}</p>
-          <p className="text-xs text-gray-500">{subtitle}</p>
+          <p className="text-sm font-semibold text-text-primary">{title}</p>
+          <p className="text-xs text-text-secondary">{subtitle}</p>
         </div>
         <button
           type="button"
           onClick={() => setIsOpen(false)}
-          className="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+          className="rounded-full p-2 text-text-secondary transition-colors hover:bg-surface-raised hover:text-text-primary"
           aria-label="Zamknij wybór ćwiczeń"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      <div className="border-b border-gray-100 px-4 py-3">
+      <div className="border-b border-border px-4 py-3">
         <div className="mb-3 hidden items-center justify-between sm:flex">
           <div>
-            <p className="text-sm font-semibold text-gray-900">{title}</p>
-            <p className="text-xs text-gray-500">{subtitle}</p>
+            <p className="text-sm font-semibold text-text-primary">{title}</p>
+            <p className="text-xs text-text-secondary">{subtitle}</p>
           </div>
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+            className="rounded-full p-2 text-text-secondary transition-colors hover:bg-surface-raised hover:text-text-primary"
             aria-label="Zamknij wybór ćwiczeń"
           >
             <X className="h-5 w-5" />
@@ -179,8 +179,8 @@ export default function ExercisePicker({
         <label className="sr-only" htmlFor="exercise-picker-search">
           Szukaj ćwiczenia
         </label>
-        <div className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-gray-50 px-3 py-2">
-          <Search className="h-4 w-4 shrink-0 text-gray-400" />
+        <div className="flex items-center gap-2 rounded-2xl border border-border bg-surface px-3 py-2">
+          <Search className="h-4 w-4 shrink-0 text-text-tertiary" />
           <input
             ref={searchRef}
             id="exercise-picker-search"
@@ -188,13 +188,13 @@ export default function ExercisePicker({
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Szukaj ćwiczenia"
-            className="w-full min-w-0 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
+            className="w-full min-w-0 bg-transparent text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none"
           />
           {search && (
             <button
               type="button"
               onClick={() => setSearch('')}
-              className="rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600"
+              className="rounded-full p-1 text-text-tertiary transition-colors hover:bg-surface-inset hover:text-text-secondary"
               aria-label="Wyczyść wyszukiwanie"
             >
               <X className="h-4 w-4" />
@@ -209,7 +209,7 @@ export default function ExercisePicker({
             {groupedExercises.map((section) => (
               <section key={section.group} className="space-y-2">
                 <div className="px-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-tertiary">
                     {section.label}
                   </p>
                 </div>
@@ -221,15 +221,15 @@ export default function ExercisePicker({
                         key={exercise.id}
                         type="button"
                         onClick={() => handleToggle(exercise.id)}
-                        className={`flex w-full items-start justify-between gap-3 rounded-2xl px-3 py-3 text-left transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none ${
+                        className={`flex w-full items-start justify-between gap-3 rounded-2xl px-3 py-3 text-left transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none ${
                           isSelected
-                            ? 'bg-blue-50 text-blue-900 ring-1 ring-blue-200'
-                            : 'bg-white text-gray-900 hover:bg-gray-50'
+                            ? 'bg-brand-soft text-brand-text ring-1 ring-brand-border'
+                            : 'bg-surface-card text-text-primary hover:bg-surface'
                         }`}
                       >
                         <div className="min-w-0">
                           <p className="break-words text-sm font-medium">{exercise.name}</p>
-                          <p className="mt-1 text-xs text-gray-500">
+                          <p className="mt-1 text-xs text-text-secondary">
                             {exercise.targetSets} serii • {exercise.repRange.min}-{exercise.repRange.max}{' '}
                             {exercise.type === 'time' ? 'sek.' : 'powt.'}
                           </p>
@@ -237,7 +237,7 @@ export default function ExercisePicker({
                         {showSelectionIndicator && (
                           <span
                             className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
-                              isSelected ? 'bg-blue-700 text-white' : 'bg-gray-100 text-transparent'
+                              isSelected ? 'bg-brand text-text-inverted' : 'bg-surface-raised text-transparent'
                             }`}
                             aria-hidden="true"
                           >
@@ -252,24 +252,24 @@ export default function ExercisePicker({
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-500">
+          <div className="rounded-2xl border border-dashed border-border bg-surface px-4 py-8 text-center text-sm text-text-secondary">
             Brak pasujących ćwiczeń.
           </div>
         )}
       </div>
 
       {showFooter && (
-        <div className="border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+        <div className="border-t border-border bg-surface-card/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-surface-card/80">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-gray-900">
+              <p className="text-sm font-semibold text-text-primary">
                 {value.length > 0 ? selectedCountLabel : 'Nic nie zaznaczono'}
               </p>
               {value.length > 0 && (
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="mt-1 text-xs font-medium text-gray-500 transition-colors hover:text-gray-700"
+                  className="mt-1 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
                 >
                   Wyczyść wybór
                 </button>
@@ -279,7 +279,7 @@ export default function ExercisePicker({
               type="button"
               onClick={handleSubmit}
               disabled={value.length === 0}
-              className="min-w-28 rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-black active:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-300"
+              className="min-w-28 rounded-xl bg-btn-dark px-4 py-3 text-sm font-semibold text-text-inverted transition-colors hover:bg-btn-dark-hover active:bg-btn-dark-active disabled:cursor-not-allowed disabled:bg-border-strong"
             >
               {submitLabel}
             </button>
@@ -294,21 +294,21 @@ export default function ExercisePicker({
       <button
         type="button"
         onClick={() => setIsOpen((open) => !open)}
-        className={`flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border px-3 py-3 text-left transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none ${
-          isOpen ? 'border-blue-500 bg-blue-50/60' : 'border-gray-300 bg-white'
+        className={`flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border px-3 py-3 text-left transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none ${
+          isOpen ? 'border-brand bg-brand-soft' : 'border-border-strong bg-surface-card'
         }`}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
       >
-        <span className={selectedExercises.length > 0 ? 'text-gray-900' : 'text-gray-500'}>
+        <span className={selectedExercises.length > 0 ? 'text-text-primary' : 'text-text-secondary'}>
           {triggerLabel}
         </span>
-        <ChevronDown className={`h-5 w-5 shrink-0 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-5 w-5 shrink-0 text-text-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
         <>
-          <div className="fixed inset-0 z-30 bg-slate-950/25 sm:bg-transparent" aria-hidden="true" />
+          <div className="fixed inset-0 z-30 bg-overlay sm:bg-transparent" aria-hidden="true" />
 
           <div className="fixed inset-x-0 bottom-0 z-40 sm:absolute sm:inset-x-0 sm:top-[calc(100%+0.5rem)] sm:bottom-auto">
             {panelBody}
