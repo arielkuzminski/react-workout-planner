@@ -1,7 +1,9 @@
 export type ExerciseType = 'weight' | 'time';
-export type TemplateId = 'A' | 'B' | 'C';
+export type PlanId = string;
 export type SessionStatus = 'active' | 'completed' | 'abandoned';
 export type ExerciseUnit = 'kg' | 'sec';
+export type MovementGroup = 'legs' | 'push' | 'pull';
+export type PlanSource = 'system' | 'custom';
 
 export interface RepRange {
   min: number;
@@ -12,6 +14,7 @@ export interface ExerciseDefinition {
   id: string;
   name: string;
   type: ExerciseType;
+  movementGroup: MovementGroup;
   targetSets: number;
   repRange: RepRange;
   defaultWeight: number;
@@ -21,11 +24,14 @@ export interface ExerciseDefinition {
 
 export type ExerciseLibraryItem = ExerciseDefinition;
 
-export interface WorkoutTemplate {
-  id: TemplateId;
+export interface WorkoutPlan {
+  id: PlanId;
   name: string;
   description: string;
   exerciseIds: string[];
+  source: PlanSource;
+  isActive: boolean;
+  createdAt?: string;
 }
 
 export interface SessionSet {
@@ -58,7 +64,7 @@ export interface WorkoutSession {
   completedAt?: string;
   endedAt?: string;
   status: SessionStatus;
-  templateId?: TemplateId;
+  planId?: PlanId;
   notes: string;
   entries: SessionEntry[];
 }
@@ -120,6 +126,6 @@ export interface LegacyExerciseResult {
 export interface LegacyWorkoutSession {
   id?: string;
   date: string | Date;
-  workoutType?: TemplateId;
+  workoutType?: PlanId;
   exercises: LegacyExerciseResult[];
 }

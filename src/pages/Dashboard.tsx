@@ -65,22 +65,22 @@ export default function Progress() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Progres</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight">Progres</h2>
         <p className="mt-1 text-stone-500">Lekki widok trendu zamiast ciężkiego dashboardu.</p>
       </div>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm">
+        <div className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm">
           <p className="text-sm text-stone-500">Zakończone sesje</p>
-          <p className="mt-2 text-4xl font-bold">{completedSessions.length}</p>
+          <p className="mt-2 text-3xl sm:text-4xl font-bold">{completedSessions.length}</p>
         </div>
-        <div className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm">
+        <div className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm">
           <p className="text-sm text-stone-500">Ćwiczenia w obiegu</p>
-          <p className="mt-2 text-4xl font-bold">{usedExerciseIds.length}</p>
+          <p className="mt-2 text-3xl sm:text-4xl font-bold">{usedExerciseIds.length}</p>
         </div>
-        <div className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm">
+        <div className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm">
           <p className="text-sm text-stone-500">Ostatnia sesja</p>
-          <p className="mt-2 text-xl font-bold">
+          <p className="mt-2 text-lg sm:text-xl font-bold break-words">
             {completedSessions[0]
               ? new Date(completedSessions[0].completedAt ?? completedSessions[0].startedAt).toLocaleDateString('pl-PL')
               : 'Brak'}
@@ -88,7 +88,7 @@ export default function Progress() {
         </div>
       </section>
 
-      <section className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm">
+      <section className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm">
         <label htmlFor="exercise-select" className="text-sm font-semibold">Ćwiczenie</label>
         <select
           id="exercise-select"
@@ -109,21 +109,21 @@ export default function Progress() {
       </section>
 
       {selectedExercise && progressionData.length > 0 ? (
-        <section className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm space-y-4">
+        <section className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm space-y-4">
           <div>
-            <h3 className="text-xl font-semibold">{selectedExercise.name}</h3>
-            <div className="mt-2 flex items-center gap-1.5 text-sm text-stone-600">
+            <h3 className="text-lg sm:text-xl font-semibold break-words">{selectedExercise.name}</h3>
+            <div className="mt-2 flex flex-wrap items-center gap-1.5 text-sm text-stone-600">
               <span className="inline-block h-3 w-3 rounded-full bg-emerald-500" />
               {selectedExercise.type === 'time' ? 'Czas łączny (s)' : 'Objętość (kg)'}
             </div>
           </div>
 
-          <div className="h-72">
+          <div className="h-64 sm:h-72 -mx-2 sm:mx-0">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={progressionData}>
                 <CartesianGrid strokeDasharray="4 4" />
-                <XAxis dataKey="date" />
-                <YAxis />
+                <XAxis dataKey="date" tick={{ fontSize: 11 }} minTickGap={24} />
+                <YAxis width={36} tick={{ fontSize: 11 }} />
                 <Tooltip content={({ active, payload }) => {
                   if (!active || !payload?.[0]) return null;
                   const data = payload[0].payload as { date: string; volume: number; topSet: string };
@@ -143,7 +143,7 @@ export default function Progress() {
           </div>
         </section>
       ) : (
-        <div className="rounded-[2rem] border border-dashed border-stone-300 bg-white p-8 text-center text-stone-500">
+        <div className="rounded-[2rem] border border-dashed border-stone-300 bg-white p-6 sm:p-8 text-center text-stone-500">
           Wybierz ćwiczenie, żeby zobaczyć trend.
         </div>
       )}

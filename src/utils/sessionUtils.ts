@@ -2,12 +2,13 @@ import {
   ExerciseDefinition,
   ExerciseHistorySummary,
   LegacyWorkoutSession,
+  PlanId,
   SessionEntry,
   SessionSet,
-  TemplateId,
+  WorkoutPlan,
   WorkoutSession,
 } from '../types';
-import { getExerciseDefinition, getWorkoutTemplate } from '../data/workoutPlans';
+import { getExerciseDefinition, getWorkoutPlan } from '../data/workoutPlans';
 
 export const createId = (prefix: string) =>
   `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -45,12 +46,13 @@ export const createEntryFromDefinition = (
 
 export const createSession = (
   exerciseLibrary: ExerciseDefinition[],
-  templateId?: TemplateId,
+  plans: WorkoutPlan[],
+  planId?: PlanId,
   preferredWeights?: Record<string, number>
 ): WorkoutSession => {
-  const template = templateId ? getWorkoutTemplate(templateId) : undefined;
-  const entries = template
-    ? template.exerciseIds
+  const plan = planId ? getWorkoutPlan(planId, plans) : undefined;
+  const entries = plan
+    ? plan.exerciseIds
         .map((exerciseId) => exerciseLibrary.find((exercise) => exercise.id === exerciseId))
         .filter((exercise): exercise is ExerciseDefinition => Boolean(exercise))
         .map((exercise) => createEntryFromDefinition(exercise, preferredWeights?.[exercise.id]))
@@ -60,7 +62,7 @@ export const createSession = (
     id: createId('session'),
     startedAt: new Date().toISOString(),
     status: 'active',
-    templateId,
+    planId,
     notes: '',
     entries,
   };
@@ -129,7 +131,7 @@ export const legacySessionToV2 = (legacySession: LegacyWorkoutSession): WorkoutS
     startedAt,
     completedAt: startedAt,
     status: 'completed',
-    templateId: legacySession.workoutType,
+    planId: legacySession.workoutType,
     notes: '',
     entries: legacySession.exercises.map((legacyExercise) => {
       const definition = getExerciseDefinition(legacyExercise.exerciseId);

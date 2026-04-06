@@ -19,7 +19,7 @@ export default function ProgressIndicator({
       {previousEntry && (
         <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-900">
           <p className="font-semibold">Ostatni wynik</p>
-          <p>{formatPerformance(previousEntry)}</p>
+          <p className="break-words">{formatPerformance(previousEntry)}</p>
         </div>
       )}
 
@@ -35,9 +35,9 @@ export default function ProgressIndicator({
             ? 'Możesz progresować'
             : 'Zostań na obecnym ustawieniu'}
         </p>
-        <p>{suggestion.reason}</p>
+        <p className="break-words">{suggestion.reason}</p>
         {suggestion.newWeight !== undefined && (
-          <p className="mt-1 font-medium">
+          <p className="mt-1 font-medium break-words">
             Następny target: {suggestion.newWeight}
             {definition.unit}
           </p>

@@ -3,13 +3,18 @@ import { useMemo, useState } from 'react';
 import { Loader, PlayCircle, RotateCcw } from 'lucide-react';
 import { generateSampleData } from '../data/sampleData';
 import { useWorkoutStore } from '../store';
+import { PlanId } from '../types';
 
 export default function Home() {
   const navigate = useNavigate();
   const activeSession = useWorkoutStore((state) => state.activeSession);
-  const templates = useWorkoutStore((state) => state.templates);
+  const plans = useWorkoutStore((state) => state.plans);
   const completedSessions = useWorkoutStore((state) => state.completedSessions);
   const exerciseLibrary = useWorkoutStore((state) => state.exerciseLibrary);
+  const activePlans = useMemo(
+    () => plans.filter((plan) => plan.isActive),
+    [plans],
+  );
   const recentExercises = useMemo(() => {
     const ids = new Set<string>();
     const recent: typeof exerciseLibrary = [];
@@ -28,19 +33,19 @@ export default function Home() {
   const importCompletedSessions = useWorkoutStore((state) => state.importCompletedSessions);
   const [isLoadingSample, setIsLoadingSample] = useState(false);
 
-  const suggestedTemplateId = useMemo(() => {
-    const rotation: Array<'A' | 'B' | 'C'> = ['A', 'B', 'C'];
-    const lastTemplateSession = completedSessions.find((s) => s.templateId);
-    if (!lastTemplateSession?.templateId) return 'A';
-    const lastIndex = rotation.indexOf(lastTemplateSession.templateId);
-    return rotation[(lastIndex + 1) % rotation.length];
-  }, [completedSessions]);
+  const suggestedPlanId = useMemo(() => {
+    const rotation = activePlans.map((plan) => plan.id);
+    const lastPlannedSession = completedSessions.find((s) => s.planId);
+    if (!lastPlannedSession?.planId || rotation.length === 0) return activePlans[0]?.id ?? 'A';
+    const lastIndex = rotation.indexOf(lastPlannedSession.planId);
+    return rotation[(lastIndex + 1) % rotation.length] ?? rotation[0];
+  }, [activePlans, completedSessions]);
 
-  const handleStart = (templateId?: 'A' | 'B' | 'C') => {
+  const handleStart = (planId?: PlanId) => {
     if (activeSession && !window.confirm('Masz aktywną sesję. Rozpocząć nową? Obecna zostanie utracona.')) {
       return;
     }
-    startSession(templateId);
+    startSession(planId);
     navigate('/session');
   };
 
@@ -53,11 +58,11 @@ export default function Home() {
 
   return (
     <div className="space-y-6">
-      <section className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-4">
+      <section className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 space-y-4">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Loguj trening szybciej niż wiadomość do siebie</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">Loguj trening szybciej niż wiadomość do siebie</h2>
           <p className="text-gray-600 mt-2">
-            Startuj pustą sesję albo użyj A/B/C jako opcjonalnych template&apos;ów. Draft zapisuje się automatycznie.
+            Startuj pustą sesję albo użyj gotowych planów treningowych. Draft zapisuje się automatycznie.
           </p>
         </div>
 
@@ -81,12 +86,12 @@ export default function Home() {
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {templates.map((template) => {
-          const isSuggested = template.id === suggestedTemplateId;
+        {activePlans.map((plan) => {
+          const isSuggested = plan.id === suggestedPlanId;
           return (
             <button
-              key={template.id}
-              onClick={() => handleStart(template.id)}
+              key={plan.id}
+              onClick={() => handleStart(plan.id)}
               className={`rounded-2xl border shadow-sm p-5 text-left transition-all focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:outline-none ${
                 isSuggested
                   ? 'bg-blue-50 border-blue-400 ring-2 ring-blue-200 hover:border-blue-500 hover:shadow-md'
@@ -94,22 +99,24 @@ export default function Home() {
               }`}
             >
               <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-blue-700">Template {template.id}</p>
+                <p className="text-sm font-semibold text-blue-700">
+                  {plan.source === 'system' ? 'Plan systemowy' : 'Twój plan'}
+                </p>
                 {isSuggested && (
                   <span className="text-xs font-medium bg-blue-700 text-white px-2 py-0.5 rounded-full">
                     Następny
                   </span>
                 )}
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mt-1">{template.name}</h3>
-              <p className="text-sm text-gray-600 mt-2">{template.description}</p>
+              <h3 className="text-xl font-bold text-gray-900 mt-1 break-words">{plan.name}</h3>
+              <p className="text-sm text-gray-600 mt-2">{plan.description || 'Brak opisu'}</p>
             </button>
           );
         })}
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-5">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Ostatnio używane ćwiczenia</h3>
           {recentExercises.length > 0 ? (
             <div className="flex flex-wrap gap-2">
@@ -127,7 +134,7 @@ export default function Home() {
           )}
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-5">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Sample data</h3>
           <button
             onClick={handleLoadSample}

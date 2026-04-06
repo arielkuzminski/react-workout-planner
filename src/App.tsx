@@ -6,6 +6,7 @@ import History from './pages/History';
 import Dashboard from './pages/Dashboard';
 import Import from './pages/Import';
 import SessionRecap from './pages/SessionRecap';
+import Plans from './pages/Templates';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/recap" element={<SessionRecap />} />
           <Route path="/history" element={<History />} />
           <Route path="/progress" element={<Dashboard />} />
+          <Route path="/plans" element={<Plans />} />
           <Route path="/import" element={<Import />} />
         </Route>
       </Routes>

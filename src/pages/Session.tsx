@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle2, Plus, Trash2 } from 'lucide-react';
+import { CheckCircle2, Trash2 } from 'lucide-react';
 import ExerciseLogger from '../components/ExerciseLogger';
+import ExercisePicker from '../components/ExercisePicker';
 import ProgressIndicator from '../components/ProgressIndicator';
 import RestTimer from '../components/RestTimer';
 import { ExerciseDefinition, SessionEntry } from '../types';
 import { useWorkoutStore } from '../store';
+import { getPlanNameById } from '../utils/templateUtils';
 
 export default function Session() {
   const navigate = useNavigate();
@@ -25,6 +27,7 @@ export default function Session() {
   }, []);
   const activeSession = useWorkoutStore((state) => state.activeSession);
   const exerciseLibrary = useWorkoutStore((state) => state.exerciseLibrary);
+  const plans = useWorkoutStore((state) => state.plans);
   const completedSessions = useWorkoutStore((state) => state.completedSessions);
   const addExerciseToActiveSession = useWorkoutStore((state) => state.addExerciseToActiveSession);
   const updateSetInActiveSession = useWorkoutStore((state) => state.updateSetInActiveSession);
@@ -33,7 +36,7 @@ export default function Session() {
   const removeEntryFromActiveSession = useWorkoutStore((state) => state.removeEntryFromActiveSession);
   const completeActiveSession = useWorkoutStore((state) => state.completeActiveSession);
   const abandonActiveSession = useWorkoutStore((state) => state.abandonActiveSession);
-  const [selectedExerciseId, setSelectedExerciseId] = useState('');
+  const [selectedExerciseIds, setSelectedExerciseIds] = useState<string[]>([]);
 
   const availableExercises = useMemo(
     () =>
@@ -43,6 +46,11 @@ export default function Session() {
       ),
     [activeSession?.entries, exerciseLibrary]
   );
+
+  useEffect(() => {
+    const availableIds = new Set(availableExercises.map((exercise) => exercise.id));
+    setSelectedExerciseIds((current) => current.filter((exerciseId) => availableIds.has(exerciseId)));
+  }, [availableExercises]);
 
   const definitionMap = useMemo(() => {
     const map = new Map<string, ExerciseDefinition>();
@@ -72,7 +80,7 @@ export default function Session() {
     return (
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-center">
         <h2 className="text-2xl font-bold text-gray-900">Brak aktywnej sesji</h2>
-        <p className="text-gray-600 mt-2">Wróć na start i zacznij nową sesję albo wybierz template.</p>
+        <p className="text-gray-600 mt-2">Wróć na start i zacznij nową sesję albo wybierz plan treningowy.</p>
         <Link
           to="/"
           className="inline-flex mt-4 px-4 py-3 rounded-xl bg-blue-700 text-white font-semibold"
@@ -83,13 +91,13 @@ export default function Session() {
     );
   }
 
-  const handleAddExercise = () => {
-    if (!selectedExerciseId) {
+  const handleAddExercises = (exerciseIds: string[]) => {
+    if (exerciseIds.length === 0) {
       return;
     }
 
-    addExerciseToActiveSession(selectedExerciseId);
-    setSelectedExerciseId('');
+    exerciseIds.forEach((exerciseId) => addExerciseToActiveSession(exerciseId));
+    setSelectedExerciseIds([]);
   };
 
   const handleComplete = () => {
@@ -99,58 +107,46 @@ export default function Session() {
 
   return (
     <div className="space-y-6">
-      <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-3">
-        <div className="flex items-start justify-between gap-4">
-          <div>
+      <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
             <p className="text-sm font-semibold text-blue-700">
-              {activeSession.templateId ? `Template ${activeSession.templateId}` : 'Quick log'}
+              {getPlanNameById(plans, activeSession.planId, 'Quick log')}
             </p>
-            <h2 className="text-3xl font-bold text-gray-900">Aktywna sesja</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">Aktywna sesja</h2>
             <p className="text-gray-600 mt-1">
-              Zacznij od gotowego template&apos;u albo dynamicznie dodawaj ćwiczenia.
+              Zacznij od gotowego planu albo dynamicznie dodawaj ćwiczenia.
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
             <button
               onClick={() => {
                 abandonActiveSession();
                 navigate('/');
               }}
-              className="px-4 py-3 rounded-xl bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-700 font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+              className="min-h-14 px-3 sm:px-4 py-3 rounded-xl bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-700 font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               Porzuć
             </button>
             <button
               onClick={handleComplete}
-              className="px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold flex items-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+              className="min-h-14 px-3 sm:px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
-              <CheckCircle2 className="w-4 h-4" />
-              Zakończ sesję
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span className="leading-tight text-center">Zakończ sesję</span>
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
-          <select
-            value={selectedExerciseId}
-            onChange={(event) => setSelectedExerciseId(event.target.value)}
-            className="px-3 py-3 rounded-xl border border-gray-300 cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
-          >
-            <option value="">Dodaj ćwiczenie do sesji</option>
-            {availableExercises.map((exercise) => (
-              <option key={exercise.id} value={exercise.id}>
-                {exercise.name}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={handleAddExercise}
-            disabled={!selectedExerciseId}
-            className="px-4 py-3 rounded-xl bg-gray-900 hover:bg-black active:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:outline-none"
-          >
-            <Plus className="w-4 h-4" />
-            Dodaj
-          </button>
+        <div>
+          <ExercisePicker
+            exercises={availableExercises}
+            value={selectedExerciseIds}
+            onChange={setSelectedExerciseIds}
+            onSubmit={handleAddExercises}
+            placeholder="Dodaj ćwiczenie do sesji"
+            submitLabel="Dodaj"
+          />
         </div>
       </section>
 
@@ -162,11 +158,11 @@ export default function Session() {
           }
 
           return (
-            <div key={entry.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
+            <div key={entry.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="min-w-0 flex-1">
                   <p className="text-sm text-gray-500">Ćwiczenie {index + 1}</p>
-                  <h3 className="text-xl font-bold text-gray-900">{entry.exerciseName}</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight break-words">{entry.exerciseName}</h3>
                   <p className="text-sm text-gray-600">
                     Target: {entry.targetSets} serii • {entry.repRange.min}-{entry.repRange.max}{' '}
                     {entry.exerciseType === 'time' ? 'sek.' : 'powt.'}
@@ -174,7 +170,7 @@ export default function Session() {
                 </div>
                 <button
                   onClick={() => removeEntryFromActiveSession(entry.id)}
-                  className="p-2 rounded-lg text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
+                  className="p-2 rounded-lg text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none shrink-0"
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>

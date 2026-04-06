@@ -1,40 +1,53 @@
-import { ExerciseDefinition, SessionEntry, SessionSet, TemplateId, WorkoutTemplate } from '../types';
+import { ExerciseDefinition, PlanId, SessionEntry, SessionSet, WorkoutPlan } from '../types';
 import { createId } from '../utils/sessionUtils';
 
+const SYSTEM_PLAN_CREATED_AT = '2026-04-06T00:00:00.000Z';
+
 export const exerciseLibrary: ExerciseDefinition[] = [
-  { id: 'A1', name: 'Decline Chest Press Machine (Matrix)', type: 'weight', targetSets: 4, repRange: { min: 6, max: 10 }, defaultWeight: 30, unit: 'kg' },
-  { id: 'A2', name: 'Seated Cable Row (Neutral Grip)', type: 'weight', targetSets: 4, repRange: { min: 8, max: 12 }, defaultWeight: 55, unit: 'kg' },
-  { id: 'A3', name: 'Leg Press', type: 'weight', targetSets: 4, repRange: { min: 8, max: 12 }, defaultWeight: 100, unit: 'kg' },
-  { id: 'A4', name: 'Dumbbell Shoulder Press', type: 'weight', targetSets: 3, repRange: { min: 8, max: 12 }, defaultWeight: 15, unit: 'kg' },
-  { id: 'A5', name: 'Lat Pulldown (Medium Grip)', type: 'weight', targetSets: 3, repRange: { min: 10, max: 12 }, defaultWeight: 55, unit: 'kg' },
-  { id: 'A6', name: 'Cable Triceps Extension (Overhead)', type: 'weight', targetSets: 3, repRange: { min: 12, max: 15 }, defaultWeight: 29.3, unit: 'kg' },
-  { id: 'A7', name: 'Cable Biceps Curl (Facing Away, Low Pulley)', type: 'weight', targetSets: 3, repRange: { min: 10, max: 15 }, defaultWeight: 47.3, unit: 'kg' },
-  { id: 'B1', name: 'Dumbbell Romanian Deadlift', type: 'weight', targetSets: 4, repRange: { min: 8, max: 12 }, defaultWeight: 50, unit: 'kg' },
-  { id: 'B2', name: 'Lat Pulldown (Wide Grip)', type: 'weight', targetSets: 4, repRange: { min: 8, max: 12 }, defaultWeight: 60, unit: 'kg' },
-  { id: 'B3', name: 'Walking Lunges', type: 'weight', targetSets: 3, repRange: { min: 10, max: 10 }, defaultWeight: 14, unit: 'kg' },
-  { id: 'B4', name: 'Flat Dumbbell Bench Press', type: 'weight', targetSets: 3, repRange: { min: 8, max: 12 }, defaultWeight: 22.5, unit: 'kg' },
-  { id: 'B5', name: 'Face Pull (Cable)', type: 'weight', targetSets: 3, repRange: { min: 15, max: 20 }, defaultWeight: 17.5, unit: 'kg' },
-  { id: 'B6', name: 'Triceps Press Machine (Matrix)', type: 'weight', targetSets: 3, repRange: { min: 10, max: 12 }, defaultWeight: 84, unit: 'kg' },
-  { id: 'B7', name: 'EZ-Bar Biceps Curl', type: 'weight', targetSets: 3, repRange: { min: 8, max: 12 }, defaultWeight: 30, unit: 'kg' },
-  { id: 'C1', name: 'Decline Chest Press Machine (Matrix)', type: 'weight', targetSets: 4, repRange: { min: 6, max: 8 }, defaultWeight: 32.5, unit: 'kg' },
-  { id: 'C2', name: 'Seated Cable Row (Neutral Grip)', type: 'weight', targetSets: 4, repRange: { min: 6, max: 8 }, defaultWeight: 64, unit: 'kg' },
-  { id: 'C3', name: 'Hip Thrust (Barbell or Smith Machine)', type: 'weight', targetSets: 4, repRange: { min: 10, max: 12 }, defaultWeight: 80, unit: 'kg' },
-  { id: 'C4', name: 'Dumbbell Shoulder Press', type: 'weight', targetSets: 3, repRange: { min: 8, max: 12 }, defaultWeight: 15, unit: 'kg' },
-  { id: 'C5', name: 'Dumbbell Lateral Raise', type: 'weight', targetSets: 3, repRange: { min: 12, max: 15 }, defaultWeight: 10, unit: 'kg' },
-  { id: 'C6', name: 'Plank', type: 'time', targetSets: 3, repRange: { min: 45, max: 60 }, defaultWeight: 0, unit: 'sec' },
+  { id: 'A1', name: 'Decline Chest Press Machine (Matrix)', type: 'weight', movementGroup: 'push', targetSets: 4, repRange: { min: 6, max: 10 }, defaultWeight: 30, unit: 'kg' },
+  { id: 'A2', name: 'Seated Cable Row (Neutral Grip)', type: 'weight', movementGroup: 'pull', targetSets: 4, repRange: { min: 8, max: 12 }, defaultWeight: 55, unit: 'kg' },
+  { id: 'A3', name: 'Leg Press', type: 'weight', movementGroup: 'legs', targetSets: 4, repRange: { min: 8, max: 12 }, defaultWeight: 100, unit: 'kg' },
+  { id: 'A4', name: 'Dumbbell Shoulder Press', type: 'weight', movementGroup: 'push', targetSets: 3, repRange: { min: 8, max: 12 }, defaultWeight: 15, unit: 'kg' },
+  { id: 'A5', name: 'Lat Pulldown (Medium Grip)', type: 'weight', movementGroup: 'pull', targetSets: 3, repRange: { min: 10, max: 12 }, defaultWeight: 55, unit: 'kg' },
+  { id: 'A6', name: 'Cable Triceps Extension (Overhead)', type: 'weight', movementGroup: 'push', targetSets: 3, repRange: { min: 12, max: 15 }, defaultWeight: 29.3, unit: 'kg' },
+  { id: 'A7', name: 'Cable Biceps Curl (Facing Away, Low Pulley)', type: 'weight', movementGroup: 'pull', targetSets: 3, repRange: { min: 10, max: 15 }, defaultWeight: 47.3, unit: 'kg' },
+  { id: 'B1', name: 'Dumbbell Romanian Deadlift', type: 'weight', movementGroup: 'legs', targetSets: 4, repRange: { min: 8, max: 12 }, defaultWeight: 50, unit: 'kg' },
+  { id: 'B2', name: 'Lat Pulldown (Wide Grip)', type: 'weight', movementGroup: 'pull', targetSets: 4, repRange: { min: 8, max: 12 }, defaultWeight: 60, unit: 'kg' },
+  { id: 'B3', name: 'Walking Lunges', type: 'weight', movementGroup: 'legs', targetSets: 3, repRange: { min: 10, max: 10 }, defaultWeight: 14, unit: 'kg' },
+  { id: 'B4', name: 'Flat Dumbbell Bench Press', type: 'weight', movementGroup: 'push', targetSets: 3, repRange: { min: 8, max: 12 }, defaultWeight: 22.5, unit: 'kg' },
+  { id: 'B5', name: 'Face Pull (Cable)', type: 'weight', movementGroup: 'pull', targetSets: 3, repRange: { min: 15, max: 20 }, defaultWeight: 17.5, unit: 'kg' },
+  { id: 'B6', name: 'Triceps Press Machine (Matrix)', type: 'weight', movementGroup: 'push', targetSets: 3, repRange: { min: 10, max: 12 }, defaultWeight: 84, unit: 'kg' },
+  { id: 'B7', name: 'EZ-Bar Biceps Curl', type: 'weight', movementGroup: 'pull', targetSets: 3, repRange: { min: 8, max: 12 }, defaultWeight: 30, unit: 'kg' },
+  { id: 'C1', name: 'Decline Chest Press Machine (Matrix)', type: 'weight', movementGroup: 'push', targetSets: 4, repRange: { min: 6, max: 8 }, defaultWeight: 32.5, unit: 'kg' },
+  { id: 'C2', name: 'Seated Cable Row (Neutral Grip)', type: 'weight', movementGroup: 'pull', targetSets: 4, repRange: { min: 6, max: 8 }, defaultWeight: 64, unit: 'kg' },
+  { id: 'C3', name: 'Hip Thrust (Barbell or Smith Machine)', type: 'weight', movementGroup: 'legs', targetSets: 4, repRange: { min: 10, max: 12 }, defaultWeight: 80, unit: 'kg' },
+  { id: 'C4', name: 'Dumbbell Shoulder Press', type: 'weight', movementGroup: 'push', targetSets: 3, repRange: { min: 8, max: 12 }, defaultWeight: 15, unit: 'kg' },
+  { id: 'C5', name: 'Dumbbell Lateral Raise', type: 'weight', movementGroup: 'push', targetSets: 3, repRange: { min: 12, max: 15 }, defaultWeight: 10, unit: 'kg' },
+  { id: 'C6', name: 'Plank', type: 'time', movementGroup: 'legs', targetSets: 3, repRange: { min: 45, max: 60 }, defaultWeight: 0, unit: 'sec' },
+  { id: 'D1', name: 'Hip Thrust', type: 'weight', movementGroup: 'legs', targetSets: 4, repRange: { min: 8, max: 12 }, defaultWeight: 80, unit: 'kg' },
+  { id: 'D2', name: 'Cable Kickback', type: 'weight', movementGroup: 'legs', targetSets: 3, repRange: { min: 12, max: 15 }, defaultWeight: 18, unit: 'kg' },
+  { id: 'D3', name: 'Cable Side Kickback', type: 'weight', movementGroup: 'legs', targetSets: 3, repRange: { min: 12, max: 15 }, defaultWeight: 18, unit: 'kg' },
+  { id: 'D4', name: 'Leg Curl', type: 'weight', movementGroup: 'legs', targetSets: 3, repRange: { min: 10, max: 15 }, defaultWeight: 35, unit: 'kg' },
+  { id: 'D5', name: 'Leg Extension', type: 'weight', movementGroup: 'legs', targetSets: 3, repRange: { min: 10, max: 15 }, defaultWeight: 35, unit: 'kg' },
+  { id: 'E1', name: 'Romanian Deadlift', type: 'weight', movementGroup: 'legs', targetSets: 4, repRange: { min: 8, max: 12 }, defaultWeight: 50, unit: 'kg' },
+  { id: 'E2', name: 'Hip Abduction', type: 'weight', movementGroup: 'legs', targetSets: 3, repRange: { min: 15, max: 20 }, defaultWeight: 50, unit: 'kg' },
+  { id: 'E3', name: 'Cable Step Up', type: 'weight', movementGroup: 'legs', targetSets: 3, repRange: { min: 10, max: 12 }, defaultWeight: 20, unit: 'kg' },
+  { id: 'E4', name: 'Sumo Squat', type: 'weight', movementGroup: 'legs', targetSets: 4, repRange: { min: 8, max: 12 }, defaultWeight: 30, unit: 'kg' },
 ];
 
-export const workoutTemplates: WorkoutTemplate[] = [
-  { id: 'A', name: 'Trening A', description: 'Siła + Klatka/Plecy', exerciseIds: ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7'] },
-  { id: 'B', name: 'Trening B', description: 'Nogi + Plecy + Ramiona', exerciseIds: ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7'] },
-  { id: 'C', name: 'Trening C', description: 'Klatka + Siła Całościowa', exerciseIds: ['C1', 'C2', 'C3', 'C4', 'C5', 'C6'] },
+export const workoutPlans: WorkoutPlan[] = [
+  { id: 'A', name: 'Trening A', description: 'Siła + Klatka/Plecy', exerciseIds: ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7'], source: 'system', isActive: true, createdAt: SYSTEM_PLAN_CREATED_AT },
+  { id: 'B', name: 'Trening B', description: 'Nogi + Plecy + Ramiona', exerciseIds: ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7'], source: 'system', isActive: true, createdAt: SYSTEM_PLAN_CREATED_AT },
+  { id: 'C', name: 'Trening C', description: 'Klatka + Siła Całościowa', exerciseIds: ['C1', 'C2', 'C3', 'C4', 'C5', 'C6'], source: 'system', isActive: true, createdAt: SYSTEM_PLAN_CREATED_AT },
+  { id: 'D', name: 'Trening D', description: 'Nogi + Pośladki', exerciseIds: ['D1', 'D2', 'D3', 'D4', 'D5'], source: 'system', isActive: true, createdAt: SYSTEM_PLAN_CREATED_AT },
+  { id: 'E', name: 'Trening E', description: 'Tył uda + Pośladki', exerciseIds: ['E1', 'E2', 'E3', 'E4'], source: 'system', isActive: true, createdAt: SYSTEM_PLAN_CREATED_AT },
 ];
 
 export const getExerciseDefinition = (exerciseId: string) =>
   exerciseLibrary.find((exercise) => exercise.id === exerciseId);
 
-export const getWorkoutTemplate = (templateId: TemplateId) =>
-  workoutTemplates.find((template) => template.id === templateId);
+export const getWorkoutPlan = (planId: PlanId, plans = workoutPlans) =>
+  plans.find((plan) => plan.id === planId);
 
 export const createDefaultSet = (exerciseId: string, setNumber: number): SessionSet => {
   const definition = getExerciseDefinition(exerciseId);
@@ -70,15 +83,15 @@ export const createEntryFromExercise = (exerciseId: string): SessionEntry => {
   };
 };
 
-export const createEntriesFromTemplate = (templateId: TemplateId) => {
-  const template = getWorkoutTemplate(templateId);
-  return template ? template.exerciseIds.map(createEntryFromExercise) : [];
+export const createEntriesFromPlan = (planId: PlanId, plans = workoutPlans) => {
+  const plan = getWorkoutPlan(planId, plans);
+  return plan ? plan.exerciseIds.map(createEntryFromExercise) : [];
 };
 
 export const migrateLegacySession = (legacySession: {
   id?: string;
   date: string | Date;
-  workoutType?: TemplateId;
+  workoutType?: PlanId;
   exercises: Array<{
     exerciseId: string;
     weight: number;
@@ -94,7 +107,7 @@ export const migrateLegacySession = (legacySession: {
     completedAt: startedAt,
     endedAt: startedAt,
     status: 'completed' as const,
-    templateId: legacySession.workoutType,
+    planId: legacySession.workoutType,
     notes: '',
     entries: legacySession.exercises.map((exercise) => {
       const definition = getExerciseDefinition(exercise.exerciseId);

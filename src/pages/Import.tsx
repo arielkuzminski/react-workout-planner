@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import Papa from 'papaparse';
 import { Download, Upload } from 'lucide-react';
 import { useWorkoutStore } from '../store';
-import { LegacyWorkoutSession } from '../types';
+import { LegacyWorkoutSession, PlanId } from '../types';
 import { createId, legacySessionToV2 } from '../utils/sessionUtils';
 
 const downloadBlob = (filename: string, content: string, mimeType: string) => {
@@ -42,7 +42,7 @@ export default function Import() {
       session.entries.flatMap((entry) =>
         entry.sets.map((set) => ({
           date: session.completedAt ?? session.startedAt,
-          workoutType: session.templateId ?? '',
+          workoutType: session.planId ?? '',
           exerciseId: entry.exerciseId,
           weight: set.weight ?? 0,
           reps: entry.exerciseType === 'time' ? set.durationSec ?? 0 : set.reps ?? 0,
@@ -111,7 +111,7 @@ export default function Import() {
               sessionsMap.set(key, {
                 id: createId('legacy'),
                 date: row.date,
-                workoutType: row.workoutType as 'A' | 'B' | 'C',
+                workoutType: row.workoutType as PlanId,
                 exercises: [],
               });
             }
@@ -149,24 +149,24 @@ export default function Import() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Backup i import</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight">Backup i import</h2>
         <p className="mt-1 text-stone-500">Local-first znaczy, że backup musi być prosty i szybki.</p>
       </div>
 
       <section className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm">
+        <div className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm">
           <h3 className="text-lg font-semibold">Eksport</h3>
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-4 flex flex-col sm:flex-row sm:flex-wrap gap-3">
             <button
               onClick={handleExportJson}
-              className="inline-flex items-center gap-2 rounded-2xl bg-stone-900 px-4 py-3 font-semibold text-white transition-colors hover:bg-stone-700 active:bg-stone-800 focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+              className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-stone-900 px-4 py-3 font-semibold text-white transition-colors hover:bg-stone-700 active:bg-stone-800 focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               <Download className="h-4 w-4" />
               Export JSON
             </button>
             <button
               onClick={handleExportCsv}
-              className="inline-flex items-center gap-2 rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700 transition-colors hover:bg-stone-200 active:bg-stone-300 focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+              className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700 transition-colors hover:bg-stone-200 active:bg-stone-300 focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               <Download className="h-4 w-4" />
               Export CSV
@@ -174,11 +174,11 @@ export default function Import() {
           </div>
         </div>
 
-        <div className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm">
+        <div className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm">
           <h3 className="text-lg font-semibold">Import</h3>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-3 font-semibold text-white transition-colors hover:bg-emerald-600 active:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+            className="mt-4 inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-4 py-3 font-semibold text-white transition-colors hover:bg-emerald-600 active:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             <Upload className="h-4 w-4" />
             Wybierz plik
@@ -197,7 +197,7 @@ export default function Import() {
       </section>
 
       {message && (
-        <div className="rounded-[2rem] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800">
+        <div className="rounded-[2rem] border border-emerald-200 bg-emerald-50 px-4 sm:px-5 py-4 text-sm font-medium text-emerald-800 break-words">
           {message}
         </div>
       )}

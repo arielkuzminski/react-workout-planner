@@ -56,7 +56,7 @@ export default function RestTimer({ defaultSeconds = 90 }: RestTimerProps) {
   const progress = 1 - secondsLeft / defaultSeconds;
 
   return (
-    <div className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${
+    <div className={`flex flex-wrap items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${
       hasFinished
         ? 'bg-emerald-50 border border-emerald-200'
         : isRunning
@@ -79,11 +79,11 @@ export default function RestTimer({ defaultSeconds = 90 }: RestTimerProps) {
         </span>
       </div>
 
-      <span className="font-medium text-gray-700 flex-1">
+      <span className="font-medium text-gray-700 flex-1 min-w-[120px]">
         {hasFinished ? 'Przerwa zakończona!' : isRunning ? 'Odpoczywaj...' : 'Timer przerwy'}
       </span>
 
-      <div className="flex gap-1">
+      <div className="ml-auto flex gap-1">
         {!isRunning && !hasFinished && (
           <button onClick={start} className="p-2 rounded-lg hover:bg-gray-200" aria-label="Start timer">
             <Play className="w-4 h-4 text-blue-700" />

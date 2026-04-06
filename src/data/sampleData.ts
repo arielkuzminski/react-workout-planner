@@ -1,5 +1,5 @@
-import { getExerciseDefinition, workoutTemplates } from './workoutPlans';
-import { SessionEntry, SessionSet, TemplateId, WorkoutSession } from '../types';
+import { getExerciseDefinition, workoutPlans } from './workoutPlans';
+import { PlanId, SessionEntry, SessionSet, WorkoutSession } from '../types';
 import { createId } from '../utils/sessionUtils';
 
 const createSet = (
@@ -58,7 +58,7 @@ export const generateSampleData = (): WorkoutSession[] => {
   startDate.setDate(startDate.getDate() - 42);
 
   for (let i = 0; i < 18; i += 1) {
-    const template = workoutTemplates[i % workoutTemplates.length];
+    const plan = workoutPlans[i % workoutPlans.length];
     const sessionDate = new Date(startDate);
     sessionDate.setDate(sessionDate.getDate() + i * 2);
     const multiplier = 1 + i * 0.02;
@@ -68,9 +68,9 @@ export const generateSampleData = (): WorkoutSession[] => {
       startedAt: sessionDate.toISOString(),
       completedAt: new Date(sessionDate.getTime() + 45 * 60 * 1000).toISOString(),
       status: 'completed',
-      templateId: template.id as TemplateId,
+      planId: plan.id as PlanId,
       notes: '',
-      entries: template.exerciseIds.map((exerciseId) => buildEntry(exerciseId, multiplier)),
+      entries: plan.exerciseIds.map((exerciseId) => buildEntry(exerciseId, multiplier)),
     });
   }
 
