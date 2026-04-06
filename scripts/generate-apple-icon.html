@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Generate Apple Touch Icon for Silka</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 40px auto; text-align: center; }
+    canvas { border: 1px solid #ccc; border-radius: 12px; margin: 20px 0; }
+    a { display: inline-block; padding: 12px 24px; background: #1d4ed8; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; }
+    a:hover { background: #1e40af; }
+    p { color: #666; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>Apple Touch Icon</h1>
+  <p>180x180 PNG for iOS homescreen</p>
+  <canvas id="canvas" width="180" height="180"></canvas>
+  <br>
+  <a id="download" download="apple-touch-icon.png">Download apple-touch-icon.png</a>
+  <p>Save the file to <code>public/apple-touch-icon.png</code></p>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const size = 180;
+    const radius = 36;
+
+    // Draw rounded rectangle background
+    ctx.beginPath();
+    ctx.moveTo(radius, 0);
+    ctx.lineTo(size - radius, 0);
+    ctx.quadraticCurveTo(size, 0, size, radius);
+    ctx.lineTo(size, size - radius);
+    ctx.quadraticCurveTo(size, size, size - radius, size);
+    ctx.lineTo(radius, size);
+    ctx.quadraticCurveTo(0, size, 0, size - radius);
+    ctx.lineTo(0, radius);
+    ctx.quadraticCurveTo(0, 0, radius, 0);
+    ctx.closePath();
+    ctx.fillStyle = '#1d4ed8';
+    ctx.fill();
+
+    // Draw "S" letter
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 96px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('S', size / 2, size / 2 + 4);
+
+    // Set download link
+    document.getElementById('download').href = canvas.toDataURL('image/png');
+  </script>
+</body>
+</html>
