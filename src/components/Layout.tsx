@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Activity, BarChart3, Dumbbell, History, Settings } from 'lucide-react';
+import { Activity, BarChart3, History, Settings } from 'lucide-react';
+import AppLogo from './AppLogo';
 import { APP_EVENTS } from '../constants/storage';
 
 export default function Layout() {
@@ -33,7 +34,7 @@ export default function Layout() {
             className="flex min-w-0 flex-1 items-center gap-3 rounded-md transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
             aria-label="Przejdź na stronę główną"
           >
-            <Dumbbell className="w-6 h-6 sm:w-7 sm:h-7 text-brand-text shrink-0" />
+            <AppLogo className="h-10 w-10 shrink-0 rounded-2xl" />
             <div className="min-w-0">
               <h1 className="text-xl sm:text-2xl font-bold text-text-primary leading-tight">Siłka</h1>
               <p className="text-xs sm:text-sm text-text-secondary leading-tight">Siła i walka określa Twój byt!</p>

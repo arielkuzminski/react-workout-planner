@@ -6,8 +6,8 @@
   <style>
     body { font-family: system-ui, sans-serif; max-width: 480px; margin: 40px auto; text-align: center; }
     canvas { border: 1px solid #ccc; border-radius: 12px; margin: 20px 0; }
-    a { display: inline-block; padding: 12px 24px; background: #1d4ed8; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; }
-    a:hover { background: #1e40af; }
+    a { display: inline-block; padding: 12px 24px; background: #1f2937; color: #fbbf24; text-decoration: none; border-radius: 8px; font-weight: bold; }
+    a:hover { background: #111827; }
     p { color: #666; font-size: 14px; }
   </style>
 </head>
@@ -24,6 +24,8 @@
     const ctx = canvas.getContext('2d');
     const size = 180;
     const radius = 36;
+    const scale = 5.5;
+    const offset = 24;
 
     // Draw rounded rectangle background
     ctx.beginPath();
@@ -37,15 +39,74 @@
     ctx.lineTo(0, radius);
     ctx.quadraticCurveTo(0, 0, radius, 0);
     ctx.closePath();
-    ctx.fillStyle = '#1d4ed8';
+    ctx.fillStyle = '#1f2937';
     ctx.fill();
 
-    // Draw "S" letter
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 96px system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('S', size / 2, size / 2 + 4);
+    // Draw dumbbell icon
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 10.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    const t = (value) => offset + value * scale;
+
+    ctx.beginPath();
+    ctx.moveTo(t(2.5), t(21.5));
+    ctx.lineTo(t(3.9), t(20.1));
+    ctx.moveTo(t(20.1), t(3.9));
+    ctx.lineTo(t(21.5), t(2.5));
+    ctx.moveTo(t(9.6), t(14.4));
+    ctx.lineTo(t(14.4), t(9.6));
+    ctx.stroke();
+
+    const drawPolyline = (points) => {
+      ctx.beginPath();
+      ctx.moveTo(t(points[0][0]), t(points[0][1]));
+      for (let i = 1; i < points.length; i += 1) {
+        ctx.lineTo(t(points[i][0]), t(points[i][1]));
+      }
+      ctx.stroke();
+    };
+
+    drawPolyline([
+      [13.99, 11.18],
+      [15.83, 13.02],
+      [17.6, 12.77],
+      [19.01, 11.35],
+      [18.66, 9.93],
+      [16.89, 8.17],
+      [18.66, 6.34],
+      [18.66, 5.17],
+      [15.84, 2.34],
+      [14.42, 2.34],
+      [13.0, 3.76],
+      [13.0, 5.17],
+      [11.23, 3.4],
+      [9.81, 3.05],
+      [8.4, 4.46],
+      [8.15, 6.23],
+      [9.92, 8.0],
+    ]);
+
+    drawPolyline([
+      [6.41, 12.82],
+      [4.57, 10.98],
+      [2.8, 11.23],
+      [1.39, 12.65],
+      [1.74, 14.07],
+      [3.5, 15.84],
+      [1.74, 17.66],
+      [1.74, 18.83],
+      [4.57, 21.66],
+      [5.98, 21.66],
+      [7.4, 20.24],
+      [7.4, 18.83],
+      [9.17, 20.6],
+      [10.59, 20.95],
+      [12.0, 19.54],
+      [12.25, 17.77],
+      [10.48, 16.0],
+    ]);
 
     // Set download link
     document.getElementById('download').href = canvas.toDataURL('image/png');
