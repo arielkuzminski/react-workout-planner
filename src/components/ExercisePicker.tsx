@@ -9,6 +9,12 @@ interface ExercisePickerProps {
   onSubmit: (exerciseIds: string[]) => void;
   placeholder?: string;
   submitLabel?: string;
+  selectionMode?: 'single' | 'multiple';
+  showSelectionIndicator?: boolean;
+  showFooter?: boolean;
+  autoSubmitOnSelect?: boolean;
+  title?: string;
+  subtitle?: string;
 }
 
 const GROUP_ORDER: MovementGroup[] = ['legs', 'push', 'pull'];
@@ -26,6 +32,12 @@ export default function ExercisePicker({
   onSubmit,
   placeholder = 'Dodaj ćwiczenie do sesji',
   submitLabel = 'Dodaj',
+  selectionMode = 'multiple',
+  showSelectionIndicator = true,
+  showFooter = true,
+  autoSubmitOnSelect = false,
+  title = 'Dodaj ćwiczenia',
+  subtitle = 'Zaznacz jedną albo kilka pozycji i zatwierdź na dole.',
 }: ExercisePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -88,6 +100,16 @@ export default function ExercisePicker({
   }, [isOpen]);
 
   const handleToggle = (exerciseId: string) => {
+    if (selectionMode === 'single') {
+      const nextValue = value.includes(exerciseId) ? [] : [exerciseId];
+      onChange(nextValue);
+      if (autoSubmitOnSelect && nextValue.length > 0) {
+        onSubmit(nextValue);
+        setIsOpen(false);
+      }
+      return;
+    }
+
     if (value.includes(exerciseId)) {
       onChange(value.filter((id) => id !== exerciseId));
       return;
@@ -125,8 +147,8 @@ export default function ExercisePicker({
     <div className="mx-auto flex max-h-[78vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[28px] border border-gray-200 bg-white shadow-2xl sm:max-h-[32rem] sm:rounded-[28px]">
       <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 sm:hidden">
         <div>
-          <p className="text-sm font-semibold text-gray-900">Dodaj ćwiczenia</p>
-          <p className="text-xs text-gray-500">Możesz zaznaczyć kilka pozycji naraz.</p>
+          <p className="text-sm font-semibold text-gray-900">{title}</p>
+          <p className="text-xs text-gray-500">{subtitle}</p>
         </div>
         <button
           type="button"
@@ -141,8 +163,8 @@ export default function ExercisePicker({
       <div className="border-b border-gray-100 px-4 py-3">
         <div className="mb-3 hidden items-center justify-between sm:flex">
           <div>
-            <p className="text-sm font-semibold text-gray-900">Dodaj ćwiczenia</p>
-            <p className="text-xs text-gray-500">Zaznacz jedną albo kilka pozycji i zatwierdź na dole.</p>
+            <p className="text-sm font-semibold text-gray-900">{title}</p>
+            <p className="text-xs text-gray-500">{subtitle}</p>
           </div>
           <button
             type="button"
@@ -212,14 +234,16 @@ export default function ExercisePicker({
                             {exercise.type === 'time' ? 'sek.' : 'powt.'}
                           </p>
                         </div>
-                        <span
-                          className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
-                            isSelected ? 'bg-blue-700 text-white' : 'bg-gray-100 text-transparent'
-                          }`}
-                          aria-hidden="true"
-                        >
-                          <Check className="h-4 w-4" />
-                        </span>
+                        {showSelectionIndicator && (
+                          <span
+                            className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
+                              isSelected ? 'bg-blue-700 text-white' : 'bg-gray-100 text-transparent'
+                            }`}
+                            aria-hidden="true"
+                          >
+                            <Check className="h-4 w-4" />
+                          </span>
+                        )}
                       </button>
                     );
                   })}
@@ -234,32 +258,34 @@ export default function ExercisePicker({
         )}
       </div>
 
-      <div className="border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-        <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-900">
-              {value.length > 0 ? selectedCountLabel : 'Nic nie zaznaczono'}
-            </p>
-            {value.length > 0 && (
-              <button
-                type="button"
-                onClick={handleClear}
-                className="mt-1 text-xs font-medium text-gray-500 transition-colors hover:text-gray-700"
-              >
-                Wyczyść wybór
-              </button>
-            )}
+      {showFooter && (
+        <div className="border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-gray-900">
+                {value.length > 0 ? selectedCountLabel : 'Nic nie zaznaczono'}
+              </p>
+              {value.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="mt-1 text-xs font-medium text-gray-500 transition-colors hover:text-gray-700"
+                >
+                  Wyczyść wybór
+                </button>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={value.length === 0}
+              className="min-w-28 rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-black active:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-300"
+            >
+              {submitLabel}
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={value.length === 0}
-            className="min-w-28 rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-black active:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-300"
-          >
-            {submitLabel}
-          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 

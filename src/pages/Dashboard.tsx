@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import ExercisePicker from '../components/ExercisePicker';
 import { useWorkoutStore } from '../store';
 import { getEntryVolume } from '../utils/analyticsUtils';
 
@@ -23,6 +24,10 @@ export default function Progress() {
     });
     return Array.from(ids);
   }, [completedSessions]);
+  const usedExercises = useMemo(
+    () => exerciseLibrary.filter((exercise) => usedExerciseIds.includes(exercise.id)),
+    [exerciseLibrary, usedExerciseIds],
+  );
 
   const selectedExercise = exerciseLibrary.find((exercise) => exercise.id === selectedExerciseId);
 
@@ -89,23 +94,22 @@ export default function Progress() {
       </section>
 
       <section className="rounded-[2rem] border border-stone-200 bg-white p-4 sm:p-5 shadow-sm">
-        <label htmlFor="exercise-select" className="text-sm font-semibold">Ćwiczenie</label>
-        <select
-          id="exercise-select"
-          value={selectedExerciseId}
-          onChange={(event) => setSelectedExerciseId(event.target.value)}
-          className="mt-3 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
-        >
-          <option value="">Wybierz ćwiczenie</option>
-          {usedExerciseIds.map((exerciseId) => {
-            const exercise = exerciseLibrary.find((item) => item.id === exerciseId);
-            return (
-              <option key={exerciseId} value={exerciseId}>
-                {exercise?.name || exerciseId}
-              </option>
-            );
-          })}
-        </select>
+        <p className="text-sm font-semibold">Ćwiczenie</p>
+        <div className="mt-3">
+          <ExercisePicker
+            exercises={usedExercises}
+            value={selectedExerciseId ? [selectedExerciseId] : []}
+            onChange={(exerciseIds) => setSelectedExerciseId(exerciseIds[0] ?? '')}
+            onSubmit={(exerciseIds) => setSelectedExerciseId(exerciseIds[0] ?? '')}
+            placeholder="Wybierz ćwiczenie"
+            selectionMode="single"
+            showSelectionIndicator={false}
+            showFooter={false}
+            autoSubmitOnSelect
+            title="Wybierz ćwiczenie"
+            subtitle="Wybierz jedną pozycję z listy, aby zobaczyć trend."
+          />
+        </div>
       </section>
 
       {selectedExercise && progressionData.length > 0 ? (

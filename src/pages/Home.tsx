@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { useMemo, useState } from 'react';
-import { Loader, PlayCircle, RotateCcw } from 'lucide-react';
-import { generateSampleData } from '../data/sampleData';
+import { useMemo } from 'react';
+import { RotateCcw } from 'lucide-react';
 import { useWorkoutStore } from '../store';
 import { PlanId } from '../types';
 
@@ -30,8 +29,6 @@ export default function Home() {
     return recent.slice(0, 6);
   }, [completedSessions, exerciseLibrary]);
   const startSession = useWorkoutStore((state) => state.startSession);
-  const importCompletedSessions = useWorkoutStore((state) => state.importCompletedSessions);
-  const [isLoadingSample, setIsLoadingSample] = useState(false);
 
   const suggestedPlanId = useMemo(() => {
     const rotation = activePlans.map((plan) => plan.id);
@@ -47,13 +44,6 @@ export default function Home() {
     }
     startSession(planId);
     navigate('/session');
-  };
-
-  const handleLoadSample = async () => {
-    setIsLoadingSample(true);
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    importCompletedSessions(generateSampleData());
-    setIsLoadingSample(false);
   };
 
   return (
@@ -130,20 +120,8 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500">Brak historii. Załaduj sample data albo zaloguj pierwszą sesję.</p>
+            <p className="text-sm text-gray-500">Brak historii. Załaduj przykładowe sesje w Konfiguracji albo zaloguj pierwszą sesję.</p>
           )}
-        </div>
-
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-5">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Sample data</h3>
-          <button
-            onClick={handleLoadSample}
-            disabled={isLoadingSample}
-            className="w-full px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:outline-none"
-          >
-            {isLoadingSample ? <Loader className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
-            {isLoadingSample ? 'Ładowanie...' : 'Załaduj przykładowe sesje'}
-          </button>
         </div>
       </section>
     </div>
