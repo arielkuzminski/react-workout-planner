@@ -83,19 +83,36 @@ export default function ExercisePicker({
       }
     };
 
-    const handleEscape = (event: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsOpen(false);
+        return;
+      }
+
+      if (event.key === 'Tab' && rootRef.current) {
+        const focusable = rootRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
       }
     };
 
     document.addEventListener('mousedown', handlePointerDown);
-    document.addEventListener('keydown', handleEscape);
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
       window.clearTimeout(focusTimer);
       document.removeEventListener('mousedown', handlePointerDown);
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen]);
 
@@ -236,7 +253,7 @@ export default function ExercisePicker({
                         </div>
                         {showSelectionIndicator && (
                           <span
-                            className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
+                            className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
                               isSelected ? 'bg-brand text-text-inverted' : 'bg-surface-raised text-transparent'
                             }`}
                             aria-hidden="true"

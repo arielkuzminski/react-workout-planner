@@ -1,6 +1,7 @@
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
+import PwaUpdatePrompt from './components/PwaUpdatePrompt';
 import Home from './pages/Home';
 import History from './pages/History';
 import Dashboard from './pages/Dashboard';
@@ -27,6 +28,7 @@ function NotFound() {
 function App() {
   return (
     <ErrorBoundary>
+      <PwaUpdatePrompt />
       <BrowserRouter>
         <Routes>
           <Route element={<Layout />}>

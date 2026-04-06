@@ -83,7 +83,7 @@ export default function Layout() {
         </div>
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-surface-card border-t shadow-lg md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 bg-surface-card border-t shadow-lg md:hidden pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-5xl mx-auto flex">
           <Link to="/" className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 transition-colors ${mobileLinkClass('/')}`}>
             <Activity className="w-5 h-5" />
