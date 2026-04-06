@@ -1,14 +1,24 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import PwaUpdatePrompt from './components/PwaUpdatePrompt';
 import Home from './pages/Home';
-import History from './pages/History';
-import Dashboard from './pages/Dashboard';
 import Import from './pages/Import';
 import SessionRecap from './pages/SessionRecap';
 import Plans from './pages/Templates';
-import Settings from './pages/Settings';
+
+const History = lazy(() => import('./pages/History'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Settings = lazy(() => import('./pages/Settings'));
+
+function RouteFallback() {
+  return (
+    <div className="rounded-[2rem] border border-border bg-surface-card px-5 py-8 text-sm text-text-secondary shadow-sm">
+      Ładowanie widoku...
+    </div>
+  );
+}
 
 function NotFound() {
   return (
@@ -34,10 +44,10 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
             <Route path="/recap" element={<SessionRecap />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/progress" element={<Dashboard />} />
+            <Route path="/history" element={<Suspense fallback={<RouteFallback />}><History /></Suspense>} />
+            <Route path="/progress" element={<Suspense fallback={<RouteFallback />}><Dashboard /></Suspense>} />
             <Route path="/plans" element={<Plans />} />
-            <Route path="/settings" element={<Settings />} />
+            <Route path="/settings" element={<Suspense fallback={<RouteFallback />}><Settings /></Suspense>} />
             <Route path="/import" element={<Import />} />
             <Route path="*" element={<NotFound />} />
           </Route>

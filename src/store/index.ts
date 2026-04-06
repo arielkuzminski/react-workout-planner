@@ -1,7 +1,9 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { APP_EVENTS, STORAGE_KEYS } from '../constants/storage';
 import { exerciseLibrary, workoutPlans } from '../data/workoutPlans';
 import {
+  AutoBackupPayload,
   ExerciseDefinition,
   ExerciseHistorySummary,
   PlanId,
@@ -52,6 +54,7 @@ interface WorkoutStoreActions {
   updateEntryNotes: (entryId: string, notes: string) => void;
   deleteCompletedSession: (sessionId: string) => void;
   importCompletedSessions: (sessions: WorkoutSession[]) => void;
+  restoreFromBackup: (payload: AutoBackupPayload) => boolean;
   getCompletedSessions: () => WorkoutSession[];
   getExerciseDefinition: (exerciseId: string) => ExerciseDefinition | undefined;
   getPlanById: (planId: string) => WorkoutPlan | undefined;
@@ -383,6 +386,24 @@ export const useWorkoutStore = create<WorkoutStore>()(
         });
       },
 
+      restoreFromBackup: (payload) => {
+        const completedSessions = dedupeCompleted(
+          payload.completedSessions.filter((session) => session.status === 'completed')
+        );
+        completedSessions.sort((a, b) =>
+          new Date(b.completedAt ?? b.startedAt).getTime() -
+          new Date(a.completedAt ?? a.startedAt).getTime(),
+        );
+
+        set({
+          activeSession: payload.activeSession ?? null,
+          completedSessions,
+          plans: mergePlansWithSeeds(payload.plans),
+        });
+
+        return true;
+      },
+
       getCompletedSessions: () => get().completedSessions,
 
       getExerciseDefinition: (exerciseId) =>
@@ -417,7 +438,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
         getExerciseHistorySummary(get().completedSessions, exerciseId),
     }),
     {
-      name: 'workout-store',
+      name: STORAGE_KEYS.workoutStore,
       version: 4,
       storage: createJSONStorage(() => {
         const safeStorage: Storage = {
@@ -428,7 +449,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
             } catch (e) {
               if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.code === 22)) {
                 console.error('[Siłka] localStorage quota exceeded — data may not be saved');
-                window.dispatchEvent(new CustomEvent('silka:storage-full'));
+                window.dispatchEvent(new CustomEvent(APP_EVENTS.storageFull));
               } else {
                 throw e;
               }

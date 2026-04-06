@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Activity, BarChart3, Dumbbell, History, Settings } from 'lucide-react';
+import { APP_EVENTS } from '../constants/storage';
 
 export default function Layout() {
   const location = useLocation();
@@ -8,8 +9,8 @@ export default function Layout() {
 
   useEffect(() => {
     const handler = () => setStorageFull(true);
-    window.addEventListener('silka:storage-full', handler);
-    return () => window.removeEventListener('silka:storage-full', handler);
+    window.addEventListener(APP_EVENTS.storageFull, handler);
+    return () => window.removeEventListener(APP_EVENTS.storageFull, handler);
   }, []);
 
   const isActive = (path: string) => location.pathname === path;

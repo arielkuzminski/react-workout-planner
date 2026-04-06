@@ -111,6 +111,16 @@ export interface ExportPayload {
   completedSessions: Session[];
 }
 
+export interface BackupSettings {
+  enabled: boolean;
+  lastBackupAt?: string;
+}
+
+export interface AutoBackupPayload extends ExportPayload {
+  plans: WorkoutPlan[];
+  backupSettings?: Pick<BackupSettings, 'enabled'>;
+}
+
 export interface LegacySetResult {
   setNumber: number;
   reps: number;

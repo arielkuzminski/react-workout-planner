@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { STORAGE_KEYS } from '../constants/storage';
 
 export type Theme = 'light' | 'dark' | 'pink';
 
@@ -51,7 +52,7 @@ export const useThemeStore = create<ThemeStore>()(
       },
     }),
     {
-      name: 'silka-theme',
+      name: STORAGE_KEYS.themeStore,
       storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
         if (state?.theme) {

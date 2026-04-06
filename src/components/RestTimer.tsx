@@ -9,7 +9,18 @@ export default function RestTimer({ defaultSeconds = 90 }: RestTimerProps) {
   const [secondsLeft, setSecondsLeft] = useState(defaultSeconds);
   const [isRunning, setIsRunning] = useState(false);
   const [hasFinished, setHasFinished] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updatePreference = () => setPrefersReducedMotion(mediaQuery.matches);
+
+    updatePreference();
+    mediaQuery.addEventListener('change', updatePreference);
+
+    return () => mediaQuery.removeEventListener('change', updatePreference);
+  }, []);
 
   const stop = useCallback(() => {
     if (intervalRef.current) {
@@ -66,13 +77,15 @@ export default function RestTimer({ defaultSeconds = 90 }: RestTimerProps) {
       <div className="relative w-10 h-10 flex-shrink-0">
         <svg viewBox="0 0 36 36" className="w-10 h-10 -rotate-90">
           <circle cx="18" cy="18" r="16" fill="none" stroke="var(--color-chart-track)" strokeWidth="3" />
-          <circle
-            cx="18" cy="18" r="16" fill="none"
-            stroke={hasFinished ? 'var(--color-chart-line)' : 'var(--color-chart-fill)'}
-            strokeWidth="3"
-            strokeDasharray={`${progress * 100.5} 100.5`}
-            strokeLinecap="round"
-          />
+          {!prefersReducedMotion && (
+            <circle
+              cx="18" cy="18" r="16" fill="none"
+              stroke={hasFinished ? 'var(--color-chart-line)' : 'var(--color-chart-fill)'}
+              strokeWidth="3"
+              strokeDasharray={`${progress * 100.5} 100.5`}
+              strokeLinecap="round"
+            />
+          )}
         </svg>
         <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-text-primary">
           {minutes}:{seconds.toString().padStart(2, '0')}

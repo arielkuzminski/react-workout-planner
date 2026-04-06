@@ -1,11 +1,13 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Papa from 'papaparse';
-import { ChevronRight, ClipboardList, Download, Loader, PlayCircle, Upload } from 'lucide-react';
+import { ChevronRight, ClipboardList, Download, Loader, PlayCircle, RefreshCw, Upload } from 'lucide-react';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import { generateSampleData } from '../data/sampleData';
 import { useWorkoutStore } from '../store';
+import { useBackupStore } from '../store/backupStore';
 import { LegacyWorkoutSession, PlanId } from '../types';
+import { createExportPayload, parseImportedCompletedSessions, readAutoBackupSnapshot } from '../utils/backup';
 import { createId, legacySessionToV2 } from '../utils/sessionUtils';
 
 const downloadBlob = (filename: string, content: string, mimeType: string) => {
@@ -22,6 +24,10 @@ export default function Settings() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const completedSessions = useWorkoutStore((state) => state.completedSessions);
   const importCompletedSessions = useWorkoutStore((state) => state.importCompletedSessions);
+  const restoreFromBackup = useWorkoutStore((state) => state.restoreFromBackup);
+  const backupEnabled = useBackupStore((state) => state.enabled);
+  const lastBackupAt = useBackupStore((state) => state.lastBackupAt);
+  const setBackupEnabled = useBackupStore((state) => state.setEnabled);
   const [message, setMessage] = useState('');
   const [isLoadingSample, setIsLoadingSample] = useState(false);
 
@@ -37,14 +43,7 @@ export default function Settings() {
   const handleExportJson = () => {
     downloadBlob(
       `silka-export-${new Date().toISOString().slice(0, 10)}.json`,
-      JSON.stringify(
-        {
-          schemaVersion: 2,
-          completedSessions,
-        },
-        null,
-        2
-      ),
+      JSON.stringify(createExportPayload(completedSessions), null, 2),
       'application/json'
     );
     setMessage('Wyeksportowano JSON backup.');
@@ -93,20 +92,9 @@ export default function Settings() {
       reader.onload = (loadEvent) => {
         try {
           const parsed = JSON.parse(String(loadEvent.target?.result || '{}'));
-
-          if (parsed.schemaVersion === 2 && Array.isArray(parsed.completedSessions)) {
-            const valid = parsed.completedSessions.filter(
-              (s: unknown) =>
-                s && typeof s === 'object' &&
-                'id' in s && typeof (s as { id: unknown }).id === 'string' &&
-                'startedAt' in s && typeof (s as { startedAt: unknown }).startedAt === 'string' &&
-                'entries' in s && Array.isArray((s as { entries: unknown }).entries)
-            );
-            if (valid.length === 0) {
-              setMessage('Plik JSON nie zawiera prawidłowych sesji.');
-              return;
-            }
-            importCompletedSessions(valid);
+          const normalizedSessions = parseImportedCompletedSessions(parsed);
+          if (normalizedSessions) {
+            importCompletedSessions(normalizedSessions);
           } else {
             const sessions = (Array.isArray(parsed) ? parsed : parsed.sessions || []) as LegacyWorkoutSession[];
             if (sessions.length === 0) {
@@ -183,6 +171,20 @@ export default function Settings() {
     }
   };
 
+  const handleRestoreFromAutoBackup = () => {
+    const snapshot = readAutoBackupSnapshot();
+    if (!snapshot) {
+      setMessage('Brak poprawnego automatycznego backupu do odzyskania.');
+      return;
+    }
+
+    restoreFromBackup(snapshot);
+    if (snapshot.backupSettings) {
+      setBackupEnabled(snapshot.backupSettings.enabled);
+    }
+    setMessage('Przywrócono dane z automatycznego backupu.');
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -248,6 +250,44 @@ export default function Settings() {
         <div>
           <h3 className="text-2xl font-bold tracking-tight text-text-primary">Backup i import</h3>
           <p className="mt-1 text-text-secondary">Local-first znaczy, że backup musi być prosty i szybki.</p>
+        </div>
+
+        <div className="rounded-[2rem] border border-border bg-surface-card p-4 sm:p-5 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h4 className="text-lg font-semibold text-text-primary">Automatyczny backup lokalny</h4>
+              <p className="mt-1 text-sm text-text-secondary">
+                Zapisuje pełny snapshot aplikacji w tej przeglądarce po zmianach danych treningowych.
+              </p>
+              <p className="mt-2 text-xs text-text-tertiary">
+                Zakres: aktywna sesja, historia, plany i ustawienia backupu.
+              </p>
+            </div>
+            <label className="inline-flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-medium text-text-primary">
+              <input
+                type="checkbox"
+                checked={backupEnabled}
+                onChange={(event) => setBackupEnabled(event.target.checked)}
+                className="h-4 w-4 rounded border-border text-brand focus:ring-brand-ring"
+              />
+              Włącz auto-backup
+            </label>
+          </div>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-text-secondary">
+              {lastBackupAt
+                ? `Ostatni backup: ${new Date(lastBackupAt).toLocaleString('pl-PL')}`
+                : 'Backup nie został jeszcze zapisany.'}
+            </p>
+            <button
+              type="button"
+              onClick={handleRestoreFromAutoBackup}
+              className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-surface-raised px-4 py-3 font-semibold text-text-primary transition-colors hover:bg-surface-inset active:bg-surface-inset focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Odzyskaj z backupu
+            </button>
+          </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
