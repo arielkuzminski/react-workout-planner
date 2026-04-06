@@ -1,6 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Activity, BarChart3, Dumbbell, History, Settings } from 'lucide-react';
-import ThemeSwitcher from './ThemeSwitcher';
 
 export default function Layout() {
   const location = useLocation();
@@ -30,8 +29,6 @@ export default function Layout() {
               <p className="text-xs sm:text-sm text-text-secondary leading-tight">Siła i walka określa Twój byt!</p>
             </div>
           </Link>
-
-          <ThemeSwitcher />
 
           <nav className="hidden md:flex items-center gap-2">
             <Link
@@ -67,7 +64,9 @@ export default function Layout() {
       </header>
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-6">
-        <Outlet />
+        <div key={location.pathname} className="page-transition">
+          <Outlet />
+        </div>
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 bg-surface-card border-t shadow-lg md:hidden">

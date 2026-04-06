@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Papa from 'papaparse';
 import { ChevronRight, ClipboardList, Download, Loader, PlayCircle, Upload } from 'lucide-react';
+import ThemeSwitcher from '../components/ThemeSwitcher';
 import { generateSampleData } from '../data/sampleData';
 import { useWorkoutStore } from '../store';
 import { LegacyWorkoutSession, PlanId } from '../types';
@@ -164,6 +165,18 @@ export default function Settings() {
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-text-primary">Konfiguracja</h2>
         <p className="mt-1 text-text-secondary">Zarządzaj planami treningowymi, danymi pomocniczymi, backupem i importem aplikacji.</p>
       </div>
+
+      <section className="rounded-[2rem] border border-border bg-surface-card p-4 sm:p-5 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-text-primary">Motyw aplikacji</h3>
+            <p className="mt-1 text-sm text-text-secondary">
+              Wybierz wygląd interfejsu. Ustawienie zapisuje się lokalnie na tym urządzeniu.
+            </p>
+          </div>
+          <ThemeSwitcher />
+        </div>
+      </section>
 
       <section className="rounded-[2rem] border border-brand-border bg-brand-soft p-4 sm:p-5 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

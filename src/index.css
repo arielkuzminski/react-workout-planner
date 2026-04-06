@@ -222,6 +222,22 @@ body {
   background-color: var(--color-surface);
 }
 
+.page-transition {
+  animation: page-enter 220ms ease-out;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 *,
 *::before,
 *::after {
@@ -238,6 +254,22 @@ html.no-transitions *,
 html.no-transitions *::before,
 html.no-transitions *::after {
   transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .page-transition {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
 }
 
 /* Interactive elements — always show pointer cursor */
