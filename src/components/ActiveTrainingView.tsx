@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, Trash2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Trash2 } from 'lucide-react';
 import ExerciseLogger from './ExerciseLogger';
 import ExercisePicker from './ExercisePicker';
 import ProgressIndicator from './ProgressIndicator';
 import RestTimer from './RestTimer';
 import { ExerciseDefinition, SessionEntry } from '../types';
 import { useWorkoutStore } from '../store';
-import { getPlanNameById } from '../utils/templateUtils';
 
 export default function ActiveTrainingView() {
   const navigate = useNavigate();
@@ -32,7 +31,6 @@ export default function ActiveTrainingView() {
 
   const activeSession = useWorkoutStore((state) => state.activeSession);
   const exerciseLibrary = useWorkoutStore((state) => state.exerciseLibrary);
-  const plans = useWorkoutStore((state) => state.plans);
   const completedSessions = useWorkoutStore((state) => state.completedSessions);
   const addExerciseToActiveSession = useWorkoutStore((state) => state.addExerciseToActiveSession);
   const updateSetInActiveSession = useWorkoutStore((state) => state.updateSetInActiveSession);
@@ -107,31 +105,28 @@ export default function ActiveTrainingView() {
   return (
     <div className="space-y-6">
       <section className="bg-surface-card rounded-2xl border border-border shadow-sm p-4 sm:p-6 space-y-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-brand-text">
-              {getPlanNameById(plans, activeSession.planId, 'Quick log')}
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-text-primary leading-tight">Aktywna sesja</h2>
-            <p className="text-text-secondary mt-1">
-              Zacznij od gotowego planu albo dynamicznie dodawaj ćwiczenia.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
-            <button
-              onClick={() => abandonActiveSession()}
-              className="min-h-14 px-3 sm:px-4 py-3 rounded-xl bg-danger-soft hover:bg-danger-hover-bg active:bg-danger-active-bg text-danger-text font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-danger-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-            >
-              Porzuć
-            </button>
-            <button
-              onClick={handleComplete}
-              className="min-h-14 px-3 sm:px-4 py-3 rounded-xl bg-success hover:bg-success-hover active:bg-success-active text-text-inverted font-semibold flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-success-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-            >
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-              <span className="leading-tight text-center">Zakończ sesję</span>
-            </button>
-          </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-text-primary leading-tight">Aktywna sesja</h2>
+          <p className="max-w-2xl text-text-secondary">
+            Dodawaj ćwiczenia, loguj serie i wracaj tutaj w dowolnym momencie bez ryzyka utraty draftu.
+          </p>
+        </div>
+
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <button
+            onClick={() => abandonActiveSession()}
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-danger px-4 py-3 text-sm font-semibold text-text-inverted transition-opacity hover:opacity-90 active:bg-danger-active-bg focus-visible:ring-2 focus-visible:ring-danger-ring focus-visible:ring-offset-2 focus-visible:outline-none sm:min-h-0"
+          >
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+            <span>Porzuć sesję</span>
+          </button>
+          <button
+            onClick={handleComplete}
+            className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-success px-5 py-3 font-semibold text-text-inverted transition-colors hover:bg-success-hover active:bg-success-active focus-visible:ring-2 focus-visible:ring-success-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+          >
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span className="leading-tight text-center">Zakończ sesję</span>
+          </button>
         </div>
 
         <div>
