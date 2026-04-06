@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico'],
       manifest: {
-        name: 'Silka — Workout Tracker',
-        short_name: 'Silka',
+        name: 'Siłka — Workout Tracker',
+        short_name: 'Siłka',
         description: 'Loguj trening szybciej niż wiadomość do siebie',
         theme_color: '#1d4ed8',
         background_color: '#f9fafb',
