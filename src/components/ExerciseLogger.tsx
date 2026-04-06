@@ -47,7 +47,7 @@ const WeightSetRow = ({
             step="0.5"
             min="0"
             value={weight}
-            onChange={(e) => onChange({ weight: parseFloat(e.target.value) || 0 })}
+            onChange={(e) => onChange({ weight: Math.min(9999, Math.max(0, parseFloat(e.target.value) || 0)) })}
             className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg bg-surface-card text-center text-sm text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
             aria-label={`Ciężar set ${set.setNumber}`}
           />
@@ -67,7 +67,7 @@ const WeightSetRow = ({
             type="number"
             min="0"
             value={reps}
-            onChange={(e) => onChange({ reps: parseInt(e.target.value, 10) || 0 })}
+            onChange={(e) => onChange({ reps: Math.min(9999, Math.max(0, parseInt(e.target.value, 10) || 0)) })}
             className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg bg-surface-card text-center text-sm text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
             aria-label={`Powtórzenia set ${set.setNumber}`}
           />
@@ -109,7 +109,7 @@ const TimeSetRow = ({
             type="number"
             min="0"
             value={duration}
-            onChange={(e) => onChange({ durationSec: parseInt(e.target.value, 10) || 0 })}
+            onChange={(e) => onChange({ durationSec: Math.min(99999, Math.max(0, parseInt(e.target.value, 10) || 0)) })}
             className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg bg-surface-card text-center text-sm text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
             aria-label={`Czas set ${set.setNumber}`}
           />

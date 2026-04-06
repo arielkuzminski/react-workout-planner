@@ -419,7 +419,26 @@ export const useWorkoutStore = create<WorkoutStore>()(
     {
       name: 'workout-store',
       version: 4,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => {
+        const safeStorage: Storage = {
+          ...localStorage,
+          setItem(key: string, value: string) {
+            try {
+              localStorage.setItem(key, value);
+            } catch (e) {
+              if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.code === 22)) {
+                console.error('[Siłka] localStorage quota exceeded — data may not be saved');
+                window.dispatchEvent(new CustomEvent('silka:storage-full'));
+              } else {
+                throw e;
+              }
+            }
+          },
+          getItem: (key: string) => localStorage.getItem(key),
+          removeItem: (key: string) => localStorage.removeItem(key),
+        };
+        return safeStorage;
+      }),
       migrate: (persistedState) => {
         const persisted = persistedState as {
           activeSession?: WorkoutSession | null;

@@ -1,8 +1,16 @@
+import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Activity, BarChart3, Dumbbell, History, Settings } from 'lucide-react';
 
 export default function Layout() {
   const location = useLocation();
+  const [storageFull, setStorageFull] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setStorageFull(true);
+    window.addEventListener('silka:storage-full', handler);
+    return () => window.removeEventListener('silka:storage-full', handler);
+  }, []);
 
   const isActive = (path: string) => location.pathname === path;
   const desktopLinkClass = (path: string) =>
@@ -62,6 +70,12 @@ export default function Layout() {
           </nav>
         </div>
       </header>
+
+      {storageFull && (
+        <div className="bg-danger text-text-inverted text-center text-sm font-medium px-4 py-2">
+          Pamięć przeglądarki jest pełna — wyeksportuj dane w Konfiguracji, aby ich nie stracić.
+        </div>
+      )}
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-6">
         <div key={location.pathname} className="page-transition">

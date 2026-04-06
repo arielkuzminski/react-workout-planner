@@ -77,10 +77,19 @@ export default function Settings() {
       return;
     }
 
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+    if (file.size > MAX_FILE_SIZE) {
+      setMessage('Plik jest za duży (maks. 10 MB).');
+      return;
+    }
+
     setMessage('');
 
     if (file.name.endsWith('.json')) {
       const reader = new FileReader();
+      reader.onerror = () => {
+        setMessage('Nie udało się odczytać pliku.');
+      };
       reader.onload = (loadEvent) => {
         try {
           const parsed = JSON.parse(String(loadEvent.target?.result || '{}'));
@@ -89,8 +98,9 @@ export default function Settings() {
             const valid = parsed.completedSessions.filter(
               (s: unknown) =>
                 s && typeof s === 'object' &&
-                'id' in s && 'startedAt' in s && 'entries' in s &&
-                Array.isArray((s as { entries: unknown }).entries)
+                'id' in s && typeof (s as { id: unknown }).id === 'string' &&
+                'startedAt' in s && typeof (s as { startedAt: unknown }).startedAt === 'string' &&
+                'entries' in s && Array.isArray((s as { entries: unknown }).entries)
             );
             if (valid.length === 0) {
               setMessage('Plik JSON nie zawiera prawidłowych sesji.');
@@ -99,12 +109,16 @@ export default function Settings() {
             importCompletedSessions(valid);
           } else {
             const sessions = (Array.isArray(parsed) ? parsed : parsed.sessions || []) as LegacyWorkoutSession[];
+            if (sessions.length === 0) {
+              setMessage('Plik JSON nie zawiera sesji do importu.');
+              return;
+            }
             importCompletedSessions(sessions.map((session) => legacySessionToV2(session)));
           }
 
           setMessage('Zaimportowano dane z JSON.');
-        } catch (error) {
-          setMessage(`Błąd JSON: ${error instanceof Error ? error.message : 'unknown error'}`);
+        } catch {
+          setMessage('Błąd importu: plik JSON ma nieprawidłowy format.');
         }
       };
       reader.readAsText(file);
@@ -117,6 +131,11 @@ export default function Settings() {
 
           rows.forEach((row) => {
             if (!row.date || !row.workoutType) {
+              return;
+            }
+            const weight = Number(row.weight || 0);
+            const reps = Number(row.reps || 0);
+            if (weight < 0 || weight > 9999 || reps < 0 || reps > 9999) {
               return;
             }
             const key = `${row.date}-${row.workoutType}`;
@@ -134,17 +153,22 @@ export default function Settings() {
               if (row.reps) {
                 existingExercise.sets.push({
                   setNumber: existingExercise.sets.length + 1,
-                  reps: Number(row.reps || 0),
+                  reps,
                 });
               }
             } else {
               session.exercises.push({
                 exerciseId: row.exerciseId || '',
-                weight: Number(row.weight || 0),
-                sets: row.reps ? [{ setNumber: 1, reps: Number(row.reps || 0) }] : [],
+                weight,
+                sets: row.reps ? [{ setNumber: 1, reps }] : [],
               });
             }
           });
+
+          if (sessionsMap.size === 0) {
+            setMessage('Plik CSV nie zawiera prawidłowych danych.');
+            return;
+          }
 
           importCompletedSessions(
             Array.from(sessionsMap.values()).map((session) => legacySessionToV2(session))
