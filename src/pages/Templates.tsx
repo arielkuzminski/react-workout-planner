@@ -209,10 +209,20 @@ export default function Plans() {
       </section>
 
       {showCreateForm && (
-        <section className="rounded-[2rem] border border-brand-border bg-brand-soft p-5 sm:p-6 shadow-sm space-y-4">
-          <div>
-            <h3 className="text-xl font-bold text-text-primary">Nowy plan</h3>
-            <p className="text-sm text-text-secondary mt-1">Nazwa jest obowiązkowa. Opis jest opcjonalny i po zapisie pozostanie tylko do odczytu.</p>
+        <section className="rounded-[2rem] border border-border bg-surface-card p-5 sm:p-6 shadow-sm space-y-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <span className="inline-flex rounded-full border border-brand-border bg-brand-soft px-3 py-1 text-xs font-semibold tracking-[0.18em] uppercase text-brand-text">
+                Tworzenie planu
+              </span>
+              <h3 className="mt-3 text-xl font-bold text-text-primary">Nowy plan</h3>
+              <p className="mt-1 max-w-2xl text-sm text-text-secondary">
+                Nazwa jest obowiązkowa. Opis jest opcjonalny i po zapisie pozostanie tylko do odczytu.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border bg-surface px-4 py-3 text-sm text-text-secondary sm:max-w-xs">
+              Dodaj nazwę, wybierz ćwiczenia i ustaw ich kolejność przed zapisem.
+            </div>
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             <label className="space-y-2">
@@ -220,7 +230,7 @@ export default function Plans() {
               <input
                 value={createName}
                 onChange={(event) => setCreateName(event.target.value)}
-                className="w-full rounded-xl border border-border-strong px-3 py-3 focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
+                className="w-full rounded-xl border border-border bg-surface px-3 py-3 text-text-primary placeholder:text-text-tertiary focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
                 placeholder="Np. Góra - szybki miks"
               />
             </label>
@@ -229,7 +239,7 @@ export default function Plans() {
               <input
                 value={createDescription}
                 onChange={(event) => setCreateDescription(event.target.value)}
-                className="w-full rounded-xl border border-border-strong px-3 py-3 focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
+                className="w-full rounded-xl border border-border bg-surface px-3 py-3 text-text-primary placeholder:text-text-tertiary focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
                 placeholder="Opcjonalny opis"
               />
             </label>
