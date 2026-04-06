@@ -74,7 +74,7 @@ export default function RestTimer({ defaultSeconds = 90 }: RestTimerProps) {
             strokeLinecap="round"
           />
         </svg>
-        <span className="absolute inset-0 flex items-center justify-center text-xs font-bold">
+        <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-text-primary">
           {minutes}:{seconds.toString().padStart(2, '0')}
         </span>
       </div>
