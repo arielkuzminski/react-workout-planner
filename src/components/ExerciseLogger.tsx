@@ -7,6 +7,7 @@ interface ExerciseLoggerProps {
   onSetChange: (setId: string, patch: { weight?: number; reps?: number; durationSec?: number }) => void;
   onAddSet: () => void;
   onNotesChange: (notes: string) => void;
+  weightIncrementKg?: number;
 }
 
 const StepButton = ({ onClick, label, children }: { onClick: () => void; label: string; children: React.ReactNode }) => (
@@ -24,13 +25,15 @@ const WeightSetRow = ({
   set,
   previousSet,
   onChange,
+  weightIncrementKg,
 }: {
   set: SessionSet;
   previousSet?: SessionSet;
   onChange: (patch: { weight?: number; reps?: number }) => void;
+  weightIncrementKg: number;
 }) => {
-  const weight = set.weight ?? previousSet?.weight ?? 0;
-  const reps = set.reps ?? previousSet?.reps ?? 0;
+  const weight = set.weight ?? 0;
+  const reps = set.reps;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-[56px_1fr_1fr] gap-2 sm:gap-3 items-start sm:items-center">
@@ -39,19 +42,19 @@ const WeightSetRow = ({
       <div className="space-y-1">
         <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wide sm:hidden">kg</span>
         <div className="flex items-center gap-1 min-w-0">
-          <StepButton onClick={() => onChange({ weight: Math.max(0, weight - 2.5) })} label="-2.5kg">
+          <StepButton onClick={() => onChange({ weight: Math.max(0, Number((weight - weightIncrementKg).toFixed(2))) })} label={`-${weightIncrementKg}kg`}>
             <Minus className="w-3.5 h-3.5" />
           </StepButton>
           <input
             type="number"
-            step="0.5"
+            step={weightIncrementKg}
             min="0"
             value={weight}
             onChange={(e) => onChange({ weight: Math.min(9999, Math.max(0, parseFloat(e.target.value) || 0)) })}
             className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg bg-surface-card text-center text-sm text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
             aria-label={`Ciężar set ${set.setNumber}`}
           />
-          <StepButton onClick={() => onChange({ weight: weight + 2.5 })} label="+2.5kg">
+          <StepButton onClick={() => onChange({ weight: Number((weight + weightIncrementKg).toFixed(2)) })} label={`+${weightIncrementKg}kg`}>
             <Plus className="w-3.5 h-3.5" />
           </StepButton>
         </div>
@@ -60,18 +63,26 @@ const WeightSetRow = ({
       <div className="space-y-1">
         <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wide sm:hidden">powt.</span>
         <div className="flex items-center gap-1 min-w-0">
-          <StepButton onClick={() => onChange({ reps: Math.max(0, reps - 1) })} label="-1 rep">
+          <StepButton onClick={() => onChange({ reps: Math.max(0, (reps ?? 0) - 1) })} label="-1 rep">
             <Minus className="w-3.5 h-3.5" />
           </StepButton>
           <input
             type="number"
             min="0"
-            value={reps}
-            onChange={(e) => onChange({ reps: Math.min(9999, Math.max(0, parseInt(e.target.value, 10) || 0)) })}
+            value={reps ?? ''}
+            placeholder={previousSet?.reps?.toString() ?? '0'}
+            onChange={(e) =>
+              onChange({
+                reps:
+                  e.target.value === ''
+                    ? undefined
+                    : Math.min(9999, Math.max(0, parseInt(e.target.value, 10) || 0)),
+              })
+            }
             className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg bg-surface-card text-center text-sm text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
             aria-label={`Powtórzenia set ${set.setNumber}`}
           />
-          <StepButton onClick={() => onChange({ reps: reps + 1 })} label="+1 rep">
+          <StepButton onClick={() => onChange({ reps: (reps ?? 0) + 1 })} label="+1 rep">
             <Plus className="w-3.5 h-3.5" />
           </StepButton>
         </div>
@@ -91,7 +102,7 @@ const TimeSetRow = ({
   exerciseName: string;
   onChange: (patch: { durationSec?: number }) => void;
 }) => {
-  const duration = set.durationSec ?? previousSet?.durationSec ?? 0;
+  const duration = set.durationSec;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-[56px_1fr_1fr] gap-2 sm:gap-3 items-start sm:items-center">
@@ -102,18 +113,26 @@ const TimeSetRow = ({
       <div className="space-y-1">
         <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wide sm:hidden">sek.</span>
         <div className="flex items-center gap-1 min-w-0">
-          <StepButton onClick={() => onChange({ durationSec: Math.max(0, duration - 5) })} label="-5s">
+          <StepButton onClick={() => onChange({ durationSec: Math.max(0, (duration ?? 0) - 5) })} label="-5s">
             <Minus className="w-3.5 h-3.5" />
           </StepButton>
           <input
             type="number"
             min="0"
-            value={duration}
-            onChange={(e) => onChange({ durationSec: Math.min(99999, Math.max(0, parseInt(e.target.value, 10) || 0)) })}
+            value={duration ?? ''}
+            placeholder={previousSet?.durationSec?.toString() ?? '0'}
+            onChange={(e) =>
+              onChange({
+                durationSec:
+                  e.target.value === ''
+                    ? undefined
+                    : Math.min(99999, Math.max(0, parseInt(e.target.value, 10) || 0)),
+              })
+            }
             className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg bg-surface-card text-center text-sm text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
             aria-label={`Czas set ${set.setNumber}`}
           />
-          <StepButton onClick={() => onChange({ durationSec: duration + 5 })} label="+5s">
+          <StepButton onClick={() => onChange({ durationSec: (duration ?? 0) + 5 })} label="+5s">
             <Plus className="w-3.5 h-3.5" />
           </StepButton>
         </div>
@@ -128,6 +147,7 @@ export default function ExerciseLogger({
   onSetChange,
   onAddSet,
   onNotesChange,
+  weightIncrementKg = 2.5,
 }: ExerciseLoggerProps) {
   return (
     <div className="space-y-3">
@@ -144,6 +164,7 @@ export default function ExerciseLogger({
             key={set.id}
             set={set}
             previousSet={prevSet}
+            weightIncrementKg={weightIncrementKg}
             onChange={(patch) => onSetChange(set.id, patch)}
           />
         ) : (

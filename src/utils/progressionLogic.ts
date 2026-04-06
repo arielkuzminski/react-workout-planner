@@ -16,7 +16,8 @@ export const formatPerformance = (entry: SessionEntry) => {
 
 export const calculateProgressionSuggestion = (
   definition: ExerciseDefinition,
-  entry: SessionEntry
+  entry: SessionEntry,
+  weightIncrementKg = 2.5
 ): ProgressionSuggestion => {
   const completedSets = entry.sets.filter((set) =>
     definition.type === 'time' ? (set.durationSec ?? 0) > 0 : (set.reps ?? 0) > 0
@@ -40,7 +41,7 @@ export const calculateProgressionSuggestion = (
   });
 
   if (reachedTopRange) {
-    const increment = definition.type === 'time' ? 5 : 2.5;
+    const increment = definition.type === 'time' ? 5 : weightIncrementKg;
     return {
       exerciseId: definition.id,
       exerciseName: definition.name,
@@ -50,7 +51,7 @@ export const calculateProgressionSuggestion = (
       reason:
         definition.type === 'time'
           ? 'Wszystkie serie są na górze zakresu. Dodaj 5 sekund.'
-          : 'Wszystkie serie są na górze zakresu. Dodaj 2.5 kg.',
+          : `Wszystkie serie są na górze zakresu. Dodaj ${increment} kg.`,
     };
   }
 

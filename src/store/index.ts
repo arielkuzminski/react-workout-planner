@@ -18,6 +18,10 @@ import {
   createSession,
   getExerciseHistorySummary,
   getLastCompletedEntry,
+  getLastCompletedEntryForPlan,
+  getLastCompletedSessionForPlan,
+  getLastTrackedWeight,
+  normalizeCompletedEntry,
   normalizePersistedSessions,
 } from '../utils/sessionUtils';
 import {
@@ -36,7 +40,7 @@ interface WorkoutStoreState {
 interface WorkoutStoreActions {
   startSession: (planId?: PlanId) => void;
   abandonActiveSession: () => void;
-  completeActiveSession: () => void;
+  completeActiveSession: () => boolean;
   createCustomPlan: (name: string, description: string, exerciseIds: string[]) => string | null;
   saveActiveSessionAsPlan: (name: string, description: string) => string | null;
   updatePlanExercises: (planId: string, exerciseIds: string[]) => void;
@@ -65,16 +69,55 @@ interface WorkoutStoreActions {
 
 type WorkoutStore = WorkoutStoreState & WorkoutStoreActions;
 
-const getPreferredWeights = (sessions: WorkoutSession[]) =>
-  sessions.reduce<Record<string, number>>((acc, session) => {
+const getRecentPreferredWeights = (sessions: WorkoutSession[]) => {
+  const weights: Record<string, number> = {};
+  const completed = [...sessions]
+    .filter((session) => session.status === 'completed')
+    .sort(
+      (left, right) =>
+        new Date(right.completedAt ?? right.startedAt).getTime() -
+        new Date(left.completedAt ?? left.startedAt).getTime()
+    );
+
+  completed.forEach((session) => {
     session.entries.forEach((entry) => {
-      const bestWeight = Math.max(0, ...entry.sets.map((set) => set.weight ?? 0));
-      if (bestWeight > 0) {
-        acc[entry.exerciseId] = bestWeight;
+      if (weights[entry.exerciseId] !== undefined) {
+        return;
+      }
+
+      const lastTrackedWeight = getLastTrackedWeight(entry);
+      if (lastTrackedWeight > 0) {
+        weights[entry.exerciseId] = lastTrackedWeight;
       }
     });
-    return acc;
-  }, {});
+  });
+
+  return weights;
+};
+
+const getPreferredWeightsForPlan = (sessions: WorkoutSession[], planId?: PlanId) => {
+  if (!planId) {
+    return getRecentPreferredWeights(sessions);
+  }
+
+  const lastPlanSession = getLastCompletedSessionForPlan(sessions, planId);
+  if (!lastPlanSession) {
+    return getRecentPreferredWeights(sessions);
+  }
+
+  const planWeights: Record<string, number> = {};
+  lastPlanSession.entries.forEach((entry) => {
+    const lastTrackedWeight = getLastTrackedWeight(entry);
+    if (lastTrackedWeight > 0) {
+      planWeights[entry.exerciseId] = lastTrackedWeight;
+    }
+  });
+
+  return {
+    ...getRecentPreferredWeights(sessions),
+    ...planWeights,
+  };
+};
 
 const dedupeCompleted = (sessions: WorkoutSession[]) => {
   const seen = new Set<string>();
@@ -108,7 +151,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
       plans: mergePlansWithSeeds(undefined),
 
       startSession: (planId) => {
-        const preferredWeights = getPreferredWeights(get().completedSessions);
+        const preferredWeights = getPreferredWeightsForPlan(get().completedSessions, planId);
         const plans = get().plans;
         const plan = planId ? plans.find((item) => item.id === planId && item.isActive) : undefined;
         set({
@@ -225,12 +268,21 @@ export const useWorkoutStore = create<WorkoutStore>()(
       completeActiveSession: () => {
         const activeSession = get().activeSession;
         if (!activeSession) {
-          return;
+          return false;
+        }
+
+        const normalizedEntries = activeSession.entries
+          .map((entry) => normalizeCompletedEntry(entry))
+          .filter((entry): entry is SessionEntry => Boolean(entry));
+
+        if (normalizedEntries.length === 0) {
+          return false;
         }
 
         const now = new Date().toISOString();
         const completedSession: WorkoutSession = {
           ...activeSession,
+          entries: normalizedEntries,
           status: 'completed',
           completedAt: now,
           endedAt: now,
@@ -240,6 +292,8 @@ export const useWorkoutStore = create<WorkoutStore>()(
           activeSession: null,
           completedSessions: dedupeCompleted([completedSession, ...state.completedSessions]),
         }));
+
+        return true;
       },
 
       addExerciseToActiveSession: (exerciseId) => {
@@ -249,9 +303,12 @@ export const useWorkoutStore = create<WorkoutStore>()(
           return;
         }
 
-        const previous = getLastCompletedEntry(get().completedSessions, exerciseId);
+        const previous = activeSession.planId
+          ? getLastCompletedEntryForPlan(get().completedSessions, activeSession.planId, exerciseId) ??
+            getLastCompletedEntry(get().completedSessions, exerciseId)
+          : getLastCompletedEntry(get().completedSessions, exerciseId);
         const preferredWeight = previous
-          ? Math.max(0, ...previous.sets.map((set) => set.weight ?? 0))
+          ? getLastTrackedWeight(previous)
           : undefined;
 
         set({

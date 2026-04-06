@@ -6,6 +6,7 @@ import ThemeSwitcher from '../components/ThemeSwitcher';
 import { generateSampleData } from '../data/sampleData';
 import { useWorkoutStore } from '../store';
 import { useBackupStore } from '../store/backupStore';
+import { usePreferencesStore } from '../store/preferencesStore';
 import { LegacyWorkoutSession, PlanId } from '../types';
 import { createExportPayload, parseImportedCompletedSessions, readAutoBackupSnapshot } from '../utils/backup';
 import { createId, legacySessionToV2 } from '../utils/sessionUtils';
@@ -28,6 +29,12 @@ export default function Settings() {
   const backupEnabled = useBackupStore((state) => state.enabled);
   const lastBackupAt = useBackupStore((state) => state.lastBackupAt);
   const setBackupEnabled = useBackupStore((state) => state.setEnabled);
+  const restTimerSeconds = usePreferencesStore((state) => state.restTimerSeconds);
+  const restTimerSoundEnabled = usePreferencesStore((state) => state.restTimerSoundEnabled);
+  const weightIncrementKg = usePreferencesStore((state) => state.weightIncrementKg);
+  const setRestTimerSeconds = usePreferencesStore((state) => state.setRestTimerSeconds);
+  const setRestTimerSoundEnabled = usePreferencesStore((state) => state.setRestTimerSoundEnabled);
+  const setWeightIncrementKg = usePreferencesStore((state) => state.setWeightIncrementKg);
   const [message, setMessage] = useState('');
   const [isLoadingSample, setIsLoadingSample] = useState(false);
 
@@ -201,6 +208,53 @@ export default function Settings() {
             </p>
           </div>
           <ThemeSwitcher />
+        </div>
+      </section>
+
+      <section className="rounded-[2rem] border border-border bg-surface-card p-4 sm:p-5 shadow-sm space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold text-text-primary">Preferencje treningu</h3>
+          <p className="mt-1 text-sm text-text-secondary">
+            Ustaw domyślny czas przerwy, sygnał zakończenia timera i krok zmiany ciężaru.
+          </p>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-3">
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-text-primary">Timer przerwy (sekundy)</span>
+            <input
+              type="number"
+              min="5"
+              max="3600"
+              step="5"
+              value={restTimerSeconds}
+              onChange={(event) => setRestTimerSeconds(parseInt(event.target.value, 10) || 90)}
+              className="w-full rounded-xl border border-border bg-surface px-3 py-3 text-text-primary focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
+            />
+          </label>
+
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-text-primary">Krok ciężaru (kg)</span>
+            <input
+              type="number"
+              min="0.25"
+              max="20"
+              step="0.25"
+              value={weightIncrementKg}
+              onChange={(event) => setWeightIncrementKg(parseFloat(event.target.value) || 2.5)}
+              className="w-full rounded-xl border border-border bg-surface px-3 py-3 text-text-primary focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
+            />
+          </label>
+
+          <label className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-medium text-text-primary">
+            <input
+              type="checkbox"
+              checked={restTimerSoundEnabled}
+              onChange={(event) => setRestTimerSoundEnabled(event.target.checked)}
+              className="h-4 w-4 rounded border-border text-brand focus:ring-brand-ring"
+            />
+            Włącz dźwięk timera
+          </label>
         </div>
       </section>
 

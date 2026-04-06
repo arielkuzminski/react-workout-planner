@@ -3,14 +3,26 @@ import { Pause, Play, RotateCcw } from 'lucide-react';
 
 interface RestTimerProps {
   defaultSeconds?: number;
+  soundEnabled?: boolean;
+  className?: string;
 }
 
-export default function RestTimer({ defaultSeconds = 90 }: RestTimerProps) {
+export default function RestTimer({ defaultSeconds = 90, soundEnabled = true, className = '' }: RestTimerProps) {
   const [secondsLeft, setSecondsLeft] = useState(defaultSeconds);
   const [isRunning, setIsRunning] = useState(false);
   const [hasFinished, setHasFinished] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    setSecondsLeft(defaultSeconds);
+    setHasFinished(false);
+    setIsRunning(false);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, [defaultSeconds]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -66,8 +78,45 @@ export default function RestTimer({ defaultSeconds = 90 }: RestTimerProps) {
   const seconds = secondsLeft % 60;
   const progress = 1 - secondsLeft / defaultSeconds;
 
+  const playSound = useCallback(() => {
+    if (!soundEnabled) {
+      return;
+    }
+
+    try {
+      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioContextClass) {
+        return;
+      }
+
+      const context = new AudioContextClass();
+      const oscillator = context.createOscillator();
+      const gainNode = context.createGain();
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(880, context.currentTime);
+      gainNode.gain.setValueAtTime(0.0001, context.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.08, context.currentTime + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.28);
+      oscillator.connect(gainNode);
+      gainNode.connect(context.destination);
+      oscillator.start();
+      oscillator.stop(context.currentTime + 0.3);
+      oscillator.onended = () => {
+        void context.close();
+      };
+    } catch {}
+  }, [soundEnabled]);
+
+  useEffect(() => {
+    if (!hasFinished) {
+      return;
+    }
+
+    playSound();
+  }, [hasFinished, playSound]);
+
   return (
-    <div className={`flex flex-wrap items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${
+    <div className={`flex flex-wrap items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${className} ${
       hasFinished
         ? 'bg-success-soft border border-success-border'
         : isRunning

@@ -105,7 +105,9 @@ export default function Plans() {
   const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
   const [editingExerciseIds, setEditingExerciseIds] = useState<string[]>([]);
   const [editingPickerSelection, setEditingPickerSelection] = useState<string[]>([]);
+  const [highlightedPlanId, setHighlightedPlanId] = useState<string | null>(null);
   const editorPanelRef = useRef<HTMLElement | null>(null);
+  const customPlanRefs = useRef<Record<string, HTMLElement | null>>({});
 
   useEffect(() => {
     if (!editingPlanId) {
@@ -131,7 +133,10 @@ export default function Plans() {
   }, [editingPlanId]);
 
   const activeSystemPlans = plans.filter((plan) => plan.source === 'system' && plan.isActive);
-  const customPlans = plans.filter((plan) => plan.source === 'custom');
+  const customPlans = [...plans.filter((plan) => plan.source === 'custom')].sort(
+    (left, right) =>
+      new Date(right.createdAt ?? 0).getTime() - new Date(left.createdAt ?? 0).getTime()
+  );
   const inactiveSystemPlans = plans.filter((plan) => plan.source === 'system' && !plan.isActive);
 
   const createAvailableExercises = exerciseLibrary.filter((exercise) => !createExerciseIds.includes(exercise.id));
@@ -151,6 +156,7 @@ export default function Plans() {
     setCreateDescription('');
     setCreateExerciseIds([]);
     setCreatePickerSelection([]);
+    setHighlightedPlanId(planId);
   };
 
   const handleSaveActiveSessionPlan = () => {
@@ -169,6 +175,20 @@ export default function Plans() {
     setEditingExerciseIds([...plan.exerciseIds]);
     setEditingPickerSelection([]);
   };
+
+  useEffect(() => {
+    if (!highlightedPlanId) {
+      return;
+    }
+
+    customPlanRefs.current[highlightedPlanId]?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    });
+
+    const timer = window.setTimeout(() => setHighlightedPlanId(null), 2400);
+    return () => window.clearTimeout(timer);
+  }, [highlightedPlanId]);
 
   return (
     <div className="space-y-6">
@@ -398,7 +418,17 @@ export default function Plans() {
             <h3 className="text-lg font-bold text-text-primary">Twoje plany treningowe</h3>
             {customPlans.length > 0 ? (
               customPlans.map((plan) => (
-                <article key={plan.id} className="rounded-[2rem] border border-border bg-surface-card p-5 shadow-sm space-y-4">
+                <article
+                  key={plan.id}
+                  ref={(node) => {
+                    customPlanRefs.current[plan.id] = node;
+                  }}
+                  className={`rounded-[2rem] border bg-surface-card p-5 shadow-sm space-y-4 transition-colors ${
+                    highlightedPlanId === plan.id
+                      ? 'border-brand ring-2 ring-brand-ring'
+                      : 'border-border'
+                  }`}
+                >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
@@ -457,15 +487,22 @@ export default function Plans() {
                       <h4 className="mt-3 text-xl font-bold text-text-primary break-words">{plan.name}</h4>
                       <p className="mt-1 text-sm text-text-secondary">{plan.description}</p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setPlanActive(plan.id, true)}
+                  <button
+                    type="button"
+                    onClick={() => setPlanActive(plan.id, true)}
                       className="inline-flex items-center gap-2 rounded-xl bg-success px-4 py-3 text-sm font-semibold text-text-inverted transition-colors hover:bg-success-hover"
                     >
                       <RotateCcw className="h-4 w-4" />
                       Przywróć
                     </button>
                   </div>
+                  <ExerciseListEditor
+                    exerciseIds={plan.exerciseIds}
+                    exerciseMap={exerciseMap}
+                    onRemove={() => {}}
+                    onMove={() => {}}
+                    editable={false}
+                  />
                 </article>
               ))}
             </div>

@@ -116,6 +116,12 @@ export interface BackupSettings {
   lastBackupAt?: string;
 }
 
+export interface UserPreferences {
+  restTimerSeconds: number;
+  restTimerSoundEnabled: boolean;
+  weightIncrementKg: number;
+}
+
 export interface AutoBackupPayload extends ExportPayload {
   plans: WorkoutPlan[];
   backupSettings?: Pick<BackupSettings, 'enabled'>;

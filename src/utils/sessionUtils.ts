@@ -68,6 +68,28 @@ export const createSession = (
   };
 };
 
+export const isRecordedSet = (entry: SessionEntry, set: SessionSet) =>
+  entry.exerciseType === 'time' ? (set.durationSec ?? 0) > 0 : (set.reps ?? 0) > 0;
+
+export const normalizeCompletedEntry = (entry: SessionEntry): SessionEntry | null => {
+  const recordedSets = entry.sets
+    .filter((set) => isRecordedSet(entry, set))
+    .map((set, index) => ({
+      ...set,
+      setNumber: index + 1,
+      completed: true,
+    }));
+
+  if (recordedSets.length === 0) {
+    return null;
+  }
+
+  return {
+    ...entry,
+    sets: recordedSets,
+  };
+};
+
 export const getBestWeight = (entry: SessionEntry) =>
   Math.max(0, ...entry.sets.map((set) => set.weight ?? 0));
 
@@ -76,6 +98,28 @@ export const getBestReps = (entry: SessionEntry) =>
 
 export const getBestDuration = (entry: SessionEntry) =>
   Math.max(0, ...entry.sets.map((set) => set.durationSec ?? set.reps ?? 0));
+
+export const getLastTrackedWeight = (entry: SessionEntry) => {
+  const weightedSets = [...entry.sets].reverse().find((set) => (set.weight ?? 0) > 0);
+  return weightedSets?.weight ?? entry.sets.find((set) => (set.weight ?? 0) > 0)?.weight ?? 0;
+};
+
+export const getLastTrackedDuration = (entry: SessionEntry) => {
+  const durationSet = [...entry.sets].reverse().find((set) => (set.durationSec ?? 0) > 0);
+  return durationSet?.durationSec ?? entry.sets.find((set) => (set.durationSec ?? 0) > 0)?.durationSec ?? 0;
+};
+
+export const getLastCompletedSessionForPlan = (
+  sessions: WorkoutSession[],
+  planId: PlanId
+): WorkoutSession | undefined =>
+  [...sessions]
+    .filter((session) => session.status === 'completed' && session.planId === planId)
+    .sort(
+      (left, right) =>
+        new Date(right.completedAt ?? right.startedAt).getTime() -
+        new Date(left.completedAt ?? left.startedAt).getTime()
+    )[0];
 
 export const getLastCompletedEntry = (
   sessions: WorkoutSession[],
@@ -97,6 +141,15 @@ export const getLastCompletedEntry = (
   }
 
   return undefined;
+};
+
+export const getLastCompletedEntryForPlan = (
+  sessions: WorkoutSession[],
+  planId: PlanId,
+  exerciseId: string
+): SessionEntry | undefined => {
+  const lastPlanSession = getLastCompletedSessionForPlan(sessions, planId);
+  return lastPlanSession?.entries.find((candidate) => candidate.exerciseId === exerciseId);
 };
 
 export const getExerciseHistorySummary = (

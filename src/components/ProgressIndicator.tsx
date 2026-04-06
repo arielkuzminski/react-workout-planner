@@ -5,14 +5,16 @@ interface ProgressIndicatorProps {
   definition: ExerciseDefinition;
   entry: SessionEntry;
   previousEntry?: SessionEntry;
+  weightIncrementKg?: number;
 }
 
 export default function ProgressIndicator({
   definition,
   entry,
   previousEntry,
+  weightIncrementKg = 2.5,
 }: ProgressIndicatorProps) {
-  const suggestion = calculateProgressionSuggestion(definition, entry);
+  const suggestion = calculateProgressionSuggestion(definition, entry, weightIncrementKg);
 
   return (
     <div className="space-y-3">

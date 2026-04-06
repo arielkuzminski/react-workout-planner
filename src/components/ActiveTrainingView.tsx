@@ -7,6 +7,8 @@ import ProgressIndicator from './ProgressIndicator';
 import RestTimer from './RestTimer';
 import { ExerciseDefinition, SessionEntry } from '../types';
 import { useWorkoutStore } from '../store';
+import { usePreferencesStore } from '../store/preferencesStore';
+import { getLastCompletedEntry, getLastCompletedEntryForPlan } from '../utils/sessionUtils';
 
 export default function ActiveTrainingView() {
   const navigate = useNavigate();
@@ -39,6 +41,9 @@ export default function ActiveTrainingView() {
   const removeEntryFromActiveSession = useWorkoutStore((state) => state.removeEntryFromActiveSession);
   const completeActiveSession = useWorkoutStore((state) => state.completeActiveSession);
   const abandonActiveSession = useWorkoutStore((state) => state.abandonActiveSession);
+  const restTimerSeconds = usePreferencesStore((state) => state.restTimerSeconds);
+  const restTimerSoundEnabled = usePreferencesStore((state) => state.restTimerSoundEnabled);
+  const weightIncrementKg = usePreferencesStore((state) => state.weightIncrementKg);
   const [selectedExerciseIds, setSelectedExerciseIds] = useState<string[]>([]);
 
   const availableExercises = useMemo(
@@ -65,24 +70,21 @@ export default function ActiveTrainingView() {
 
   const previousEntryMap = useMemo(() => {
     const map = new Map<string, SessionEntry>();
-    const completed = [...completedSessions]
-      .filter((session) => session.status === 'completed')
-      .sort(
-        (a, b) =>
-          new Date(b.completedAt ?? b.startedAt).getTime() -
-          new Date(a.completedAt ?? a.startedAt).getTime(),
-      );
+    const exerciseIds = activeSession?.entries.map((entry) => entry.exerciseId) ?? [];
 
-    for (const session of completed) {
-      for (const entry of session.entries) {
-        if (!map.has(entry.exerciseId)) {
-          map.set(entry.exerciseId, entry);
-        }
+    exerciseIds.forEach((exerciseId) => {
+      const entry = activeSession?.planId
+        ? getLastCompletedEntryForPlan(completedSessions, activeSession.planId, exerciseId) ??
+          getLastCompletedEntry(completedSessions, exerciseId)
+        : getLastCompletedEntry(completedSessions, exerciseId);
+
+      if (entry) {
+        map.set(exerciseId, entry);
       }
-    }
+    });
 
     return map;
-  }, [completedSessions]);
+  }, [activeSession?.entries, activeSession?.planId, completedSessions]);
 
   if (!activeSession) {
     return null;
@@ -98,7 +100,11 @@ export default function ActiveTrainingView() {
   };
 
   const handleComplete = () => {
-    completeActiveSession();
+    const completed = completeActiveSession();
+    if (!completed) {
+      window.alert('Uzupełnij przynajmniej jedną serię z wynikiem, zanim zakończysz sesję.');
+      return;
+    }
     navigate('/recap');
   };
 
@@ -170,6 +176,7 @@ export default function ActiveTrainingView() {
               <ExerciseLogger
                 entry={entry}
                 previousEntry={previousEntryMap.get(entry.exerciseId)}
+                weightIncrementKg={weightIncrementKg}
                 onSetChange={(setId, patch) => updateSetInActiveSession(entry.id, setId, patch)}
                 onAddSet={() => addSetToEntry(entry.id)}
                 onNotesChange={(notes) => updateEntryNotes(entry.id, notes)}
@@ -179,13 +186,20 @@ export default function ActiveTrainingView() {
                 definition={definition}
                 entry={entry}
                 previousEntry={previousEntryMap.get(entry.exerciseId)}
+                weightIncrementKg={weightIncrementKg}
               />
-
-              <RestTimer />
             </div>
           );
         })}
       </section>
+
+      <div className="sticky bottom-[4.75rem] z-20 md:bottom-4">
+        <RestTimer
+          defaultSeconds={restTimerSeconds}
+          soundEnabled={restTimerSoundEnabled}
+          className="shadow-lg backdrop-blur supports-[backdrop-filter]:bg-surface-card/95"
+        />
+      </div>
     </div>
   );
 }

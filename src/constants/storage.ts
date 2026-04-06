@@ -3,6 +3,7 @@ export const STORAGE_KEYS = {
   themeStore: 'silka-theme',
   autoBackup: 'silka-auto-backup',
   autoBackupSettings: 'silka-auto-backup-settings',
+  userPreferences: 'silka-user-preferences',
 } as const;
 
 export const APP_EVENTS = {
