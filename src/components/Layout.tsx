@@ -4,6 +4,7 @@ import { Activity, BarChart3, Dumbbell, History, Settings } from 'lucide-react';
 import { APP_EVENTS } from '../constants/storage';
 
 export default function Layout() {
+  const appVersion = __APP_VERSION__;
   const location = useLocation();
   const [storageFull, setStorageFull] = useState(false);
 
@@ -84,6 +85,10 @@ export default function Layout() {
         </div>
       </main>
 
+      <div className="mx-auto hidden w-full max-w-5xl px-4 pb-3 text-right text-[11px] text-text-tertiary md:block">
+        {appVersion}
+      </div>
+
       <nav className="fixed bottom-0 left-0 right-0 bg-surface-card border-t shadow-lg md:hidden pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-5xl mx-auto flex">
           <Link to="/" className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 transition-colors ${mobileLinkClass('/')}`}>
@@ -113,6 +118,10 @@ export default function Layout() {
           </Link>
         </div>
       </nav>
+
+      <div className="pb-1 text-center text-[10px] text-text-tertiary md:hidden">
+        {appVersion}
+      </div>
 
       <div className="md:hidden h-16" />
     </div>
