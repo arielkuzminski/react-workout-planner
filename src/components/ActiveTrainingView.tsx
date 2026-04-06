@@ -1,19 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, Trash2 } from 'lucide-react';
-import ExerciseLogger from '../components/ExerciseLogger';
-import ExercisePicker from '../components/ExercisePicker';
-import ProgressIndicator from '../components/ProgressIndicator';
-import RestTimer from '../components/RestTimer';
+import ExerciseLogger from './ExerciseLogger';
+import ExercisePicker from './ExercisePicker';
+import ProgressIndicator from './ProgressIndicator';
+import RestTimer from './RestTimer';
 import { ExerciseDefinition, SessionEntry } from '../types';
 import { useWorkoutStore } from '../store';
 import { getPlanNameById } from '../utils/templateUtils';
 
-export default function Session() {
+export default function ActiveTrainingView() {
   const navigate = useNavigate();
-
-  // Wake Lock — keep screen on during active session
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+
   useEffect(() => {
     const acquire = async () => {
       try {
@@ -22,9 +21,15 @@ export default function Session() {
         }
       } catch {}
     };
+
     acquire();
-    return () => { wakeLockRef.current?.release(); wakeLockRef.current = null; };
+
+    return () => {
+      wakeLockRef.current?.release();
+      wakeLockRef.current = null;
+    };
   }, []);
+
   const activeSession = useWorkoutStore((state) => state.activeSession);
   const exerciseLibrary = useWorkoutStore((state) => state.exerciseLibrary);
   const plans = useWorkoutStore((state) => state.plans);
@@ -42,9 +47,9 @@ export default function Session() {
     () =>
       exerciseLibrary.filter(
         (exercise) =>
-          !activeSession?.entries.some((entry) => entry.exerciseId === exercise.id)
+          !activeSession?.entries.some((entry) => entry.exerciseId === exercise.id),
       ),
-    [activeSession?.entries, exerciseLibrary]
+    [activeSession?.entries, exerciseLibrary],
   );
 
   useEffect(() => {
@@ -54,18 +59,22 @@ export default function Session() {
 
   const definitionMap = useMemo(() => {
     const map = new Map<string, ExerciseDefinition>();
-    for (const def of exerciseLibrary) map.set(def.id, def);
+    for (const def of exerciseLibrary) {
+      map.set(def.id, def);
+    }
     return map;
   }, [exerciseLibrary]);
 
   const previousEntryMap = useMemo(() => {
     const map = new Map<string, SessionEntry>();
     const completed = [...completedSessions]
-      .filter((s) => s.status === 'completed')
-      .sort((a, b) =>
-        new Date(b.completedAt ?? b.startedAt).getTime() -
-        new Date(a.completedAt ?? a.startedAt).getTime()
+      .filter((session) => session.status === 'completed')
+      .sort(
+        (a, b) =>
+          new Date(b.completedAt ?? b.startedAt).getTime() -
+          new Date(a.completedAt ?? a.startedAt).getTime(),
       );
+
     for (const session of completed) {
       for (const entry of session.entries) {
         if (!map.has(entry.exerciseId)) {
@@ -73,22 +82,12 @@ export default function Session() {
         }
       }
     }
+
     return map;
   }, [completedSessions]);
 
   if (!activeSession) {
-    return (
-      <div className="bg-surface-card rounded-2xl border border-border shadow-sm p-6 text-center">
-        <h2 className="text-2xl font-bold text-text-primary">Brak aktywnej sesji</h2>
-        <p className="text-text-secondary mt-2">Wróć na start i zacznij nową sesję albo wybierz plan treningowy.</p>
-        <Link
-          to="/"
-          className="inline-flex mt-4 px-4 py-3 rounded-xl bg-brand text-text-inverted font-semibold"
-        >
-          Wróć do startu
-        </Link>
-      </div>
-    );
+    return null;
   }
 
   const handleAddExercises = (exerciseIds: string[]) => {
@@ -120,10 +119,7 @@ export default function Session() {
           </div>
           <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
             <button
-              onClick={() => {
-                abandonActiveSession();
-                navigate('/');
-              }}
+              onClick={() => abandonActiveSession()}
               className="min-h-14 px-3 sm:px-4 py-3 rounded-xl bg-danger-soft hover:bg-danger-hover-bg active:bg-danger-active-bg text-danger-text font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-danger-ring focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               Porzuć

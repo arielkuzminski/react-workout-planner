@@ -36,7 +36,7 @@ export default function Layout() {
               className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring ${desktopLinkClass('/')}`}
             >
               <Activity className="w-4 h-4" />
-              <span>Start</span>
+              <span>Trening</span>
             </Link>
             <Link
               to="/history"
@@ -73,7 +73,7 @@ export default function Layout() {
         <div className="max-w-5xl mx-auto flex">
           <Link to="/" className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 transition-colors ${mobileLinkClass('/')}`}>
             <Activity className="w-5 h-5" />
-            <span className="max-[479px]:hidden">Start</span>
+            <span className="max-[479px]:hidden">Trening</span>
           </Link>
           <Link
             to="/history"

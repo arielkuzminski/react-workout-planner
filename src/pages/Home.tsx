@@ -1,11 +1,9 @@
-import { useNavigate } from 'react-router-dom';
 import { useMemo } from 'react';
-import { RotateCcw } from 'lucide-react';
+import ActiveTrainingView from '../components/ActiveTrainingView';
 import { useWorkoutStore } from '../store';
 import { PlanId } from '../types';
 
 export default function Home() {
-  const navigate = useNavigate();
   const activeSession = useWorkoutStore((state) => state.activeSession);
   const plans = useWorkoutStore((state) => state.plans);
   const completedSessions = useWorkoutStore((state) => state.completedSessions);
@@ -43,8 +41,11 @@ export default function Home() {
       return;
     }
     startSession(planId);
-    navigate('/session');
   };
+
+  if (activeSession) {
+    return <ActiveTrainingView />;
+  }
 
   return (
     <div className="space-y-6">
@@ -63,15 +64,6 @@ export default function Home() {
           >
             Zacznij nową sesję
           </button>
-          {activeSession && (
-            <button
-              onClick={() => navigate('/session')}
-              className="px-5 py-3 rounded-xl bg-btn-dark hover:bg-btn-dark-hover active:bg-btn-dark-active text-text-inverted font-semibold flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-            >
-              <RotateCcw className="w-4 h-4" />
-              Wróć do aktywnej sesji
-            </button>
-          )}
         </div>
       </section>
 

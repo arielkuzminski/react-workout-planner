@@ -42,7 +42,7 @@ export default function SessionRecap() {
       <div className="bg-surface-card rounded-2xl border border-border shadow-sm p-6 text-center">
         <h2 className="text-2xl font-bold text-text-primary">Brak ukończonej sesji</h2>
         <Link to="/" className="inline-flex mt-4 px-4 py-3 rounded-xl bg-brand text-text-inverted font-semibold">
-          Wróć do startu
+          Wróć do treningu
         </Link>
       </div>
     );
@@ -182,7 +182,7 @@ export default function SessionRecap() {
           to="/"
           className="flex-1 px-5 py-3 rounded-xl bg-surface-raised hover:bg-surface-inset active:bg-surface-inset text-text-primary font-semibold text-center transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2 focus-visible:outline-none"
         >
-          Wróć do startu
+          Wróć do treningu
         </Link>
       </div>
     </div>
