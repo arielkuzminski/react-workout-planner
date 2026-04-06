@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Papa from 'papaparse';
 import { ChevronRight, ClipboardList, Download, Loader, PlayCircle, RefreshCw, Upload } from 'lucide-react';
+import PwaInstallCard from '../components/PwaInstallCard';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import { generateSampleData } from '../data/sampleData';
 import { useWorkoutStore } from '../store';
@@ -210,6 +211,8 @@ export default function Settings() {
           <ThemeSwitcher />
         </div>
       </section>
+
+      <PwaInstallCard />
 
       <section className="rounded-[2rem] border border-border bg-surface-card p-4 sm:p-5 shadow-sm space-y-4">
         <div>
