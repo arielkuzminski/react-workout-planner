@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { CheckCircle2, Download, Plus, Share2, Smartphone } from 'lucide-react';
+import { isIosDevice, isStandaloneMode } from '../utils/pwa';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -9,13 +10,6 @@ interface BeforeInstallPromptEvent extends Event {
   }>;
 }
 
-type NavigatorWithStandalone = Navigator & {
-  standalone?: boolean;
-};
-
-const isStandaloneMode = () =>
-  window.matchMedia('(display-mode: standalone)').matches || Boolean((navigator as NavigatorWithStandalone).standalone);
-
 export default function PwaInstallCard() {
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIos, setIsIos] = useState(false);
@@ -23,9 +17,8 @@ export default function PwaInstallCard() {
   const [installState, setInstallState] = useState<'idle' | 'installing' | 'dismissed'>('idle');
 
   useEffect(() => {
-    const userAgent = window.navigator.userAgent.toLowerCase();
     const standalone = isStandaloneMode();
-    const iosDevice = /iphone|ipad|ipod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const iosDevice = isIosDevice();
 
     setIsInstalled(standalone);
     setIsIos(iosDevice);
