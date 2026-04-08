@@ -4,6 +4,7 @@ export type SessionStatus = 'active' | 'completed' | 'abandoned';
 export type ExerciseUnit = 'kg' | 'sec';
 export type MovementGroup = 'legs' | 'push' | 'pull';
 export type PlanSource = 'system' | 'custom';
+export type ExerciseSource = 'system' | 'custom';
 
 export interface RepRange {
   min: number;
@@ -20,6 +21,8 @@ export interface ExerciseDefinition {
   defaultWeight: number;
   unit: ExerciseUnit;
   tags?: string[];
+  source: ExerciseSource;
+  isHidden: boolean;
 }
 
 export type ExerciseLibraryItem = ExerciseDefinition;
@@ -124,6 +127,7 @@ export interface UserPreferences {
 
 export interface AutoBackupPayload extends ExportPayload {
   plans: WorkoutPlan[];
+  exerciseLibrary?: ExerciseDefinition[];
   backupSettings?: Pick<BackupSettings, 'enabled'>;
 }
 

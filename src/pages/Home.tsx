@@ -20,7 +20,7 @@ export default function Home() {
         if (!ids.has(entry.exerciseId)) {
           ids.add(entry.exerciseId);
           const def = exerciseLibrary.find((e) => e.id === entry.exerciseId);
-          if (def) recent.push(def);
+          if (def && !def.isHidden) recent.push(def);
         }
       }
     }

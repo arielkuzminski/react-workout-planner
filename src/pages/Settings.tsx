@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Papa from 'papaparse';
-import { ChevronRight, ClipboardList, Download, Loader, PlayCircle, RefreshCw, Upload } from 'lucide-react';
+import { ChevronRight, ClipboardList, Download, Dumbbell, Loader, PlayCircle, RefreshCw, Upload } from 'lucide-react';
 import PwaInstallCard from '../components/PwaInstallCard';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import { generateSampleData } from '../data/sampleData';
@@ -279,6 +279,29 @@ export default function Settings() {
             className="inline-flex w-full md:w-auto items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-3 font-semibold text-text-inverted transition-colors hover:bg-brand-hover active:bg-brand-active focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             Otwórz plany
+            <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
+
+      <section className="rounded-[2rem] border border-brand-border bg-brand-soft p-4 sm:p-5 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-start gap-3">
+            <div className="rounded-2xl bg-brand p-3 text-text-inverted shadow-sm">
+              <Dumbbell className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-brand-text">Biblioteka ćwiczeń</h3>
+              <p className="mt-1 text-sm text-brand-text">
+                Twórz, edytuj i ukrywaj ćwiczenia dostępne w planach i sesjach treningowych.
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/exercises"
+            className="inline-flex w-full md:w-auto items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-3 font-semibold text-text-inverted transition-colors hover:bg-brand-hover active:bg-brand-active focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+          >
+            Otwórz bibliotekę
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>

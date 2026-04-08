@@ -1,7 +1,13 @@
 import { APP_EVENTS, STORAGE_KEYS } from '../constants/storage';
 import { useBackupStore } from '../store/backupStore';
 import { useWorkoutStore } from '../store';
-import { AutoBackupPayload, ExportPayload, WorkoutPlan, WorkoutSession } from '../types';
+import {
+  AutoBackupPayload,
+  ExerciseDefinition,
+  ExportPayload,
+  WorkoutPlan,
+  WorkoutSession,
+} from '../types';
 import { normalizePersistedSessions } from './sessionUtils';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -20,6 +26,20 @@ const isWorkoutPlanLike = (value: unknown): value is WorkoutPlan =>
   typeof value.description === 'string' &&
   Array.isArray(value.exerciseIds);
 
+const isExerciseDefinitionLike = (value: unknown): value is ExerciseDefinition =>
+  isRecord(value) &&
+  typeof value.id === 'string' &&
+  typeof value.name === 'string' &&
+  (value.type === 'weight' || value.type === 'time') &&
+  (value.movementGroup === 'legs' ||
+    value.movementGroup === 'push' ||
+    value.movementGroup === 'pull') &&
+  typeof value.targetSets === 'number' &&
+  isRecord(value.repRange) &&
+  typeof (value.repRange as Record<string, unknown>).min === 'number' &&
+  typeof (value.repRange as Record<string, unknown>).max === 'number' &&
+  typeof value.defaultWeight === 'number';
+
 export const createExportPayload = (completedSessions: WorkoutSession[]): ExportPayload => ({
   schemaVersion: 2,
   exportedAt: new Date().toISOString(),
@@ -37,6 +57,7 @@ export const createAutoBackupPayload = (): AutoBackupPayload => {
     activeSession: state.activeSession,
     completedSessions: state.completedSessions,
     plans: state.plans,
+    exerciseLibrary: state.exerciseLibrary,
     backupSettings: {
       enabled: backupSettings.enabled,
     },
@@ -101,6 +122,9 @@ export const parseAutoBackupPayload = (parsed: unknown): AutoBackupPayload | nul
 
   const activeSession = isWorkoutSessionLike(parsed.activeSession) ? parsed.activeSession : null;
   const plans = Array.isArray(parsed.plans) ? parsed.plans.filter(isWorkoutPlanLike) : [];
+  const exerciseLibrary = Array.isArray(parsed.exerciseLibrary)
+    ? parsed.exerciseLibrary.filter(isExerciseDefinitionLike)
+    : undefined;
   const backupSettings = isRecord(parsed.backupSettings)
     ? {
         enabled: parsed.backupSettings.enabled === true,
@@ -113,6 +137,7 @@ export const parseAutoBackupPayload = (parsed: unknown): AutoBackupPayload | nul
     activeSession,
     completedSessions,
     plans,
+    exerciseLibrary,
     backupSettings,
   };
 };
