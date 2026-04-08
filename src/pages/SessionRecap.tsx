@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Award, Clock, Dumbbell, Layers, Save, Trophy } from 'lucide-react';
+import { Award, Clock, Copy, Dumbbell, Layers, Save, Share2, Trophy } from 'lucide-react';
 import { useWorkoutStore } from '../store';
 import { calculateSessionStats } from '../utils/analyticsUtils';
 import { getPlanLabelBySession } from '../utils/templateUtils';
+import { buildSessionShareText } from '../utils/sessionShareText';
+import { copyToClipboard, shareText } from '../utils/clipboard';
 
 export default function SessionRecap() {
   const completedSessions = useWorkoutStore((state) => state.completedSessions);
@@ -15,16 +17,63 @@ export default function SessionRecap() {
   const [planName, setPlanName] = useState('');
   const [planDescription, setPlanDescription] = useState('');
   const [saveMessage, setSaveMessage] = useState('');
+  const [shareFeedback, setShareFeedback] = useState('');
+  const feedbackTimerRef = useRef<number | null>(null);
 
   const stats = useMemo(() => {
     if (!lastSession) return null;
     return calculateSessionStats(lastSession, previousSessions);
   }, [lastSession, previousSessions]);
 
+  const planLabel = lastSession
+    ? getPlanLabelBySession(plans, lastSession, 'Sesja treningowa')
+    : 'Sesja treningowa';
+
+  const sessionShareText = useMemo(() => {
+    if (!lastSession || !stats) return '';
+    return buildSessionShareText(lastSession, stats, planLabel);
+  }, [lastSession, stats, planLabel]);
+
   const sourcePlan = lastSession?.planId
     ? plans.find((plan) => plan.id === lastSession.planId)
     : undefined;
   const canSaveAsPlan = sourcePlan?.source === 'custom';
+
+  useEffect(() => {
+    return () => {
+      if (feedbackTimerRef.current !== null) {
+        window.clearTimeout(feedbackTimerRef.current);
+      }
+    };
+  }, []);
+
+  const flashFeedback = (message: string) => {
+    setShareFeedback(message);
+    if (feedbackTimerRef.current !== null) {
+      window.clearTimeout(feedbackTimerRef.current);
+    }
+    feedbackTimerRef.current = window.setTimeout(() => {
+      setShareFeedback('');
+      feedbackTimerRef.current = null;
+    }, 2000);
+  };
+
+  const handleCopy = async () => {
+    if (!sessionShareText) return;
+    const ok = await copyToClipboard(sessionShareText);
+    flashFeedback(ok ? 'Skopiowano!' : 'Nie udało się skopiować');
+  };
+
+  const handleShare = async () => {
+    if (!sessionShareText) return;
+    const result = await shareText({
+      title: `Siłka — ${planLabel}`,
+      text: sessionShareText,
+    });
+    if (result === 'shared') flashFeedback('Udostępniono!');
+    else if (result === 'copied') flashFeedback('Skopiowano!');
+    else flashFeedback('Nie udało się udostępnić');
+  };
 
   useEffect(() => {
     if (!lastSession) {
@@ -170,6 +219,36 @@ export default function SessionRecap() {
           </div>
         </section>
       )}
+
+      <section className="bg-surface-card rounded-2xl border border-border shadow-sm p-4 sm:p-5 space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-lg font-bold text-text-primary">Udostępnij podsumowanie</h3>
+          {shareFeedback && (
+            <span className="text-sm text-success-text font-medium">{shareFeedback}</span>
+          )}
+        </div>
+        <pre className="whitespace-pre-wrap break-words text-sm text-text-secondary bg-surface-inset rounded-xl p-3 border border-border max-h-64 overflow-y-auto font-mono">
+          {sessionShareText}
+        </pre>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            type="button"
+            onClick={handleShare}
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand px-5 py-3 font-semibold text-text-inverted transition-colors hover:bg-brand-hover active:bg-brand-active focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+          >
+            <Share2 className="h-4 w-4" />
+            Udostępnij
+          </button>
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-surface-raised hover:bg-surface-inset active:bg-surface-inset px-5 py-3 font-semibold text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+          >
+            <Copy className="h-4 w-4" />
+            Kopiuj
+          </button>
+        </div>
+      </section>
 
       <div className="flex flex-col sm:flex-row gap-3">
         <Link
