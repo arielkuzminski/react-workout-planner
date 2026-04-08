@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, CheckCircle2, Trash2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Trash2, X } from 'lucide-react';
 import ExerciseLogger from './ExerciseLogger';
 import ExercisePicker from './ExercisePicker';
 import ProgressIndicator from './ProgressIndicator';
@@ -13,6 +13,8 @@ import { getLastCompletedEntry, getLastCompletedEntryForPlan } from '../utils/se
 export default function ActiveTrainingView() {
   const navigate = useNavigate();
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  const [entryPendingRemoval, setEntryPendingRemoval] = useState<SessionEntry | null>(null);
+  const [removeEntryReason, setRemoveEntryReason] = useState<'trash' | 'last-set' | null>(null);
 
   useEffect(() => {
     const acquire = async () => {
@@ -37,6 +39,7 @@ export default function ActiveTrainingView() {
   const addExerciseToActiveSession = useWorkoutStore((state) => state.addExerciseToActiveSession);
   const updateSetInActiveSession = useWorkoutStore((state) => state.updateSetInActiveSession);
   const addSetToEntry = useWorkoutStore((state) => state.addSetToEntry);
+  const removeSetFromEntry = useWorkoutStore((state) => state.removeSetFromEntry);
   const updateEntryNotes = useWorkoutStore((state) => state.updateEntryNotes);
   const removeEntryFromActiveSession = useWorkoutStore((state) => state.removeEntryFromActiveSession);
   const completeActiveSession = useWorkoutStore((state) => state.completeActiveSession);
@@ -60,6 +63,13 @@ export default function ActiveTrainingView() {
     const availableIds = new Set(availableExercises.map((exercise) => exercise.id));
     setSelectedExerciseIds((current) => current.filter((exerciseId) => availableIds.has(exerciseId)));
   }, [availableExercises]);
+
+  useEffect(() => {
+    if (!entryPendingRemoval || !activeSession?.entries.some((entry) => entry.id === entryPendingRemoval.id)) {
+      setEntryPendingRemoval(null);
+      setRemoveEntryReason(null);
+    }
+  }, [activeSession?.entries, entryPendingRemoval]);
 
   const definitionMap = useMemo(() => {
     const map = new Map<string, ExerciseDefinition>();
@@ -107,6 +117,33 @@ export default function ActiveTrainingView() {
       return;
     }
     navigate('/recap');
+  };
+
+  const openRemoveEntryModal = (entry: SessionEntry, reason: 'trash' | 'last-set') => {
+    setEntryPendingRemoval(entry);
+    setRemoveEntryReason(reason);
+  };
+
+  const handleRemoveSet = (entry: SessionEntry, setId: string) => {
+    const result = removeSetFromEntry(entry.id, setId);
+    if (result === 'confirm-remove-entry') {
+      openRemoveEntryModal(entry, 'last-set');
+    }
+  };
+
+  const handleConfirmRemoveEntry = () => {
+    if (!entryPendingRemoval) {
+      return;
+    }
+
+    removeEntryFromActiveSession(entryPendingRemoval.id);
+    setEntryPendingRemoval(null);
+    setRemoveEntryReason(null);
+  };
+
+  const handleCloseRemoveEntryModal = () => {
+    setEntryPendingRemoval(null);
+    setRemoveEntryReason(null);
   };
 
   return (
@@ -167,8 +204,9 @@ export default function ActiveTrainingView() {
                   </p>
                 </div>
                 <button
-                  onClick={() => removeEntryFromActiveSession(entry.id)}
+                  onClick={() => openRemoveEntryModal(entry, 'trash')}
                   className="p-2 rounded-lg text-danger-text hover:bg-danger-soft active:bg-danger-hover-bg transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-danger-ring focus-visible:outline-none shrink-0"
+                  aria-label={`Usuń ćwiczenie ${entry.exerciseName}`}
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>
@@ -180,6 +218,7 @@ export default function ActiveTrainingView() {
                 weightIncrementKg={weightIncrementKg}
                 onSetChange={(setId, patch) => updateSetInActiveSession(entry.id, setId, patch)}
                 onAddSet={() => addSetToEntry(entry.id)}
+                onRemoveSet={(setId) => handleRemoveSet(entry, setId)}
                 onNotesChange={(notes) => updateEntryNotes(entry.id, notes)}
               />
 
@@ -201,6 +240,67 @@ export default function ActiveTrainingView() {
           className="shadow-lg backdrop-blur supports-[backdrop-filter]:bg-surface-card/95"
         />
       </div>
+
+      {entryPendingRemoval && removeEntryReason && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-overlay"
+            aria-hidden="true"
+            onClick={handleCloseRemoveEntryModal}
+          />
+          <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="remove-entry-title"
+              aria-describedby="remove-entry-description"
+              className="w-full max-w-md rounded-[28px] border border-border bg-surface-card p-5 shadow-2xl sm:p-6"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-danger-text">
+                    Ostrzeżenie
+                  </p>
+                  <h3 id="remove-entry-title" className="mt-2 text-xl font-bold text-text-primary break-words">
+                    Usunąć ćwiczenie?
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCloseRemoveEntryModal}
+                  className="rounded-full p-2 text-text-secondary transition-colors hover:bg-surface-raised hover:text-text-primary"
+                  aria-label="Zamknij okno"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <p id="remove-entry-description" className="mt-4 text-sm leading-6 text-text-secondary">
+                {removeEntryReason === 'last-set'
+                  ? `To była ostatnia seria ćwiczenia "${entryPendingRemoval.exerciseName}". Czy chcesz usunąć całe ćwiczenie z bieżącej sesji?`
+                  : `Czy na pewno chcesz usunąć ćwiczenie "${entryPendingRemoval.exerciseName}" z bieżącej sesji?`}
+              </p>
+
+              <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={handleCloseRemoveEntryModal}
+                  className="rounded-xl bg-surface-raised px-4 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-inset"
+                >
+                  Anuluj
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmRemoveEntry}
+                  className="rounded-xl bg-danger px-4 py-3 text-sm font-semibold text-text-inverted transition-opacity hover:opacity-90"
+                >
+                  Usuń ćwiczenie
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -76,6 +76,7 @@ interface WorkoutStoreActions {
     patch: Partial<Pick<SessionSet, 'weight' | 'reps' | 'durationSec'>>
   ) => void;
   addSetToEntry: (entryId: string) => void;
+  removeSetFromEntry: (entryId: string, setId: string) => 'removed' | 'confirm-remove-entry' | 'not-found';
   updateEntryNotes: (entryId: string, notes: string) => void;
   deleteCompletedSession: (sessionId: string) => void;
   importCompletedSessions: (sessions: WorkoutSession[]) => void;
@@ -528,6 +529,47 @@ export const useWorkoutStore = create<WorkoutStore>()(
             }),
           },
         });
+      },
+
+      removeSetFromEntry: (entryId, setId) => {
+        const activeSession = get().activeSession;
+        if (!activeSession) {
+          return 'not-found';
+        }
+
+        const targetEntry = activeSession.entries.find((entry) => entry.id === entryId);
+        if (!targetEntry || !targetEntry.sets.some((setEntry) => setEntry.id === setId)) {
+          return 'not-found';
+        }
+
+        if (targetEntry.sets.length === 1) {
+          return 'confirm-remove-entry';
+        }
+
+        set({
+          activeSession: {
+            ...activeSession,
+            entries: activeSession.entries.map((entry) => {
+              if (entry.id !== entryId) {
+                return entry;
+              }
+
+              const nextSets = entry.sets
+                .filter((setEntry) => setEntry.id !== setId)
+                .map((setEntry, index) => ({
+                  ...setEntry,
+                  setNumber: index + 1,
+                }));
+
+              return {
+                ...entry,
+                sets: nextSets,
+              };
+            }),
+          },
+        });
+
+        return 'removed';
       },
 
       updateEntryNotes: (entryId, notes) => {

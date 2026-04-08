@@ -1,4 +1,4 @@
-import { Minus, Plus } from 'lucide-react';
+import { Minus, Plus, Trash2 } from 'lucide-react';
 import { SessionEntry, SessionSet } from '../types';
 
 interface ExerciseLoggerProps {
@@ -6,6 +6,7 @@ interface ExerciseLoggerProps {
   previousEntry?: SessionEntry;
   onSetChange: (setId: string, patch: { weight?: number; reps?: number; durationSec?: number }) => void;
   onAddSet: () => void;
+  onRemoveSet: (setId: string) => void;
   onNotesChange: (notes: string) => void;
   weightIncrementKg?: number;
 }
@@ -21,22 +22,35 @@ const StepButton = ({ onClick, label, children }: { onClick: () => void; label: 
   </button>
 );
 
+const RemoveSetButton = ({ onClick, setNumber }: { onClick: () => void; setNumber: number }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-label={`Usuń serię ${setNumber}`}
+    className="h-10 w-10 sm:h-9 sm:w-9 flex items-center justify-center rounded-lg bg-danger-soft text-danger-text hover:bg-danger-hover-bg active:bg-danger-hover-bg transition-colors shrink-0"
+  >
+    <Trash2 className="w-3.5 h-3.5" />
+  </button>
+);
+
 const WeightSetRow = ({
   set,
   previousSet,
   onChange,
+  onRemove,
   weightIncrementKg,
 }: {
   set: SessionSet;
   previousSet?: SessionSet;
   onChange: (patch: { weight?: number; reps?: number }) => void;
+  onRemove: () => void;
   weightIncrementKg: number;
 }) => {
   const weight = set.weight ?? 0;
   const reps = set.reps;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-[56px_1fr_1fr] gap-2 sm:gap-3 items-start sm:items-center">
+    <div className="grid grid-cols-1 sm:grid-cols-[56px_1fr_1fr_auto] gap-2 sm:gap-3 items-start sm:items-center">
       <span className="text-sm font-medium text-text-secondary">Set {set.setNumber}</span>
 
       <div className="space-y-1">
@@ -87,6 +101,10 @@ const WeightSetRow = ({
           </StepButton>
         </div>
       </div>
+
+      <div className="flex justify-end sm:justify-start">
+        <RemoveSetButton onClick={onRemove} setNumber={set.setNumber} />
+      </div>
     </div>
   );
 };
@@ -96,16 +114,18 @@ const TimeSetRow = ({
   previousSet,
   exerciseName,
   onChange,
+  onRemove,
 }: {
   set: SessionSet;
   previousSet?: SessionSet;
   exerciseName: string;
   onChange: (patch: { durationSec?: number }) => void;
+  onRemove: () => void;
 }) => {
   const duration = set.durationSec;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-[56px_1fr_1fr] gap-2 sm:gap-3 items-start sm:items-center">
+    <div className="grid grid-cols-1 sm:grid-cols-[56px_1fr_1fr_auto] gap-2 sm:gap-3 items-start sm:items-center">
       <span className="text-sm font-medium text-text-secondary">Set {set.setNumber}</span>
       <div className="px-3 py-2 border border-border rounded-lg bg-surface text-sm text-text-secondary break-words">
         {exerciseName}
@@ -137,6 +157,10 @@ const TimeSetRow = ({
           </StepButton>
         </div>
       </div>
+
+      <div className="flex justify-end sm:justify-start">
+        <RemoveSetButton onClick={onRemove} setNumber={set.setNumber} />
+      </div>
     </div>
   );
 };
@@ -146,15 +170,17 @@ export default function ExerciseLogger({
   previousEntry,
   onSetChange,
   onAddSet,
+  onRemoveSet,
   onNotesChange,
   weightIncrementKg = 2.5,
 }: ExerciseLoggerProps) {
   return (
     <div className="space-y-3">
-      <div className="hidden sm:grid grid-cols-[56px_1fr_1fr] gap-2 items-center text-xs font-semibold text-text-tertiary uppercase tracking-wide">
+      <div className="hidden sm:grid grid-cols-[56px_1fr_1fr_auto] gap-2 items-center text-xs font-semibold text-text-tertiary uppercase tracking-wide">
         <span />
         <span>{entry.exerciseType === 'weight' ? 'kg' : ''}</span>
         <span>{entry.exerciseType === 'weight' ? 'powt.' : 'sek.'}</span>
+        <span className="sr-only">Usuń serię</span>
       </div>
 
       {entry.sets.map((set, index) => {
@@ -166,6 +192,7 @@ export default function ExerciseLogger({
             previousSet={prevSet}
             weightIncrementKg={weightIncrementKg}
             onChange={(patch) => onSetChange(set.id, patch)}
+            onRemove={() => onRemoveSet(set.id)}
           />
         ) : (
           <TimeSetRow
@@ -174,6 +201,7 @@ export default function ExerciseLogger({
             previousSet={prevSet}
             exerciseName={entry.exerciseNameSnapshot}
             onChange={(patch) => onSetChange(set.id, patch)}
+            onRemove={() => onRemoveSet(set.id)}
           />
         );
       })}
