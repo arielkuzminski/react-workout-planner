@@ -1,4 +1,5 @@
 import { Minus, Plus, Trash2 } from 'lucide-react';
+import NumberField from './NumberField';
 import { SessionEntry, SessionSet } from '../types';
 
 interface ExerciseLoggerProps {
@@ -59,14 +60,17 @@ const WeightSetRow = ({
           <StepButton onClick={() => onChange({ weight: Math.max(0, Number((weight - weightIncrementKg).toFixed(2))) })} label={`-${weightIncrementKg}kg`}>
             <Minus className="w-3.5 h-3.5" />
           </StepButton>
-          <input
-            type="number"
+          <NumberField
             step={weightIncrementKg}
-            min="0"
+            min={0}
+            max={9999}
             value={weight}
-            onChange={(e) => onChange({ weight: Math.min(9999, Math.max(0, parseFloat(e.target.value) || 0)) })}
+            onCommit={(value) => onChange({ weight: Number((value ?? 0).toFixed(2)) })}
+            inputMode="decimal"
+            normalize={(value) => Number(value.toFixed(2))}
+            fallbackValue={weight}
             className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg bg-surface-card text-center text-sm text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
-            aria-label={`Ciężar set ${set.setNumber}`}
+            ariaLabel={`Ciężar set ${set.setNumber}`}
           />
           <StepButton onClick={() => onChange({ weight: Number((weight + weightIncrementKg).toFixed(2)) })} label={`+${weightIncrementKg}kg`}>
             <Plus className="w-3.5 h-3.5" />
@@ -80,21 +84,17 @@ const WeightSetRow = ({
           <StepButton onClick={() => onChange({ reps: Math.max(0, (reps ?? 0) - 1) })} label="-1 rep">
             <Minus className="w-3.5 h-3.5" />
           </StepButton>
-          <input
-            type="number"
-            min="0"
-            value={reps ?? ''}
+          <NumberField
+            min={0}
+            max={9999}
+            value={reps}
             placeholder={previousSet?.reps?.toString() ?? '0'}
-            onChange={(e) =>
-              onChange({
-                reps:
-                  e.target.value === ''
-                    ? undefined
-                    : Math.min(9999, Math.max(0, parseInt(e.target.value, 10) || 0)),
-              })
-            }
+            onCommit={(value) => onChange({ reps: value === undefined ? undefined : Math.round(value) })}
+            inputMode="numeric"
+            allowEmpty
+            normalize={(value) => Math.round(value)}
             className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg bg-surface-card text-center text-sm text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
-            aria-label={`Powtórzenia set ${set.setNumber}`}
+            ariaLabel={`Powtórzenia set ${set.setNumber}`}
           />
           <StepButton onClick={() => onChange({ reps: (reps ?? 0) + 1 })} label="+1 rep">
             <Plus className="w-3.5 h-3.5" />
@@ -136,21 +136,17 @@ const TimeSetRow = ({
           <StepButton onClick={() => onChange({ durationSec: Math.max(0, (duration ?? 0) - 5) })} label="-5s">
             <Minus className="w-3.5 h-3.5" />
           </StepButton>
-          <input
-            type="number"
-            min="0"
-            value={duration ?? ''}
+          <NumberField
+            min={0}
+            max={99999}
+            value={duration}
             placeholder={previousSet?.durationSec?.toString() ?? '0'}
-            onChange={(e) =>
-              onChange({
-                durationSec:
-                  e.target.value === ''
-                    ? undefined
-                    : Math.min(99999, Math.max(0, parseInt(e.target.value, 10) || 0)),
-              })
-            }
+            onCommit={(value) => onChange({ durationSec: value === undefined ? undefined : Math.round(value) })}
+            inputMode="numeric"
+            allowEmpty
+            normalize={(value) => Math.round(value)}
             className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg bg-surface-card text-center text-sm text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
-            aria-label={`Czas set ${set.setNumber}`}
+            ariaLabel={`Czas set ${set.setNumber}`}
           />
           <StepButton onClick={() => onChange({ durationSec: (duration ?? 0) + 5 })} label="+5s">
             <Plus className="w-3.5 h-3.5" />

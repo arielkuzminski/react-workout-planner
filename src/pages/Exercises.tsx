@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dumbbell, Eye, EyeOff, FolderPlus, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 import AppDialog from '../components/AppDialog';
+import NumberField from '../components/NumberField';
 import { useWorkoutStore } from '../store';
 import { ExerciseDefinition, ExerciseType, MovementGroup } from '../types';
 
@@ -204,12 +205,14 @@ const ExerciseFormFields = ({ value, onChange, idPrefix }: ExerciseFormFieldsPro
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="space-y-2">
           <span className="text-sm font-semibold text-text-primary">Serie docelowe</span>
-          <input
-            type="number"
+          <NumberField
             min={1}
             max={20}
             value={value.targetSets}
-            onChange={(event) => update('targetSets', parseInt(event.target.value, 10) || 0)}
+            onCommit={(nextValue) => update('targetSets', Math.round(nextValue ?? 1))}
+            inputMode="numeric"
+            normalize={(nextValue) => Math.round(nextValue)}
+            fallbackValue={value.targetSets}
             className="w-full rounded-xl border border-border bg-surface px-3 py-3 text-text-primary focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
           />
         </label>
@@ -217,14 +220,16 @@ const ExerciseFormFields = ({ value, onChange, idPrefix }: ExerciseFormFieldsPro
           <span className="text-sm font-semibold text-text-primary">
             {value.type === 'time' ? 'Domyślny ciężar (wyłączone)' : 'Domyślny ciężar (kg)'}
           </span>
-          <input
-            type="number"
+          <NumberField
             min={0}
             max={1000}
             step={0.25}
             disabled={value.type === 'time'}
             value={value.type === 'time' ? 0 : value.defaultWeight}
-            onChange={(event) => update('defaultWeight', parseFloat(event.target.value) || 0)}
+            onCommit={(nextValue) => update('defaultWeight', Number((nextValue ?? 0).toFixed(2)))}
+            inputMode="decimal"
+            normalize={(nextValue) => Number(nextValue.toFixed(2))}
+            fallbackValue={value.defaultWeight}
             className="w-full rounded-xl border border-border bg-surface px-3 py-3 text-text-primary focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
           />
         </label>
@@ -235,12 +240,14 @@ const ExerciseFormFields = ({ value, onChange, idPrefix }: ExerciseFormFieldsPro
           <span className="text-sm font-semibold text-text-primary">
             {value.type === 'time' ? 'Min sek.' : 'Min powt.'}
           </span>
-          <input
-            type="number"
+          <NumberField
             min={0}
             max={999}
             value={value.repMin}
-            onChange={(event) => update('repMin', parseInt(event.target.value, 10) || 0)}
+            onCommit={(nextValue) => update('repMin', Math.round(nextValue ?? 0))}
+            inputMode="numeric"
+            normalize={(nextValue) => Math.round(nextValue)}
+            fallbackValue={value.repMin}
             className="w-full rounded-xl border border-border bg-surface px-3 py-3 text-text-primary focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
           />
         </label>
@@ -248,12 +255,14 @@ const ExerciseFormFields = ({ value, onChange, idPrefix }: ExerciseFormFieldsPro
           <span className="text-sm font-semibold text-text-primary">
             {value.type === 'time' ? 'Max sek.' : 'Max powt.'}
           </span>
-          <input
-            type="number"
+          <NumberField
             min={0}
             max={999}
             value={value.repMax}
-            onChange={(event) => update('repMax', parseInt(event.target.value, 10) || 0)}
+            onCommit={(nextValue) => update('repMax', Math.round(nextValue ?? 0))}
+            inputMode="numeric"
+            normalize={(nextValue) => Math.round(nextValue)}
+            fallbackValue={value.repMax}
             className="w-full rounded-xl border border-border bg-surface px-3 py-3 text-text-primary focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
           />
         </label>

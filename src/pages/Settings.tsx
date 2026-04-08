@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Papa from 'papaparse';
 import { ChevronRight, ClipboardList, Download, Dumbbell, Loader, PlayCircle, RefreshCw, Upload } from 'lucide-react';
+import NumberField from '../components/NumberField';
 import PwaInstallCard from '../components/PwaInstallCard';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import { generateSampleData } from '../data/sampleData';
@@ -225,26 +226,30 @@ export default function Settings() {
         <div className="grid gap-4 lg:grid-cols-3">
           <label className="space-y-2">
             <span className="text-sm font-semibold text-text-primary">Timer przerwy (sekundy)</span>
-            <input
-              type="number"
-              min="5"
-              max="3600"
-              step="5"
+            <NumberField
+              min={5}
+              max={3600}
+              step={5}
               value={restTimerSeconds}
-              onChange={(event) => setRestTimerSeconds(parseInt(event.target.value, 10) || 90)}
+              onCommit={(value) => setRestTimerSeconds(value ?? 90)}
+              inputMode="numeric"
+              normalize={(value) => Math.round(value)}
+              fallbackValue={90}
               className="w-full rounded-xl border border-border bg-surface px-3 py-3 text-text-primary focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
             />
           </label>
 
           <label className="space-y-2">
             <span className="text-sm font-semibold text-text-primary">Krok ciężaru (kg)</span>
-            <input
-              type="number"
-              min="0.25"
-              max="20"
-              step="0.25"
+            <NumberField
+              min={0.25}
+              max={20}
+              step={0.25}
               value={weightIncrementKg}
-              onChange={(event) => setWeightIncrementKg(parseFloat(event.target.value) || 2.5)}
+              onCommit={(value) => setWeightIncrementKg(value ?? 2.5)}
+              inputMode="decimal"
+              normalize={(value) => Number(value.toFixed(2))}
+              fallbackValue={2.5}
               className="w-full rounded-xl border border-border bg-surface px-3 py-3 text-text-primary focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
             />
           </label>
