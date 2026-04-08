@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, CheckCircle2, Trash2, X } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Trash2 } from 'lucide-react';
+import AppDialog from './AppDialog';
 import ExerciseLogger from './ExerciseLogger';
 import ExercisePicker from './ExercisePicker';
 import ProgressIndicator from './ProgressIndicator';
@@ -13,8 +14,10 @@ import { getLastCompletedEntry, getLastCompletedEntryForPlan } from '../utils/se
 export default function ActiveTrainingView() {
   const navigate = useNavigate();
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  const [showAbandonDialog, setShowAbandonDialog] = useState(false);
   const [entryPendingRemoval, setEntryPendingRemoval] = useState<SessionEntry | null>(null);
   const [removeEntryReason, setRemoveEntryReason] = useState<'trash' | 'last-set' | null>(null);
+  const [showEmptyCompletionDialog, setShowEmptyCompletionDialog] = useState(false);
 
   useEffect(() => {
     const acquire = async () => {
@@ -113,9 +116,10 @@ export default function ActiveTrainingView() {
   const handleComplete = () => {
     const completed = completeActiveSession();
     if (!completed) {
-      window.alert('Uzupełnij przynajmniej jedną serię z wynikiem, zanim zakończysz sesję.');
+      setShowEmptyCompletionDialog(true);
       return;
     }
+
     navigate('/recap');
   };
 
@@ -146,6 +150,11 @@ export default function ActiveTrainingView() {
     setRemoveEntryReason(null);
   };
 
+  const handleConfirmAbandonSession = () => {
+    abandonActiveSession();
+    setShowAbandonDialog(false);
+  };
+
   return (
     <div className="space-y-6">
       <section className="bg-surface-card rounded-2xl border border-border shadow-sm p-4 sm:p-6 space-y-4">
@@ -158,7 +167,7 @@ export default function ActiveTrainingView() {
 
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
           <button
-            onClick={() => abandonActiveSession()}
+            onClick={() => setShowAbandonDialog(true)}
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-danger px-4 py-3 text-sm font-semibold text-text-inverted transition-opacity hover:opacity-90 active:bg-danger-active-bg focus-visible:ring-2 focus-visible:ring-danger-ring focus-visible:ring-offset-2 focus-visible:outline-none sm:min-h-0"
           >
             <AlertTriangle className="h-4 w-4 shrink-0" />
@@ -193,11 +202,16 @@ export default function ActiveTrainingView() {
           }
 
           return (
-            <div key={entry.id} className="bg-surface-card rounded-2xl border border-border shadow-sm p-4 sm:p-6 space-y-4">
+            <div
+              key={entry.id}
+              className="bg-surface-card rounded-2xl border border-border shadow-sm p-4 sm:p-6 space-y-4"
+            >
               <div className="flex items-start gap-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-sm text-text-secondary">Ćwiczenie {index + 1}</p>
-                  <h3 className="text-lg sm:text-xl font-bold text-text-primary leading-tight break-words">{entry.exerciseName}</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-text-primary leading-tight break-words">
+                    {entry.exerciseName}
+                  </h3>
                   <p className="text-sm text-text-secondary">
                     Target: {entry.targetSets} serii • {entry.repRange.min}-{entry.repRange.max}{' '}
                     {entry.exerciseType === 'time' ? 'sek.' : 'powt.'}
@@ -241,66 +255,46 @@ export default function ActiveTrainingView() {
         />
       </div>
 
-      {entryPendingRemoval && removeEntryReason && (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-overlay"
-            aria-hidden="true"
-            onClick={handleCloseRemoveEntryModal}
-          />
-          <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="remove-entry-title"
-              aria-describedby="remove-entry-description"
-              className="w-full max-w-md rounded-[28px] border border-border bg-surface-card p-5 shadow-2xl sm:p-6"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-danger-text">
-                    Ostrzeżenie
-                  </p>
-                  <h3 id="remove-entry-title" className="mt-2 text-xl font-bold text-text-primary break-words">
-                    Usunąć ćwiczenie?
-                  </h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleCloseRemoveEntryModal}
-                  className="rounded-full p-2 text-text-secondary transition-colors hover:bg-surface-raised hover:text-text-primary"
-                  aria-label="Zamknij okno"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
+      <AppDialog
+        open={showAbandonDialog}
+        variant="danger"
+        confirmTone="danger"
+        title="Porzucić sesję?"
+        description="Bieżący draft treningu zostanie utracony. Tej operacji nie da się cofnąć."
+        confirmLabel="Porzuć sesję"
+        cancelLabel="Wróć do treningu"
+        onConfirm={handleConfirmAbandonSession}
+        onClose={() => setShowAbandonDialog(false)}
+      />
 
-              <p id="remove-entry-description" className="mt-4 text-sm leading-6 text-text-secondary">
-                {removeEntryReason === 'last-set'
-                  ? `To była ostatnia seria ćwiczenia "${entryPendingRemoval.exerciseName}". Czy chcesz usunąć całe ćwiczenie z bieżącej sesji?`
-                  : `Czy na pewno chcesz usunąć ćwiczenie "${entryPendingRemoval.exerciseName}" z bieżącej sesji?`}
-              </p>
+      <AppDialog
+        open={showEmptyCompletionDialog}
+        variant="warning"
+        title="Brak zalogowanej serii"
+        description="Uzupełnij przynajmniej jedną serię z wynikiem, zanim zakończysz sesję."
+        confirmLabel="Rozumiem"
+        showCancel={false}
+        onConfirm={() => setShowEmptyCompletionDialog(false)}
+        onClose={() => setShowEmptyCompletionDialog(false)}
+      />
 
-              <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                <button
-                  type="button"
-                  onClick={handleCloseRemoveEntryModal}
-                  className="rounded-xl bg-surface-raised px-4 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-inset"
-                >
-                  Anuluj
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmRemoveEntry}
-                  className="rounded-xl bg-danger px-4 py-3 text-sm font-semibold text-text-inverted transition-opacity hover:opacity-90"
-                >
-                  Usuń ćwiczenie
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+      <AppDialog
+        open={Boolean(entryPendingRemoval && removeEntryReason)}
+        variant="danger"
+        confirmTone="danger"
+        title="Usunąć ćwiczenie?"
+        description={
+          entryPendingRemoval && removeEntryReason === 'last-set'
+            ? `To była ostatnia seria ćwiczenia "${entryPendingRemoval.exerciseName}". Czy chcesz usunąć całe ćwiczenie z bieżącej sesji?`
+            : entryPendingRemoval
+              ? `Czy na pewno chcesz usunąć ćwiczenie "${entryPendingRemoval.exerciseName}" z bieżącej sesji?`
+              : ''
+        }
+        confirmLabel="Usuń ćwiczenie"
+        cancelLabel="Anuluj"
+        onConfirm={handleConfirmRemoveEntry}
+        onClose={handleCloseRemoveEntryModal}
+      />
     </div>
   );
 }

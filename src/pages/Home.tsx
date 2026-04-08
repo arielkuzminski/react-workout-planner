@@ -1,17 +1,17 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import ActiveTrainingView from '../components/ActiveTrainingView';
+import AppDialog from '../components/AppDialog';
 import { useWorkoutStore } from '../store';
 import { PlanId } from '../types';
 
 export default function Home() {
+  const [showReplaceSessionDialog, setShowReplaceSessionDialog] = useState(false);
+  const [planIdPendingStart, setPlanIdPendingStart] = useState<PlanId | undefined>(undefined);
   const activeSession = useWorkoutStore((state) => state.activeSession);
   const plans = useWorkoutStore((state) => state.plans);
   const completedSessions = useWorkoutStore((state) => state.completedSessions);
   const exerciseLibrary = useWorkoutStore((state) => state.exerciseLibrary);
-  const activePlans = useMemo(
-    () => plans.filter((plan) => plan.isActive),
-    [plans],
-  );
+  const activePlans = useMemo(() => plans.filter((plan) => plan.isActive), [plans]);
   const recentExercises = useMemo(() => {
     const ids = new Set<string>();
     const recent: typeof exerciseLibrary = [];
@@ -19,8 +19,10 @@ export default function Home() {
       for (const entry of session.entries) {
         if (!ids.has(entry.exerciseId)) {
           ids.add(entry.exerciseId);
-          const def = exerciseLibrary.find((e) => e.id === entry.exerciseId);
-          if (def && !def.isHidden) recent.push(def);
+          const def = exerciseLibrary.find((exercise) => exercise.id === entry.exerciseId);
+          if (def && !def.isHidden) {
+            recent.push(def);
+          }
         }
       }
     }
@@ -30,17 +32,33 @@ export default function Home() {
 
   const suggestedPlanId = useMemo(() => {
     const rotation = activePlans.map((plan) => plan.id);
-    const lastPlannedSession = completedSessions.find((s) => s.planId);
-    if (!lastPlannedSession?.planId || rotation.length === 0) return activePlans[0]?.id ?? 'A';
+    const lastPlannedSession = completedSessions.find((session) => session.planId);
+    if (!lastPlannedSession?.planId || rotation.length === 0) {
+      return activePlans[0]?.id ?? 'A';
+    }
     const lastIndex = rotation.indexOf(lastPlannedSession.planId);
     return rotation[(lastIndex + 1) % rotation.length] ?? rotation[0];
   }, [activePlans, completedSessions]);
 
   const handleStart = (planId?: PlanId) => {
-    if (activeSession && !window.confirm('Masz aktywną sesję. Rozpocząć nową? Obecna zostanie utracona.')) {
+    if (activeSession) {
+      setPlanIdPendingStart(planId);
+      setShowReplaceSessionDialog(true);
       return;
     }
+
     startSession(planId);
+  };
+
+  const handleConfirmStart = () => {
+    startSession(planIdPendingStart);
+    setPlanIdPendingStart(undefined);
+    setShowReplaceSessionDialog(false);
+  };
+
+  const handleCloseReplaceDialog = () => {
+    setPlanIdPendingStart(undefined);
+    setShowReplaceSessionDialog(false);
   };
 
   if (activeSession) {
@@ -51,7 +69,9 @@ export default function Home() {
     <div className="space-y-6">
       <section className="bg-surface-card rounded-2xl shadow-sm border border-border p-4 sm:p-6 space-y-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-text-primary leading-tight">Loguj trening szybciej niż wiadomość do siebie</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-text-primary leading-tight">
+            Loguj trening szybciej niż wiadomość do siebie
+          </h2>
           <p className="text-text-secondary mt-2">
             Startuj pustą sesję albo użyj gotowych planów treningowych. Draft zapisuje się automatycznie.
           </p>
@@ -112,10 +132,23 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-text-secondary">Brak historii. Załaduj przykładowe sesje w Konfiguracji albo zaloguj pierwszą sesję.</p>
+            <p className="text-sm text-text-secondary">
+              Brak historii. Załaduj przykładowe sesje w Konfiguracji albo zaloguj pierwszą sesję.
+            </p>
           )}
         </div>
       </section>
+
+      <AppDialog
+        open={showReplaceSessionDialog}
+        variant="warning"
+        title="Rozpocząć nową sesję?"
+        description="Masz aktywną sesję. Jeśli rozpoczniesz nową, obecna sesja zostanie utracona."
+        confirmLabel="Rozpocznij nową"
+        cancelLabel="Zostań przy obecnej"
+        onConfirm={handleConfirmStart}
+        onClose={handleCloseReplaceDialog}
+      />
     </div>
   );
 }

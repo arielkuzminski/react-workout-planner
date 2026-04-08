@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dumbbell, Eye, EyeOff, FolderPlus, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+import AppDialog from '../components/AppDialog';
 import { useWorkoutStore } from '../store';
 import { ExerciseDefinition, ExerciseType, MovementGroup } from '../types';
 
@@ -291,7 +292,8 @@ export default function Exercises() {
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
   const [editingForm, setEditingForm] = useState<ExerciseFormState>(emptyForm);
   const [highlightedExerciseId, setHighlightedExerciseId] = useState<string | null>(null);
-  const [message, setMessage] = useState<string>('');
+  const [message, setMessage] = useState('');
+  const [exercisePendingDelete, setExercisePendingDelete] = useState<ExerciseDefinition | null>(null);
 
   const editorPanelRef = useRef<HTMLElement | null>(null);
   const customCardRefs = useRef<Record<string, HTMLElement | null>>({});
@@ -338,6 +340,15 @@ export default function Exercises() {
     (exercise) => exercise.source === 'system' && exercise.isHidden,
   );
   const customExercises = exerciseLibrary.filter((exercise) => exercise.source === 'custom');
+  const affectedPlans = useMemo(
+    () =>
+      exercisePendingDelete
+        ? plans.filter(
+            (plan) => plan.source === 'custom' && plan.exerciseIds.includes(exercisePendingDelete.id),
+          )
+        : [],
+    [exercisePendingDelete, plans],
+  );
 
   const handleCreate = () => {
     if (!isFormValid(createForm)) {
@@ -352,7 +363,7 @@ export default function Exercises() {
       defaultWeight: createForm.defaultWeight,
     });
     if (!id) {
-      setMessage('Nie udało się utworzyć ćwiczenia — sprawdź wartości.');
+      setMessage('Nie udało się utworzyć ćwiczenia. Sprawdź wartości.');
       return;
     }
     setShowCreateForm(false);
@@ -383,23 +394,19 @@ export default function Exercises() {
   };
 
   const handleDelete = (exercise: ExerciseDefinition) => {
-    const affectedPlans = plans.filter(
-      (plan) => plan.source === 'custom' && plan.exerciseIds.includes(exercise.id),
-    );
-    const planList =
-      affectedPlans.length > 0
-        ? `\n\nZostanie usunięte z planów:\n- ${affectedPlans.map((plan) => plan.name).join('\n- ')}`
-        : '';
-    const confirmed = window.confirm(
-      `Czy na pewno chcesz usunąć ćwiczenie „${exercise.name}"?${planList}\n\nHistoria ukończonych sesji pozostanie nienaruszona.`,
-    );
-    if (!confirmed) {
+    setExercisePendingDelete(exercise);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!exercisePendingDelete) {
       return;
     }
-    deleteCustomExercise(exercise.id);
-    if (editingExerciseId === exercise.id) {
+
+    deleteCustomExercise(exercisePendingDelete.id);
+    if (editingExerciseId === exercisePendingDelete.id) {
       setEditingExerciseId(null);
     }
+    setExercisePendingDelete(null);
     setMessage('Usunięto ćwiczenie.');
   };
 
@@ -412,8 +419,8 @@ export default function Exercises() {
               Biblioteka ćwiczeń
             </h2>
             <p className="text-sm sm:text-base text-text-secondary">
-              Dodawaj własne ćwiczenia, edytuj je i ukrywaj te systemowe, których nie potrzebujesz. Historia
-              sesji pozostaje nietknięta.
+              Dodawaj własne ćwiczenia, edytuj je i ukrywaj te systemowe, których nie potrzebujesz.
+              Historia sesji pozostaje nietknięta.
             </p>
           </div>
           <div className="lg:min-w-[240px]">
@@ -475,9 +482,9 @@ export default function Exercises() {
         <section className="space-y-6">
           <GroupedSection
             title="Twoje ćwiczenia"
-            description="Własne ćwiczenia — pełna edycja, ukrywanie i usuwanie."
+            description="Własne ćwiczenia: pełna edycja, ukrywanie i usuwanie."
             exercises={customExercises}
-            emptyMessage={'Nie masz jeszcze własnych ćwiczeń. Kliknij „Nowe ćwiczenie".'}
+            emptyMessage={'Nie masz jeszcze własnych ćwiczeń. Kliknij "Nowe ćwiczenie".'}
             highlightedId={highlightedExerciseId}
             cardRefs={customCardRefs}
             renderActions={(exercise) => (
@@ -539,7 +546,7 @@ export default function Exercises() {
           {hiddenSystemExercises.length > 0 && (
             <GroupedSection
               title="Ukryte ćwiczenia systemowe"
-              description="Nie pojawiają się w pickerach — możesz je przywrócić w każdej chwili."
+              description="Nie pojawiają się w pickerach. Możesz je przywrócić w każdej chwili."
               exercises={hiddenSystemExercises}
               emptyMessage=""
               renderActions={(exercise) => (
@@ -598,8 +605,8 @@ export default function Exercises() {
                 </div>
               ) : (
                 <p className="text-sm text-text-secondary">
-                  Wybierz własne ćwiczenie z listy i kliknij „Edytuj", aby zmienić jego parametry. Ćwiczeń
-                  systemowych nie można edytować — można je jedynie ukrywać.
+                  Wybierz własne ćwiczenie z listy i kliknij „Edytuj”, aby zmienić jego parametry.
+                  Ćwiczeń systemowych nie można edytować, można je jedynie ukrywać.
                 </p>
               )}
             </section>
@@ -612,6 +619,33 @@ export default function Exercises() {
           {message}
         </div>
       )}
+
+      <AppDialog
+        open={Boolean(exercisePendingDelete)}
+        variant="danger"
+        confirmTone="danger"
+        title="Usunąć ćwiczenie?"
+        description={
+          exercisePendingDelete
+            ? `Czy na pewno chcesz usunąć ćwiczenie "${exercisePendingDelete.name}"? Historia ukończonych sesji pozostanie nienaruszona.`
+            : ''
+        }
+        confirmLabel="Usuń ćwiczenie"
+        cancelLabel="Anuluj"
+        onConfirm={handleConfirmDelete}
+        onClose={() => setExercisePendingDelete(null)}
+      >
+        {affectedPlans.length > 0 ? (
+          <div className="rounded-2xl border border-danger-border bg-danger-soft px-4 py-3 text-sm text-danger-text">
+            <p className="font-semibold">Ćwiczenie zostanie też usunięte z planów:</p>
+            <ul className="mt-2 space-y-1">
+              {affectedPlans.map((plan) => (
+                <li key={plan.id}>• {plan.name}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </AppDialog>
     </div>
   );
 }
