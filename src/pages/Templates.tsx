@@ -139,11 +139,15 @@ export default function Plans() {
   );
   const inactiveSystemPlans = plans.filter((plan) => plan.source === 'system' && !plan.isActive);
 
-  const createAvailableExercises = exerciseLibrary.filter((exercise) => !createExerciseIds.includes(exercise.id));
+  const createAvailableExercises = exerciseLibrary.filter(
+    (exercise) => !exercise.isHidden && !createExerciseIds.includes(exercise.id),
+  );
   const editingPlan = editingPlanId
     ? plans.find((plan) => plan.id === editingPlanId && plan.source === 'custom')
     : undefined;
-  const editingAvailableExercises = exerciseLibrary.filter((exercise) => !editingExerciseIds.includes(exercise.id));
+  const editingAvailableExercises = exerciseLibrary.filter(
+    (exercise) => !exercise.isHidden && !editingExerciseIds.includes(exercise.id),
+  );
 
   const handleCreatePlan = () => {
     const planId = createCustomPlan(createName, createDescription, createExerciseIds);

@@ -11,6 +11,7 @@ import Plans from './pages/Templates';
 const History = lazy(() => import('./pages/History'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Settings = lazy(() => import('./pages/Settings'));
+const Exercises = lazy(() => import('./pages/Exercises'));
 
 function RouteFallback() {
   return (
@@ -47,6 +48,7 @@ function App() {
             <Route path="/history" element={<Suspense fallback={<RouteFallback />}><History /></Suspense>} />
             <Route path="/progress" element={<Suspense fallback={<RouteFallback />}><Dashboard /></Suspense>} />
             <Route path="/plans" element={<Plans />} />
+            <Route path="/exercises" element={<Suspense fallback={<RouteFallback />}><Exercises /></Suspense>} />
             <Route path="/settings" element={<Suspense fallback={<RouteFallback />}><Settings /></Suspense>} />
             <Route path="/import" element={<Import />} />
             <Route path="*" element={<NotFound />} />

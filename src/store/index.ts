@@ -1,12 +1,14 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { APP_EVENTS, STORAGE_KEYS } from '../constants/storage';
-import { exerciseLibrary, workoutPlans } from '../data/workoutPlans';
+import { workoutPlans } from '../data/workoutPlans';
 import {
   AutoBackupPayload,
   ExerciseDefinition,
   ExerciseHistorySummary,
+  MovementGroup,
   PlanId,
+  RepRange,
   WorkoutPlan,
   SessionEntry,
   SessionSet,
@@ -28,6 +30,10 @@ import {
   createCustomPlanRecord,
   mergePlansWithSeeds,
 } from '../utils/templateUtils';
+import {
+  createCustomExerciseRecord,
+  mergeExerciseLibraryWithSeeds,
+} from '../utils/exerciseUtils';
 
 interface WorkoutStoreState {
   schemaVersion: number;
@@ -36,6 +42,17 @@ interface WorkoutStoreState {
   exerciseLibrary: ExerciseDefinition[];
   plans: typeof workoutPlans;
 }
+
+export interface CustomExerciseInput {
+  name: string;
+  type: 'weight' | 'time';
+  movementGroup: MovementGroup;
+  targetSets: number;
+  repRange: RepRange;
+  defaultWeight: number;
+}
+
+export type CustomExercisePatch = Partial<CustomExerciseInput>;
 
 interface WorkoutStoreActions {
   startSession: (planId?: PlanId) => void;
@@ -47,6 +64,10 @@ interface WorkoutStoreActions {
   moveExerciseInPlan: (planId: string, fromIndex: number, toIndex: number) => void;
   deleteCustomPlan: (planId: string) => void;
   setPlanActive: (planId: string, isActive: boolean) => void;
+  createCustomExercise: (input: CustomExerciseInput) => string | null;
+  updateCustomExercise: (exerciseId: string, patch: CustomExercisePatch) => void;
+  deleteCustomExercise: (exerciseId: string) => void;
+  setExerciseHidden: (exerciseId: string, hidden: boolean) => void;
   addExerciseToActiveSession: (exerciseId: string) => void;
   removeEntryFromActiveSession: (entryId: string) => void;
   updateSetInActiveSession: (
@@ -144,10 +165,10 @@ const normalizeTemplateExerciseIds = (exerciseIds: string[], availableIds: Set<s
 export const useWorkoutStore = create<WorkoutStore>()(
   persist(
     (set, get) => ({
-      schemaVersion: 4,
+      schemaVersion: 5,
       activeSession: null,
       completedSessions: [],
-      exerciseLibrary,
+      exerciseLibrary: mergeExerciseLibraryWithSeeds(undefined),
       plans: mergePlansWithSeeds(undefined),
 
       startSession: (planId) => {
@@ -262,6 +283,108 @@ export const useWorkoutStore = create<WorkoutStore>()(
               isActive,
             };
           }),
+        }));
+      },
+
+      createCustomExercise: (input) => {
+        const normalizedName = input.name.trim();
+        const targetSets = Math.max(1, Math.floor(input.targetSets || 0));
+        const min = Math.max(0, Math.floor(input.repRange.min || 0));
+        const max = Math.max(min, Math.floor(input.repRange.max || 0));
+        const defaultWeight = Math.max(0, Number(input.defaultWeight) || 0);
+
+        if (!normalizedName || !targetSets || max <= 0) {
+          return null;
+        }
+
+        const record = createCustomExerciseRecord({
+          name: normalizedName,
+          type: input.type,
+          movementGroup: input.movementGroup,
+          targetSets,
+          repRange: { min, max },
+          defaultWeight,
+        });
+
+        set((state) => ({
+          exerciseLibrary: [...state.exerciseLibrary, record],
+        }));
+
+        return record.id;
+      },
+
+      updateCustomExercise: (exerciseId, patch) => {
+        set((state) => ({
+          exerciseLibrary: state.exerciseLibrary.map((exercise) => {
+            if (exercise.id !== exerciseId || exercise.source !== 'custom') {
+              return exercise;
+            }
+
+            const nextType = patch.type ?? exercise.type;
+            const nextName = patch.name !== undefined ? patch.name.trim() : exercise.name;
+            const nextTargetSets =
+              patch.targetSets !== undefined
+                ? Math.max(1, Math.floor(patch.targetSets || 0))
+                : exercise.targetSets;
+            const nextMin =
+              patch.repRange?.min !== undefined
+                ? Math.max(0, Math.floor(patch.repRange.min || 0))
+                : exercise.repRange.min;
+            const nextMaxRaw =
+              patch.repRange?.max !== undefined
+                ? Math.max(0, Math.floor(patch.repRange.max || 0))
+                : exercise.repRange.max;
+            const nextMax = Math.max(nextMin, nextMaxRaw);
+            const nextDefaultWeight =
+              patch.defaultWeight !== undefined
+                ? Math.max(0, Number(patch.defaultWeight) || 0)
+                : exercise.defaultWeight;
+
+            if (!nextName) {
+              return exercise;
+            }
+
+            return {
+              ...exercise,
+              name: nextName,
+              type: nextType,
+              unit: nextType === 'time' ? 'sec' : 'kg',
+              movementGroup: patch.movementGroup ?? exercise.movementGroup,
+              targetSets: nextTargetSets,
+              repRange: { min: nextMin, max: nextMax },
+              defaultWeight: nextType === 'time' ? 0 : nextDefaultWeight,
+            };
+          }),
+        }));
+      },
+
+      deleteCustomExercise: (exerciseId) => {
+        set((state) => {
+          const target = state.exerciseLibrary.find((exercise) => exercise.id === exerciseId);
+          if (!target || target.source !== 'custom') {
+            return {};
+          }
+
+          return {
+            exerciseLibrary: state.exerciseLibrary.filter((exercise) => exercise.id !== exerciseId),
+            plans: state.plans.map((plan) => {
+              if (plan.source !== 'custom' || !plan.exerciseIds.includes(exerciseId)) {
+                return plan;
+              }
+              return {
+                ...plan,
+                exerciseIds: plan.exerciseIds.filter((id) => id !== exerciseId),
+              };
+            }),
+          };
+        });
+      },
+
+      setExerciseHidden: (exerciseId, hidden) => {
+        set((state) => ({
+          exerciseLibrary: state.exerciseLibrary.map((exercise) =>
+            exercise.id === exerciseId ? { ...exercise, isHidden: hidden } : exercise,
+          ),
         }));
       },
 
@@ -452,11 +575,14 @@ export const useWorkoutStore = create<WorkoutStore>()(
           new Date(a.completedAt ?? a.startedAt).getTime(),
         );
 
-        set({
+        set((state) => ({
           activeSession: payload.activeSession ?? null,
           completedSessions,
           plans: mergePlansWithSeeds(payload.plans),
-        });
+          exerciseLibrary: payload.exerciseLibrary
+            ? mergeExerciseLibraryWithSeeds(payload.exerciseLibrary)
+            : state.exerciseLibrary,
+        }));
 
         return true;
       },
@@ -496,7 +622,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
     }),
     {
       name: STORAGE_KEYS.workoutStore,
-      version: 4,
+      version: 5,
       storage: createJSONStorage(() => {
         const safeStorage: Storage = {
           ...localStorage,
@@ -523,14 +649,15 @@ export const useWorkoutStore = create<WorkoutStore>()(
           completedSessions?: WorkoutSession[];
           plans?: WorkoutPlan[];
           legacyTemplates?: WorkoutPlan[];
+          exerciseLibrary?: ExerciseDefinition[];
           sessions?: unknown;
         };
 
         return {
-          schemaVersion: 4,
+          schemaVersion: 5,
           activeSession: persisted.activeSession ?? null,
           completedSessions: persisted.completedSessions ?? normalizePersistedSessions(persisted.sessions),
-          exerciseLibrary,
+          exerciseLibrary: mergeExerciseLibraryWithSeeds(persisted.exerciseLibrary),
           plans: mergePlansWithSeeds(persisted.plans ?? persisted.legacyTemplates),
         };
       },
@@ -539,6 +666,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
         activeSession: state.activeSession,
         completedSessions: state.completedSessions,
         plans: state.plans,
+        exerciseLibrary: state.exerciseLibrary,
       }),
     }
   )

@@ -50,6 +50,7 @@ export default function ActiveTrainingView() {
     () =>
       exerciseLibrary.filter(
         (exercise) =>
+          !exercise.isHidden &&
           !activeSession?.entries.some((entry) => entry.exerciseId === exercise.id),
       ),
     [activeSession?.entries, exerciseLibrary],
