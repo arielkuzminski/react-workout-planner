@@ -1,28 +1,117 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pause, Play, RotateCcw } from 'lucide-react';
+import {
+  closeRestTimerNotifications,
+  playRestTimerSound,
+  prepareRestTimerAudio,
+  requestRestTimerNotificationPermission,
+  showRestTimerNotification,
+  vibrateRestTimer,
+} from '../utils/restTimerAlerts';
 
 interface RestTimerProps {
   defaultSeconds?: number;
   soundEnabled?: boolean;
+  vibrationEnabled?: boolean;
+  notificationsEnabled?: boolean;
+  onNotificationPermissionChange?: (permission: NotificationPermission | 'unsupported') => void;
   className?: string;
 }
 
-export default function RestTimer({ defaultSeconds = 90, soundEnabled = true, className = '' }: RestTimerProps) {
+export default function RestTimer({
+  defaultSeconds = 90,
+  soundEnabled = true,
+  vibrationEnabled = true,
+  notificationsEnabled = true,
+  onNotificationPermissionChange,
+  className = '',
+}: RestTimerProps) {
   const [secondsLeft, setSecondsLeft] = useState(defaultSeconds);
   const [isRunning, setIsRunning] = useState(false);
   const [hasFinished, setHasFinished] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const finishTimeoutRef = useRef<number | null>(null);
+  const endTimeRef = useRef<number | null>(null);
+  const hasFinishedRef = useRef(false);
+
+  const clearRuntime = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    if (finishTimeoutRef.current !== null) {
+      window.clearTimeout(finishTimeoutRef.current);
+      finishTimeoutRef.current = null;
+    }
+
+    endTimeRef.current = null;
+  }, []);
+
+  const syncSecondsLeft = useCallback(() => {
+    if (endTimeRef.current === null) {
+      return 0;
+    }
+
+    const next = Math.max(0, Math.ceil((endTimeRef.current - Date.now()) / 1000));
+    setSecondsLeft(next);
+    return next;
+  }, []);
+
+  const finish = useCallback(async () => {
+    if (hasFinishedRef.current) {
+      return;
+    }
+
+    hasFinishedRef.current = true;
+    clearRuntime();
+    setSecondsLeft(0);
+    setIsRunning(false);
+    setHasFinished(true);
+
+    const isBackgrounded = document.visibilityState !== 'visible' || !document.hasFocus();
+
+    await Promise.all([
+      playRestTimerSound(soundEnabled),
+      Promise.resolve(vibrateRestTimer(vibrationEnabled)),
+      notificationsEnabled && isBackgrounded
+        ? showRestTimerNotification()
+        : closeRestTimerNotifications(),
+    ]);
+  }, [clearRuntime, notificationsEnabled, soundEnabled, vibrationEnabled]);
+
+  const scheduleRuntime = useCallback((remainingSeconds: number) => {
+    clearRuntime();
+
+    if (remainingSeconds <= 0) {
+      void finish();
+      return;
+    }
+
+    endTimeRef.current = Date.now() + remainingSeconds * 1000;
+    setSecondsLeft(remainingSeconds);
+
+    finishTimeoutRef.current = window.setTimeout(() => {
+      void finish();
+    }, remainingSeconds * 1000);
+
+    intervalRef.current = setInterval(() => {
+      const next = syncSecondsLeft();
+      if (next <= 0) {
+        void finish();
+      }
+    }, 250);
+  }, [clearRuntime, finish, syncSecondsLeft]);
 
   useEffect(() => {
     setSecondsLeft(defaultSeconds);
     setHasFinished(false);
     setIsRunning(false);
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  }, [defaultSeconds]);
+    hasFinishedRef.current = false;
+    clearRuntime();
+    void closeRestTimerNotifications();
+  }, [clearRuntime, defaultSeconds]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -34,86 +123,76 @@ export default function RestTimer({ defaultSeconds = 90, soundEnabled = true, cl
     return () => mediaQuery.removeEventListener('change', updatePreference);
   }, []);
 
-  const stop = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-    setIsRunning(false);
-  }, []);
-
-  const start = useCallback(() => {
-    if (secondsLeft <= 0) return;
-    setHasFinished(false);
-    setIsRunning(true);
-  }, [secondsLeft]);
-
-  const reset = useCallback(() => {
-    stop();
-    setSecondsLeft(defaultSeconds);
-    setHasFinished(false);
-  }, [stop, defaultSeconds]);
-
   useEffect(() => {
-    if (!isRunning) return;
-
-    intervalRef.current = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          stop();
-          setHasFinished(true);
-          try { navigator.vibrate?.([200, 100, 200, 100, 200]); } catch {}
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [isRunning, stop]);
-
-  const minutes = Math.floor(secondsLeft / 60);
-  const seconds = secondsLeft % 60;
-  const progress = 1 - secondsLeft / defaultSeconds;
-
-  const playSound = useCallback(() => {
-    if (!soundEnabled) {
-      return;
-    }
-
-    try {
-      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (!AudioContextClass) {
+    const handleVisibilityChange = () => {
+      if (!isRunning) {
         return;
       }
 
-      const context = new AudioContextClass();
-      const oscillator = context.createOscillator();
-      const gainNode = context.createGain();
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(880, context.currentTime);
-      gainNode.gain.setValueAtTime(0.0001, context.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.08, context.currentTime + 0.02);
-      gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.28);
-      oscillator.connect(gainNode);
-      gainNode.connect(context.destination);
-      oscillator.start();
-      oscillator.stop(context.currentTime + 0.3);
-      oscillator.onended = () => {
-        void context.close();
-      };
-    } catch {}
-  }, [soundEnabled]);
+      const next = syncSecondsLeft();
+      if (next <= 0) {
+        void finish();
+        return;
+      }
 
-  useEffect(() => {
-    if (!hasFinished) {
+      if (document.visibilityState === 'visible') {
+        void closeRestTimerNotifications();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleVisibilityChange);
+    };
+  }, [finish, isRunning, syncSecondsLeft]);
+
+  useEffect(() => () => {
+    clearRuntime();
+    void closeRestTimerNotifications();
+  }, [clearRuntime]);
+
+  const stop = useCallback(() => {
+    const next = syncSecondsLeft();
+    clearRuntime();
+    setIsRunning(false);
+    setSecondsLeft((current) => (next > 0 ? next : current));
+    void closeRestTimerNotifications();
+  }, [clearRuntime, syncSecondsLeft]);
+
+  const start = useCallback(async () => {
+    if (secondsLeft <= 0) {
       return;
     }
 
-    playSound();
-  }, [hasFinished, playSound]);
+    setHasFinished(false);
+    hasFinishedRef.current = false;
+
+    await prepareRestTimerAudio();
+
+    if (notificationsEnabled) {
+      const permission = await requestRestTimerNotificationPermission();
+      onNotificationPermissionChange?.(permission);
+    }
+
+    scheduleRuntime(secondsLeft);
+    setIsRunning(true);
+  }, [notificationsEnabled, onNotificationPermissionChange, scheduleRuntime, secondsLeft]);
+
+  const reset = useCallback(() => {
+    clearRuntime();
+    setIsRunning(false);
+    setSecondsLeft(defaultSeconds);
+    setHasFinished(false);
+    hasFinishedRef.current = false;
+    void closeRestTimerNotifications();
+  }, [clearRuntime, defaultSeconds]);
+
+  const minutes = Math.floor(secondsLeft / 60);
+  const seconds = secondsLeft % 60;
+  const progress = defaultSeconds > 0 ? 1 - secondsLeft / defaultSeconds : 1;
 
   return (
     <div className={`flex flex-wrap items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${className} ${
@@ -147,7 +226,7 @@ export default function RestTimer({ defaultSeconds = 90, soundEnabled = true, cl
 
       <div className="ml-auto flex gap-1">
         {!isRunning && !hasFinished && (
-          <button onClick={start} className="p-2 rounded-lg hover:bg-surface-inset" aria-label="Start timer">
+          <button onClick={() => void start()} className="p-2 rounded-lg hover:bg-surface-inset" aria-label="Start timer">
             <Play className="w-4 h-4 text-brand-text" />
           </button>
         )}

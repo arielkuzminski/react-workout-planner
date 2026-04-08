@@ -122,6 +122,9 @@ export interface BackupSettings {
 export interface UserPreferences {
   restTimerSeconds: number;
   restTimerSoundEnabled: boolean;
+  restTimerVibrationEnabled: boolean;
+  restTimerNotificationsEnabled: boolean;
+  restTimerNotificationPermission: NotificationPermission | 'unsupported';
   weightIncrementKg: number;
 }
 

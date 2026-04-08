@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Papa from 'papaparse';
 import { ChevronRight, ClipboardList, Download, Dumbbell, Loader, PlayCircle, RefreshCw, Upload } from 'lucide-react';
@@ -11,6 +11,13 @@ import { useBackupStore } from '../store/backupStore';
 import { usePreferencesStore } from '../store/preferencesStore';
 import { LegacyWorkoutSession, PlanId } from '../types';
 import { createExportPayload, parseImportedCompletedSessions, readAutoBackupSnapshot } from '../utils/backup';
+import { isIosDevice, isStandaloneMode } from '../utils/pwa';
+import {
+  getRestTimerNotificationPermission,
+  isRestTimerNotificationSupported,
+  requestRestTimerNotificationPermission,
+  requiresInstalledPwaForReliableNotifications,
+} from '../utils/restTimerAlerts';
 import { createId, legacySessionToV2 } from '../utils/sessionUtils';
 
 const downloadBlob = (filename: string, content: string, mimeType: string) => {
@@ -33,12 +40,25 @@ export default function Settings() {
   const setBackupEnabled = useBackupStore((state) => state.setEnabled);
   const restTimerSeconds = usePreferencesStore((state) => state.restTimerSeconds);
   const restTimerSoundEnabled = usePreferencesStore((state) => state.restTimerSoundEnabled);
+  const restTimerVibrationEnabled = usePreferencesStore((state) => state.restTimerVibrationEnabled);
+  const restTimerNotificationsEnabled = usePreferencesStore((state) => state.restTimerNotificationsEnabled);
+  const restTimerNotificationPermission = usePreferencesStore((state) => state.restTimerNotificationPermission);
   const weightIncrementKg = usePreferencesStore((state) => state.weightIncrementKg);
   const setRestTimerSeconds = usePreferencesStore((state) => state.setRestTimerSeconds);
   const setRestTimerSoundEnabled = usePreferencesStore((state) => state.setRestTimerSoundEnabled);
+  const setRestTimerVibrationEnabled = usePreferencesStore((state) => state.setRestTimerVibrationEnabled);
+  const setRestTimerNotificationsEnabled = usePreferencesStore((state) => state.setRestTimerNotificationsEnabled);
+  const setRestTimerNotificationPermission = usePreferencesStore((state) => state.setRestTimerNotificationPermission);
   const setWeightIncrementKg = usePreferencesStore((state) => state.setWeightIncrementKg);
   const [message, setMessage] = useState('');
   const [isLoadingSample, setIsLoadingSample] = useState(false);
+  const notificationSupported = isRestTimerNotificationSupported();
+  const iosDevice = isIosDevice();
+  const standaloneMode = isStandaloneMode();
+
+  useEffect(() => {
+    setRestTimerNotificationPermission(getRestTimerNotificationPermission());
+  }, [setRestTimerNotificationPermission]);
 
   const handleLoadSample = async () => {
     setMessage('');
@@ -194,6 +214,31 @@ export default function Settings() {
     setMessage('Przywrócono dane z automatycznego backupu.');
   };
 
+  const handleEnableNotifications = async () => {
+    const permission = await requestRestTimerNotificationPermission();
+    setRestTimerNotificationPermission(permission);
+  };
+
+  const notificationStatusLabel = (() => {
+    if (!notificationSupported) {
+      return 'Ta przeglądarka nie wspiera powiadomień systemowych dla timera.';
+    }
+
+    if (requiresInstalledPwaForReliableNotifications()) {
+      return 'Na iPhonie/iPadzie niezawodne powiadomienia działają po instalacji aplikacji na ekranie głównym.';
+    }
+
+    if (restTimerNotificationPermission === 'granted') {
+      return 'Powiadomienia systemowe są włączone.';
+    }
+
+    if (restTimerNotificationPermission === 'denied') {
+      return 'Powiadomienia są zablokowane w ustawieniach przeglądarki lub systemu.';
+    }
+
+    return 'Powiadomienia nie są jeszcze autoryzowane.';
+  })();
+
   return (
     <div className="space-y-6">
       <div>
@@ -223,7 +268,7 @@ export default function Settings() {
           </p>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-4 xl:grid-cols-4">
           <label className="space-y-2">
             <span className="text-sm font-semibold text-text-primary">Timer przerwy (sekundy)</span>
             <NumberField
@@ -263,6 +308,60 @@ export default function Settings() {
             />
             Włącz dźwięk timera
           </label>
+
+          <label className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-medium text-text-primary">
+            <input
+              type="checkbox"
+              checked={restTimerVibrationEnabled}
+              onChange={(event) => setRestTimerVibrationEnabled(event.target.checked)}
+              className="h-4 w-4 rounded border-border text-brand focus:ring-brand-ring"
+            />
+            Włącz wibrację timera
+          </label>
+
+          <label className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-medium text-text-primary">
+            <input
+              type="checkbox"
+              checked={restTimerNotificationsEnabled}
+              onChange={(event) => setRestTimerNotificationsEnabled(event.target.checked)}
+              className="h-4 w-4 rounded border-border text-brand focus:ring-brand-ring"
+            />
+            Włącz powiadomienia systemowe
+          </label>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-surface p-4">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h4 className="text-sm font-semibold text-text-primary">Status powiadomień timera</h4>
+              <p className="mt-1 text-sm text-text-secondary">{notificationStatusLabel}</p>
+              {restTimerNotificationsEnabled && restTimerNotificationPermission === 'granted' && (
+                <p className="mt-2 text-xs text-text-tertiary">
+                  Gdy wyjdziesz do innej karty lub aplikacji, Siłka spróbuje pokazać systemową notyfikację po końcu przerwy.
+                </p>
+              )}
+              {iosDevice && !standaloneMode && (
+                <p className="mt-2 text-xs text-text-tertiary">
+                  Safari w zwykłej karcie nie daje niezawodnych background notifications. Dodaj aplikację do ekranu głównego.
+                </p>
+              )}
+              {restTimerNotificationPermission === 'denied' && (
+                <p className="mt-2 text-xs text-text-tertiary">
+                  Odblokuj powiadomienia w ustawieniach przeglądarki/systemu, a potem wróć tutaj.
+                </p>
+              )}
+            </div>
+
+            {notificationSupported && !requiresInstalledPwaForReliableNotifications() && restTimerNotificationPermission !== 'granted' && (
+              <button
+                type="button"
+                onClick={() => void handleEnableNotifications()}
+                className="inline-flex w-full md:w-auto items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-3 font-semibold text-text-inverted transition-colors hover:bg-brand-hover active:bg-brand-active focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+              >
+                Włącz powiadomienia
+              </button>
+            )}
+          </div>
         </div>
       </section>
 
