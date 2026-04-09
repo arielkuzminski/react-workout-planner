@@ -80,6 +80,12 @@ export default function AppDialog({
   const titleId = useId();
   const descriptionId = useId();
   const confirmButtonRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
 
   useEffect(() => {
     if (!open) {
@@ -91,12 +97,15 @@ export default function AppDialog({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onClose();
+        onCloseRef.current();
       }
     };
 
     const focusTimer = window.setTimeout(() => {
-      confirmButtonRef.current?.focus();
+      const dialog = dialogRef.current;
+      if (dialog && !dialog.contains(document.activeElement)) {
+        confirmButtonRef.current?.focus();
+      }
     }, 10);
 
     document.addEventListener('keydown', handleKeyDown);
@@ -106,7 +115,7 @@ export default function AppDialog({
       document.removeEventListener('keydown', handleKeyDown);
       window.clearTimeout(focusTimer);
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) {
     return null;
@@ -123,6 +132,7 @@ export default function AppDialog({
       />
       <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
         <div
+          ref={dialogRef}
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
