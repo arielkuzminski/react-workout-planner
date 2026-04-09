@@ -69,7 +69,7 @@ const WeightSetRow = ({
             inputMode="decimal"
             normalize={(value) => Number(value.toFixed(2))}
             fallbackValue={weight}
-            className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg bg-surface-card text-center text-sm text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
+            className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg bg-surface-card text-center text-base text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
             ariaLabel={`Ciężar set ${set.setNumber}`}
           />
           <StepButton onClick={() => onChange({ weight: Number((weight + weightIncrementKg).toFixed(2)) })} label={`+${weightIncrementKg}kg`}>
@@ -93,7 +93,7 @@ const WeightSetRow = ({
             inputMode="numeric"
             allowEmpty
             normalize={(value) => Math.round(value)}
-            className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg bg-surface-card text-center text-sm text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
+            className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg bg-surface-card text-center text-base text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
             ariaLabel={`Powtórzenia set ${set.setNumber}`}
           />
           <StepButton onClick={() => onChange({ reps: (reps ?? 0) + 1 })} label="+1 rep">
@@ -145,7 +145,7 @@ const TimeSetRow = ({
             inputMode="numeric"
             allowEmpty
             normalize={(value) => Math.round(value)}
-            className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg bg-surface-card text-center text-sm text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
+            className="w-full min-w-0 px-2 py-2 border border-border-strong rounded-lg bg-surface-card text-center text-base text-text-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
             ariaLabel={`Czas set ${set.setNumber}`}
           />
           <StepButton onClick={() => onChange({ durationSec: (duration ?? 0) + 5 })} label="+5s">
@@ -215,7 +215,7 @@ export default function ExerciseLogger({
         onChange={(event) => onNotesChange(event.target.value)}
         placeholder="Opcjonalna notatka do ćwiczenia"
         rows={2}
-        className="w-full px-3 py-2 border border-border-strong rounded-lg bg-surface-card text-text-primary placeholder:text-text-tertiary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
+        className="w-full px-3 py-2 border border-border-strong rounded-lg bg-surface-card text-base text-text-primary placeholder:text-text-tertiary transition-colors focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
       />
     </div>
   );
