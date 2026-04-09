@@ -52,6 +52,7 @@ export default function ActiveTrainingView() {
   const restTimerVibrationEnabled = usePreferencesStore((state) => state.restTimerVibrationEnabled);
   const restTimerNotificationsEnabled = usePreferencesStore((state) => state.restTimerNotificationsEnabled);
   const setRestTimerNotificationPermission = usePreferencesStore((state) => state.setRestTimerNotificationPermission);
+  const setRestTimerPushStatus = usePreferencesStore((state) => state.setRestTimerPushStatus);
   const weightIncrementKg = usePreferencesStore((state) => state.weightIncrementKg);
   const [selectedExerciseIds, setSelectedExerciseIds] = useState<string[]>([]);
 
@@ -160,40 +161,12 @@ export default function ActiveTrainingView() {
 
   return (
     <div className="space-y-6">
-      <section className="bg-surface-card rounded-2xl border border-border shadow-sm p-4 sm:p-6 space-y-4">
+      <section className="bg-surface-card rounded-2xl border border-border shadow-sm p-4 sm:p-6">
         <div className="space-y-2">
           <h2 className="text-2xl sm:text-3xl font-bold text-text-primary leading-tight">Aktywna sesja</h2>
           <p className="max-w-2xl text-text-secondary">
             Dodawaj ćwiczenia, loguj serie i wracaj tutaj w dowolnym momencie bez ryzyka utraty draftu.
           </p>
-        </div>
-
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <button
-            onClick={() => setShowAbandonDialog(true)}
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-danger px-4 py-3 text-sm font-semibold text-text-inverted transition-opacity hover:opacity-90 active:bg-danger-active-bg focus-visible:ring-2 focus-visible:ring-danger-ring focus-visible:ring-offset-2 focus-visible:outline-none sm:min-h-0"
-          >
-            <AlertTriangle className="h-4 w-4 shrink-0" />
-            <span>Porzuć sesję</span>
-          </button>
-          <button
-            onClick={handleComplete}
-            className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-success px-5 py-3 font-semibold text-text-inverted transition-colors hover:bg-success-hover active:bg-success-active focus-visible:ring-2 focus-visible:ring-success-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-          >
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <span className="leading-tight text-center">Zakończ sesję</span>
-          </button>
-        </div>
-
-        <div>
-          <ExercisePicker
-            exercises={availableExercises}
-            value={selectedExerciseIds}
-            onChange={setSelectedExerciseIds}
-            onSubmit={handleAddExercises}
-            placeholder="Dodaj ćwiczenie do sesji"
-            submitLabel="Dodaj"
-          />
         </div>
       </section>
 
@@ -250,6 +223,36 @@ export default function ActiveTrainingView() {
         })}
       </section>
 
+      <section className="bg-surface-card rounded-2xl border border-border shadow-sm p-4 sm:p-6 space-y-4">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <button
+            onClick={() => setShowAbandonDialog(true)}
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-danger px-4 py-3 text-sm font-semibold text-text-inverted transition-opacity hover:opacity-90 active:bg-danger-active-bg focus-visible:ring-2 focus-visible:ring-danger-ring focus-visible:ring-offset-2 focus-visible:outline-none sm:min-h-0"
+          >
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+            <span>Porzuć sesję</span>
+          </button>
+          <button
+            onClick={handleComplete}
+            className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-success px-5 py-3 font-semibold text-text-inverted transition-colors hover:bg-success-hover active:bg-success-active focus-visible:ring-2 focus-visible:ring-success-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+          >
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span className="leading-tight text-center">Zakończ sesję</span>
+          </button>
+        </div>
+
+        <div>
+          <ExercisePicker
+            exercises={availableExercises}
+            value={selectedExerciseIds}
+            onChange={setSelectedExerciseIds}
+            onSubmit={handleAddExercises}
+            placeholder="Dodaj ćwiczenie do sesji"
+            submitLabel="Dodaj"
+          />
+        </div>
+      </section>
+
       <div className="sticky bottom-[4.75rem] z-20 md:bottom-4">
         <RestTimer
           defaultSeconds={restTimerSeconds}
@@ -257,6 +260,7 @@ export default function ActiveTrainingView() {
           vibrationEnabled={restTimerVibrationEnabled}
           notificationsEnabled={restTimerNotificationsEnabled}
           onNotificationPermissionChange={setRestTimerNotificationPermission}
+          onPushStatusChange={setRestTimerPushStatus}
           className="shadow-lg backdrop-blur supports-[backdrop-filter]:bg-surface-card/95"
         />
       </div>

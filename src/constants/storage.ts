@@ -4,6 +4,7 @@ export const STORAGE_KEYS = {
   autoBackup: 'silka-auto-backup',
   autoBackupSettings: 'silka-auto-backup-settings',
   userPreferences: 'silka-user-preferences',
+  restTimer: 'silka-rest-timer',
 } as const;
 
 export const APP_EVENTS = {

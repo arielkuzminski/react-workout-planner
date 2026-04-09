@@ -1,6 +1,6 @@
 {
   "name": "silka",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Aplikacja do śledzenia postępów treningowych",
   "type": "module",
   "scripts": {
