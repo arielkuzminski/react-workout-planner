@@ -3,10 +3,35 @@ import { isIosDevice, isStandaloneMode } from './pwa';
 export const REST_TIMER_NOTIFICATION_TAG = 'silka-rest-timer-finished';
 
 type RestTimerPermission = NotificationPermission | 'unsupported';
+export type RestTimerPushStatus =
+  | 'unknown'
+  | 'unsupported'
+  | 'install-required'
+  | 'permission-required'
+  | 'denied'
+  | 'missing-config'
+  | 'ready'
+  | 'error';
 
 interface RestTimerNotificationOptions {
   body?: string;
   title?: string;
+}
+
+interface PushConfigResponse {
+  available: boolean;
+  publicKey: string | null;
+  schedulerAvailable: boolean;
+}
+
+interface EnsurePushSubscriptionResult {
+  status: RestTimerPushStatus;
+  subscription: PushSubscriptionJSON | null;
+}
+
+interface SchedulePushResult {
+  status: RestTimerPushStatus;
+  runId: string | null;
 }
 
 let audioContextRef: AudioContext | null = null;
@@ -40,6 +65,9 @@ export const isRestTimerNotificationSupported = () =>
 
 export const requiresInstalledPwaForReliableNotifications = () => isIosDevice() && !isStandaloneMode();
 
+export const isRestTimerVibrationSupported = () =>
+  !isIosDevice() && typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
+
 export const prepareRestTimerAudio = async () => {
   try {
     const context = getAudioContext();
@@ -72,17 +100,37 @@ export const playRestTimerSound = async (soundEnabled: boolean) => {
       await context.resume();
     }
 
-    const oscillator = context.createOscillator();
-    const gainNode = context.createGain();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(880, context.currentTime);
-    gainNode.gain.setValueAtTime(0.0001, context.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.12, context.currentTime + 0.02);
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.35);
-    oscillator.connect(gainNode);
-    gainNode.connect(context.destination);
-    oscillator.start();
-    oscillator.stop(context.currentTime + 0.36);
+    const sequence = [
+      { start: 0.00, duration: 0.22, frequency: 880 },
+      { start: 0.28, duration: 0.22, frequency: 1046.5 },
+      { start: 0.58, duration: 0.24, frequency: 1318.5 },
+      { start: 1.10, duration: 0.24, frequency: 987.8 },
+      { start: 1.42, duration: 0.24, frequency: 1174.7 },
+      { start: 1.74, duration: 0.30, frequency: 1568 },
+      { start: 2.20, duration: 0.26, frequency: 1318.5 },
+      { start: 2.54, duration: 0.26, frequency: 1568 },
+    ];
+    const startedAt = context.currentTime + 0.01;
+
+    sequence.forEach((note) => {
+      const oscillator = context.createOscillator();
+      const gainNode = context.createGain();
+      const noteStart = startedAt + note.start;
+      const noteEnd = noteStart + note.duration;
+
+      oscillator.type = 'triangle';
+      oscillator.frequency.setValueAtTime(note.frequency, noteStart);
+      gainNode.gain.setValueAtTime(0.0001, noteStart);
+      gainNode.gain.exponentialRampToValueAtTime(0.16, noteStart + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, noteEnd);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(context.destination);
+      oscillator.start(noteStart);
+      oscillator.stop(noteEnd + 0.02);
+    });
+
+    await new Promise((resolve) => window.setTimeout(resolve, 3000));
     return true;
   } catch {
     return false;
@@ -90,7 +138,7 @@ export const playRestTimerSound = async (soundEnabled: boolean) => {
 };
 
 export const vibrateRestTimer = (vibrationEnabled: boolean) => {
-  if (!vibrationEnabled) {
+  if (!vibrationEnabled || !isRestTimerVibrationSupported()) {
     return false;
   }
 
@@ -139,6 +187,35 @@ export const showRestTimerNotification = async ({
   }
 };
 
+export const getRestTimerPushStatus = async (): Promise<RestTimerPushStatus> => {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    return 'unsupported';
+  }
+
+  if (requiresInstalledPwaForReliableNotifications()) {
+    return 'install-required';
+  }
+
+  const permission = getRestTimerNotificationPermission();
+  if (permission === 'denied') {
+    return 'denied';
+  }
+
+  if (permission !== 'granted') {
+    return 'permission-required';
+  }
+
+  try {
+    const config = await fetchPushConfig();
+    if (!config.available || !config.publicKey || !config.schedulerAvailable) {
+      return 'missing-config';
+    }
+    return 'ready';
+  } catch {
+    return 'error';
+  }
+};
+
 export const requestRestTimerNotificationPermission = async (): Promise<RestTimerPermission> => {
   const permission = getRestTimerNotificationPermission();
   if (permission === 'unsupported' || permission === 'granted' || permission === 'denied') {
@@ -153,5 +230,124 @@ export const requestRestTimerNotificationPermission = async (): Promise<RestTime
     return await Notification.requestPermission();
   } catch {
     return Notification.permission;
+  }
+};
+
+const urlBase64ToUint8Array = (base64String: string) => {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let index = 0; index < rawData.length; index += 1) {
+    outputArray[index] = rawData.charCodeAt(index);
+  }
+
+  return outputArray;
+};
+
+const fetchPushConfig = async (): Promise<PushConfigResponse> => {
+  const response = await fetch('/api/push/vapid-public-key', {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('push-config-unavailable');
+  }
+
+  return response.json() as Promise<PushConfigResponse>;
+};
+
+export const ensureRestTimerPushSubscription = async (): Promise<EnsurePushSubscriptionResult> => {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    return { status: 'unsupported', subscription: null };
+  }
+
+  if (requiresInstalledPwaForReliableNotifications()) {
+    return { status: 'install-required', subscription: null };
+  }
+
+  const permission = getRestTimerNotificationPermission();
+  if (permission === 'denied') {
+    return { status: 'denied', subscription: null };
+  }
+
+  if (permission !== 'granted') {
+    return { status: 'permission-required', subscription: null };
+  }
+
+  try {
+    const config = await fetchPushConfig();
+    if (!config.available || !config.publicKey) {
+      return { status: 'missing-config', subscription: null };
+    }
+
+    const registration = await navigator.serviceWorker.ready;
+    const existing = await registration.pushManager.getSubscription();
+    const subscription = existing ?? await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(config.publicKey),
+    });
+
+    return {
+      status: 'ready',
+      subscription: subscription.toJSON(),
+    };
+  } catch {
+    return { status: 'error', subscription: null };
+  }
+};
+
+export const scheduleRestTimerPush = async (
+  timerId: string,
+  fireAt: string,
+  subscription: PushSubscriptionJSON,
+): Promise<SchedulePushResult> => {
+  try {
+    const response = await fetch('/api/rest-timer/schedule', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        timerId,
+        fireAt,
+        subscription,
+      }),
+    });
+
+    if (response.status === 503) {
+      return { status: 'missing-config', runId: null };
+    }
+
+    if (!response.ok) {
+      return { status: 'error', runId: null };
+    }
+
+    const payload = await response.json() as { messageId?: string };
+    return {
+      status: 'ready',
+      runId: payload.messageId ?? null,
+    };
+  } catch {
+    return { status: 'error', runId: null };
+  }
+};
+
+export const cancelRestTimerPush = async (runId: string) => {
+  try {
+    await fetch('/api/rest-timer/cancel', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ runId }),
+    });
+    return true;
+  } catch {
+    return false;
   }
 };

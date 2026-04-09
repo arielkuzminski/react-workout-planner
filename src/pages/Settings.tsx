@@ -13,7 +13,9 @@ import { LegacyWorkoutSession, PlanId } from '../types';
 import { createExportPayload, parseImportedCompletedSessions, readAutoBackupSnapshot } from '../utils/backup';
 import { isIosDevice, isStandaloneMode } from '../utils/pwa';
 import {
+  getRestTimerPushStatus,
   getRestTimerNotificationPermission,
+  isRestTimerVibrationSupported,
   isRestTimerNotificationSupported,
   requestRestTimerNotificationPermission,
   requiresInstalledPwaForReliableNotifications,
@@ -43,22 +45,28 @@ export default function Settings() {
   const restTimerVibrationEnabled = usePreferencesStore((state) => state.restTimerVibrationEnabled);
   const restTimerNotificationsEnabled = usePreferencesStore((state) => state.restTimerNotificationsEnabled);
   const restTimerNotificationPermission = usePreferencesStore((state) => state.restTimerNotificationPermission);
+  const restTimerPushStatus = usePreferencesStore((state) => state.restTimerPushStatus);
   const weightIncrementKg = usePreferencesStore((state) => state.weightIncrementKg);
   const setRestTimerSeconds = usePreferencesStore((state) => state.setRestTimerSeconds);
   const setRestTimerSoundEnabled = usePreferencesStore((state) => state.setRestTimerSoundEnabled);
   const setRestTimerVibrationEnabled = usePreferencesStore((state) => state.setRestTimerVibrationEnabled);
   const setRestTimerNotificationsEnabled = usePreferencesStore((state) => state.setRestTimerNotificationsEnabled);
   const setRestTimerNotificationPermission = usePreferencesStore((state) => state.setRestTimerNotificationPermission);
+  const setRestTimerPushStatus = usePreferencesStore((state) => state.setRestTimerPushStatus);
   const setWeightIncrementKg = usePreferencesStore((state) => state.setWeightIncrementKg);
   const [message, setMessage] = useState('');
   const [isLoadingSample, setIsLoadingSample] = useState(false);
   const notificationSupported = isRestTimerNotificationSupported();
+  const vibrationSupported = isRestTimerVibrationSupported();
   const iosDevice = isIosDevice();
   const standaloneMode = isStandaloneMode();
 
   useEffect(() => {
     setRestTimerNotificationPermission(getRestTimerNotificationPermission());
-  }, [setRestTimerNotificationPermission]);
+    void (async () => {
+      setRestTimerPushStatus(await getRestTimerPushStatus());
+    })();
+  }, [setRestTimerNotificationPermission, setRestTimerPushStatus]);
 
   const handleLoadSample = async () => {
     setMessage('');
@@ -217,6 +225,7 @@ export default function Settings() {
   const handleEnableNotifications = async () => {
     const permission = await requestRestTimerNotificationPermission();
     setRestTimerNotificationPermission(permission);
+    setRestTimerPushStatus(await getRestTimerPushStatus());
   };
 
   const notificationStatusLabel = (() => {
@@ -224,16 +233,24 @@ export default function Settings() {
       return 'Ta przeglądarka nie wspiera powiadomień systemowych dla timera.';
     }
 
-    if (requiresInstalledPwaForReliableNotifications()) {
+    if (restTimerPushStatus === 'install-required' || requiresInstalledPwaForReliableNotifications()) {
       return 'Na iPhonie/iPadzie niezawodne powiadomienia działają po instalacji aplikacji na ekranie głównym.';
     }
 
-    if (restTimerNotificationPermission === 'granted') {
-      return 'Powiadomienia systemowe są włączone.';
+    if (restTimerPushStatus === 'missing-config') {
+      return 'Brakuje konfiguracji serwerowej Web Push albo scheduler-a dla timera.';
+    }
+
+    if (restTimerPushStatus === 'ready') {
+      return 'Powiadomienia systemowe i dostarczanie w tle są gotowe.';
     }
 
     if (restTimerNotificationPermission === 'denied') {
       return 'Powiadomienia są zablokowane w ustawieniach przeglądarki lub systemu.';
+    }
+
+    if (restTimerPushStatus === 'error') {
+      return 'Nie udało się potwierdzić konfiguracji push dla tego urządzenia.';
     }
 
     return 'Powiadomienia nie są jeszcze autoryzowane.';
@@ -314,6 +331,7 @@ export default function Settings() {
               type="checkbox"
               checked={restTimerVibrationEnabled}
               onChange={(event) => setRestTimerVibrationEnabled(event.target.checked)}
+              disabled={!vibrationSupported}
               className="h-4 w-4 rounded border-border text-brand focus:ring-brand-ring"
             />
             Włącz wibrację timera
@@ -335,9 +353,9 @@ export default function Settings() {
             <div>
               <h4 className="text-sm font-semibold text-text-primary">Status powiadomień timera</h4>
               <p className="mt-1 text-sm text-text-secondary">{notificationStatusLabel}</p>
-              {restTimerNotificationsEnabled && restTimerNotificationPermission === 'granted' && (
+              {restTimerNotificationsEnabled && restTimerPushStatus === 'ready' && (
                 <p className="mt-2 text-xs text-text-tertiary">
-                  Gdy wyjdziesz do innej karty lub aplikacji, Siłka spróbuje pokazać systemową notyfikację po końcu przerwy.
+                  Gdy wyjdziesz do innej aplikacji, Siłka zaplanuje prawdziwy Web Push zamiast czekać na wznowienie PWA.
                 </p>
               )}
               {iosDevice && !standaloneMode && (
@@ -348,6 +366,16 @@ export default function Settings() {
               {restTimerNotificationPermission === 'denied' && (
                 <p className="mt-2 text-xs text-text-tertiary">
                   Odblokuj powiadomienia w ustawieniach przeglądarki/systemu, a potem wróć tutaj.
+                </p>
+              )}
+              {!vibrationSupported && (
+                <p className="mt-2 text-xs text-text-tertiary">
+                  iPhone nie udostępnia tej aplikacji działającej wibracji przez Web API, więc sygnał końca opiera się na audio i push.
+                </p>
+              )}
+              {restTimerPushStatus === 'missing-config' && (
+                <p className="mt-2 text-xs text-text-tertiary">
+                  Potrzebne env-y serwerowe: `WEB_PUSH_VAPID_PUBLIC_KEY`, `WEB_PUSH_VAPID_PRIVATE_KEY`, `WEB_PUSH_VAPID_SUBJECT`, `QSTASH_TOKEN`, `REST_TIMER_FIRE_SECRET`.
                 </p>
               )}
             </div>

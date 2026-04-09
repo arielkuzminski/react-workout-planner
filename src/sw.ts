@@ -8,6 +8,8 @@ declare let self: ServiceWorkerGlobalScope & {
   __WB_MANIFEST: Array<unknown>;
 };
 
+const REST_TIMER_NOTIFICATION_TAG = 'silka-rest-timer-finished';
+
 self.skipWaiting();
 clientsClaim();
 
@@ -39,4 +41,31 @@ self.addEventListener('notificationclick', (event) => {
 
     await self.clients.openWindow(targetUrl);
   })());
+});
+
+self.addEventListener('push', (event) => {
+  const payload = (() => {
+    try {
+      return event.data?.json() as Record<string, unknown> | undefined;
+    } catch {
+      return undefined;
+    }
+  })();
+
+  const title = typeof payload?.title === 'string' ? payload.title : 'Przerwa zakończona';
+  const body = typeof payload?.body === 'string'
+    ? payload.body
+    : 'Wracaj do serii. Timer w Siłce dobiegł końca.';
+  const url = typeof payload?.url === 'string' ? payload.url : '/';
+
+  event.waitUntil(self.registration.showNotification(title, {
+    body,
+    tag: REST_TIMER_NOTIFICATION_TAG,
+    requireInteraction: true,
+    badge: '/icon-192.png',
+    icon: '/icon-192.png',
+    data: {
+      url,
+    },
+  }));
 });

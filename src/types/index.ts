@@ -125,6 +125,15 @@ export interface UserPreferences {
   restTimerVibrationEnabled: boolean;
   restTimerNotificationsEnabled: boolean;
   restTimerNotificationPermission: NotificationPermission | 'unsupported';
+  restTimerPushStatus:
+    | 'unknown'
+    | 'unsupported'
+    | 'install-required'
+    | 'permission-required'
+    | 'denied'
+    | 'missing-config'
+    | 'ready'
+    | 'error';
   weightIncrementKg: number;
 }
 
