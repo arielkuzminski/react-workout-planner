@@ -85,6 +85,7 @@ export default function Plans() {
   const createCustomPlan = useWorkoutStore((state) => state.createCustomPlan);
   const saveActiveSessionAsPlan = useWorkoutStore((state) => state.saveActiveSessionAsPlan);
   const updatePlanExercises = useWorkoutStore((state) => state.updatePlanExercises);
+  const updatePlanDetails = useWorkoutStore((state) => state.updatePlanDetails);
   const deleteCustomPlan = useWorkoutStore((state) => state.deleteCustomPlan);
   const setPlanActive = useWorkoutStore((state) => state.setPlanActive);
 
@@ -105,6 +106,8 @@ export default function Plans() {
   const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
   const [editingExerciseIds, setEditingExerciseIds] = useState<string[]>([]);
   const [editingPickerSelection, setEditingPickerSelection] = useState<string[]>([]);
+  const [editingName, setEditingName] = useState('');
+  const [editingDescription, setEditingDescription] = useState('');
   const [highlightedPlanId, setHighlightedPlanId] = useState<string | null>(null);
   const editorPanelRef = useRef<HTMLElement | null>(null);
   const customPlanRefs = useRef<Record<string, HTMLElement | null>>({});
@@ -178,6 +181,8 @@ export default function Plans() {
     setEditingPlanId(plan.id);
     setEditingExerciseIds([...plan.exerciseIds]);
     setEditingPickerSelection([]);
+    setEditingName(plan.name);
+    setEditingDescription(plan.description);
   };
 
   useEffect(() => {
@@ -522,10 +527,26 @@ export default function Plans() {
             >
             {editingPlan ? (
               <div className="space-y-4">
-                <div>
+                <div className="space-y-3">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-tertiary">Własny plan</p>
-                  <h4 className="mt-2 text-xl font-bold text-text-primary break-words">{editingPlan.name}</h4>
-                  <p className="mt-1 text-sm text-text-secondary">{editingPlan.description || 'Brak opisu'}</p>
+                  <label className="block space-y-2">
+                    <span className="text-sm font-semibold text-text-primary">Nazwa</span>
+                    <input
+                      value={editingName}
+                      onChange={(event) => setEditingName(event.target.value)}
+                      className="w-full rounded-xl border border-border bg-surface px-3 py-3 text-text-primary placeholder:text-text-tertiary focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
+                      placeholder="Np. Góra - szybki miks"
+                    />
+                  </label>
+                  <label className="block space-y-2">
+                    <span className="text-sm font-semibold text-text-primary">Opis</span>
+                    <input
+                      value={editingDescription}
+                      onChange={(event) => setEditingDescription(event.target.value)}
+                      className="w-full rounded-xl border border-border bg-surface px-3 py-3 text-text-primary placeholder:text-text-tertiary focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none"
+                      placeholder="Opcjonalny opis"
+                    />
+                  </label>
                 </div>
                 <ExercisePicker
                   exercises={editingAvailableExercises}
@@ -556,15 +577,18 @@ export default function Plans() {
                   <button
                     type="button"
                     onClick={() => {
+                      updatePlanDetails(editingPlan.id, editingName, editingDescription);
                       updatePlanExercises(editingPlan.id, editingExerciseIds);
                       setEditingPlanId(null);
                       setEditingExerciseIds([]);
                       setEditingPickerSelection([]);
+                      setEditingName('');
+                      setEditingDescription('');
                     }}
-                    disabled={editingExerciseIds.length === 0}
+                    disabled={editingExerciseIds.length === 0 || editingName.trim().length === 0}
                     className="rounded-xl bg-btn-dark px-4 py-3 text-sm font-semibold text-text-inverted transition-colors hover:bg-btn-dark-hover disabled:cursor-not-allowed disabled:bg-border-strong"
                   >
-                    Zapisz skład planu
+                    Zapisz plan
                   </button>
                   <button
                     type="button"
@@ -572,6 +596,8 @@ export default function Plans() {
                       setEditingPlanId(null);
                       setEditingExerciseIds([]);
                       setEditingPickerSelection([]);
+                      setEditingName('');
+                      setEditingDescription('');
                     }}
                     className="rounded-xl bg-surface-raised px-4 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-inset"
                   >

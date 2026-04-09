@@ -61,6 +61,7 @@ interface WorkoutStoreActions {
   createCustomPlan: (name: string, description: string, exerciseIds: string[]) => string | null;
   saveActiveSessionAsPlan: (name: string, description: string) => string | null;
   updatePlanExercises: (planId: string, exerciseIds: string[]) => void;
+  updatePlanDetails: (planId: string, name: string, description: string) => void;
   moveExerciseInPlan: (planId: string, fromIndex: number, toIndex: number) => void;
   deleteCustomPlan: (planId: string) => void;
   setPlanActive: (planId: string, isActive: boolean) => void;
@@ -232,6 +233,27 @@ export const useWorkoutStore = create<WorkoutStore>()(
             return {
               ...plan,
               exerciseIds: normalizedExerciseIds,
+            };
+          }),
+        }));
+      },
+
+      updatePlanDetails: (planId, name, description) => {
+        const normalizedName = name.trim();
+        if (!normalizedName) {
+          return;
+        }
+
+        set((state) => ({
+          plans: state.plans.map((plan) => {
+            if (plan.id !== planId || plan.source !== 'custom') {
+              return plan;
+            }
+
+            return {
+              ...plan,
+              name: normalizedName,
+              description: description.trim(),
             };
           }),
         }));
