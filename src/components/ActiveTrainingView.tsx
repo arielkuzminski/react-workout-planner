@@ -52,7 +52,6 @@ export default function ActiveTrainingView() {
   const restTimerVibrationEnabled = usePreferencesStore((state) => state.restTimerVibrationEnabled);
   const restTimerNotificationsEnabled = usePreferencesStore((state) => state.restTimerNotificationsEnabled);
   const setRestTimerNotificationPermission = usePreferencesStore((state) => state.setRestTimerNotificationPermission);
-  const setRestTimerPushStatus = usePreferencesStore((state) => state.setRestTimerPushStatus);
   const weightIncrementKg = usePreferencesStore((state) => state.weightIncrementKg);
   const [selectedExerciseIds, setSelectedExerciseIds] = useState<string[]>([]);
 
@@ -260,7 +259,6 @@ export default function ActiveTrainingView() {
           vibrationEnabled={restTimerVibrationEnabled}
           notificationsEnabled={restTimerNotificationsEnabled}
           onNotificationPermissionChange={setRestTimerNotificationPermission}
-          onPushStatusChange={setRestTimerPushStatus}
           className="shadow-lg backdrop-blur supports-[backdrop-filter]:bg-surface-card/95"
         />
       </div>

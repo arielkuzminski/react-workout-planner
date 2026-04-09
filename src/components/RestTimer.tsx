@@ -1,15 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pause, Play, RotateCcw } from 'lucide-react';
 import {
-  cancelRestTimerPush,
   closeRestTimerNotifications,
-  ensureRestTimerPushSubscription,
-  getRestTimerPushStatus,
-  isRestTimerVibrationSupported,
   playRestTimerSound,
   prepareRestTimerAudio,
   requestRestTimerNotificationPermission,
-  scheduleRestTimerPush,
+  showRestTimerNotification,
   vibrateRestTimer,
 } from '../utils/restTimerAlerts';
 import { useRestTimerStore } from '../store/restTimerStore';
@@ -20,17 +16,6 @@ interface RestTimerProps {
   vibrationEnabled?: boolean;
   notificationsEnabled?: boolean;
   onNotificationPermissionChange?: (permission: NotificationPermission | 'unsupported') => void;
-  onPushStatusChange?: (
-    status:
-      | 'unknown'
-      | 'unsupported'
-      | 'install-required'
-      | 'permission-required'
-      | 'denied'
-      | 'missing-config'
-      | 'ready'
-      | 'error'
-  ) => void;
   className?: string;
 }
 
@@ -40,7 +25,6 @@ export default function RestTimer({
   vibrationEnabled = true,
   notificationsEnabled = true,
   onNotificationPermissionChange,
-  onPushStatusChange,
   className = '',
 }: RestTimerProps) {
   // Initial seconds come from persisted store if a timer is mid-flight, otherwise from the prop.
@@ -67,14 +51,6 @@ export default function RestTimer({
   const endTimeRef = useRef<number | null>(null);
   const hasFinishedRef = useRef(false);
   const silentFinishRef = useRef(false);
-
-  const cancelScheduledPush = useCallback(() => {
-    const runId = useRestTimerStore.getState().pushRunId;
-    useRestTimerStore.getState().setPushRunId(null);
-    if (runId) {
-      void cancelRestTimerPush(runId);
-    }
-  }, []);
 
   const clearRuntime = useCallback(() => {
     if (intervalRef.current) {
@@ -109,7 +85,6 @@ export default function RestTimer({
     silentFinishRef.current = false;
     hasFinishedRef.current = true;
     clearRuntime();
-    cancelScheduledPush();
     useRestTimerStore.getState().finishTimer();
     setSecondsLeft(0);
     setIsRunning(false);
@@ -120,12 +95,16 @@ export default function RestTimer({
       return;
     }
 
+    const isBackgrounded = document.visibilityState !== 'visible' || !document.hasFocus();
+
     await Promise.all([
       playRestTimerSound(soundEnabled),
       Promise.resolve(vibrateRestTimer(vibrationEnabled)),
-      closeRestTimerNotifications(),
+      notificationsEnabled && isBackgrounded
+        ? showRestTimerNotification()
+        : closeRestTimerNotifications(),
     ]);
-  }, [cancelScheduledPush, clearRuntime, soundEnabled, vibrationEnabled]);
+  }, [clearRuntime, notificationsEnabled, soundEnabled, vibrationEnabled]);
 
   const scheduleRuntime = useCallback((remainingSeconds: number) => {
     clearRuntime();
@@ -157,7 +136,7 @@ export default function RestTimer({
     if (snapshot.status === 'running' && snapshot.endTimeMs !== null) {
       const remaining = Math.max(0, Math.ceil((snapshot.endTimeMs - Date.now()) / 1000));
       if (remaining <= 0) {
-        // Timer finished while unmounted — user already got the push. Transition silently.
+        // Timer finished while unmounted — transition silently (user wasn't present for the alert).
         silentFinishRef.current = true;
         void finish();
       } else {
@@ -215,12 +194,6 @@ export default function RestTimer({
   }, []);
 
   useEffect(() => {
-    void (async () => {
-      onPushStatusChange?.(await getRestTimerPushStatus());
-    })();
-  }, [onPushStatusChange]);
-
-  useEffect(() => {
     const handleVisibilityChange = () => {
       if (!isRunning) {
         return;
@@ -229,6 +202,11 @@ export default function RestTimer({
       const next = syncSecondsLeft();
       if (next <= 0) {
         void finish();
+        return;
+      }
+
+      if (document.visibilityState === 'visible') {
+        void closeRestTimerNotifications();
       }
     };
 
@@ -242,8 +220,8 @@ export default function RestTimer({
   }, [finish, isRunning, syncSecondsLeft]);
 
   // Unmount cleanup — only clear local runtime refs.
-  // Do NOT cancel the scheduled push here: the user might have navigated to another
-  // screen while the timer is running, and the push notification must still fire.
+  // The persisted store keeps timer state alive across navigation/unmount so the
+  // timer can resume when the user returns.
   useEffect(() => () => {
     clearRuntime();
   }, [clearRuntime]);
@@ -251,13 +229,12 @@ export default function RestTimer({
   const stop = useCallback(() => {
     const next = syncSecondsLeft();
     clearRuntime();
-    cancelScheduledPush();
     setIsRunning(false);
     const remaining = next > 0 ? next : secondsLeft;
     setSecondsLeft(remaining);
     useRestTimerStore.getState().pauseTimer(remaining);
     void closeRestTimerNotifications();
-  }, [cancelScheduledPush, clearRuntime, secondsLeft, syncSecondsLeft]);
+  }, [clearRuntime, secondsLeft, syncSecondsLeft]);
 
   const start = useCallback(async () => {
     if (secondsLeft <= 0) {
@@ -268,52 +245,30 @@ export default function RestTimer({
     hasFinishedRef.current = false;
 
     await prepareRestTimerAudio();
+
+    if (notificationsEnabled) {
+      const permission = await requestRestTimerNotificationPermission();
+      onNotificationPermissionChange?.(permission);
+    }
+
     scheduleRuntime(secondsLeft);
     setIsRunning(true);
     useRestTimerStore.getState().startTimer(secondsLeft);
-
-    if (!notificationsEnabled) {
-      return;
-    }
-
-    const permission = await requestRestTimerNotificationPermission();
-    onNotificationPermissionChange?.(permission);
-
-    const subscriptionResult = await ensureRestTimerPushSubscription();
-    onPushStatusChange?.(subscriptionResult.status);
-
-    if (!subscriptionResult.subscription) {
-      return;
-    }
-
-    const timerId = crypto.randomUUID();
-    const fireAt = new Date(Date.now() + secondsLeft * 1000).toISOString();
-    const scheduleResult = await scheduleRestTimerPush(timerId, fireAt, subscriptionResult.subscription);
-    useRestTimerStore.getState().setPushRunId(scheduleResult.runId);
-    onPushStatusChange?.(scheduleResult.status);
-  }, [
-    notificationsEnabled,
-    onNotificationPermissionChange,
-    onPushStatusChange,
-    scheduleRuntime,
-    secondsLeft,
-  ]);
+  }, [notificationsEnabled, onNotificationPermissionChange, scheduleRuntime, secondsLeft]);
 
   const reset = useCallback(() => {
     clearRuntime();
-    cancelScheduledPush();
     setIsRunning(false);
     setSecondsLeft(defaultSeconds);
     setHasFinished(false);
     hasFinishedRef.current = false;
     useRestTimerStore.getState().resetTimer(defaultSeconds);
     void closeRestTimerNotifications();
-  }, [cancelScheduledPush, clearRuntime, defaultSeconds]);
+  }, [clearRuntime, defaultSeconds]);
 
   const minutes = Math.floor(secondsLeft / 60);
   const seconds = secondsLeft % 60;
   const progress = defaultSeconds > 0 ? 1 - secondsLeft / defaultSeconds : 1;
-  const vibrationSupported = isRestTimerVibrationSupported();
 
   return (
     <div className={`flex flex-wrap items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${className} ${
@@ -341,14 +296,9 @@ export default function RestTimer({
         </span>
       </div>
 
-      <div className="flex min-w-[160px] flex-1 flex-col">
-        <span className="font-medium text-text-primary">
-          {hasFinished ? 'Przerwa zakończona!' : isRunning ? 'Odpoczywaj...' : 'Timer przerwy'}
-        </span>
-        {!vibrationSupported && (
-          <span className="text-xs text-text-tertiary">Wibracja nie jest obsługiwana na tym urządzeniu.</span>
-        )}
-      </div>
+      <span className="font-medium text-text-primary flex-1 min-w-[120px]">
+        {hasFinished ? 'Przerwa zakończona!' : isRunning ? 'Odpoczywaj...' : 'Timer przerwy'}
+      </span>
 
       <div className="ml-auto flex gap-1">
         {!isRunning && !hasFinished && (
