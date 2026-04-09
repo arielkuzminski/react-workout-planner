@@ -80,6 +80,7 @@ interface WorkoutStoreActions {
   removeSetFromEntry: (entryId: string, setId: string) => 'removed' | 'confirm-remove-entry' | 'not-found';
   updateEntryNotes: (entryId: string, notes: string) => void;
   deleteCompletedSession: (sessionId: string) => void;
+  updateCompletedSession: (sessionId: string, entries: SessionEntry[]) => void;
   importCompletedSessions: (sessions: WorkoutSession[]) => void;
   restoreFromBackup: (payload: AutoBackupPayload) => boolean;
   getCompletedSessions: () => WorkoutSession[];
@@ -613,6 +614,36 @@ export const useWorkoutStore = create<WorkoutStore>()(
       deleteCompletedSession: (sessionId) => {
         set((state) => ({
           completedSessions: state.completedSessions.filter((session) => session.id !== sessionId),
+        }));
+      },
+
+      updateCompletedSession: (sessionId, entries) => {
+        set((state) => ({
+          completedSessions: state.completedSessions.map((session) => {
+            if (session.id !== sessionId) {
+              return session;
+            }
+
+            const normalizedEntries = entries.map((entry) => ({
+              ...entry,
+              sets: entry.sets.map((setEntry, index) => {
+                const completed =
+                  entry.exerciseType === 'time'
+                    ? (setEntry.durationSec ?? 0) > 0
+                    : (setEntry.reps ?? 0) > 0;
+                return {
+                  ...setEntry,
+                  setNumber: index + 1,
+                  completed,
+                };
+              }),
+            }));
+
+            return {
+              ...session,
+              entries: normalizedEntries,
+            };
+          }),
         }));
       },
 

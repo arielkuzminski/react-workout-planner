@@ -1,16 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { format, formatDistanceToNowStrict } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import { BookmarkPlus, Trash2 } from 'lucide-react';
+import { BookmarkPlus, Pencil, Trash2 } from 'lucide-react';
 import AppDialog from '../components/AppDialog';
+import SessionEditor from '../components/SessionEditor';
 import { useWorkoutStore } from '../store';
-import { WorkoutSession } from '../types';
+import { SessionEntry, WorkoutSession } from '../types';
 import { getPlanLabelBySession } from '../utils/templateUtils';
 
 export default function History() {
   const completedSessions = useWorkoutStore((state) => state.completedSessions);
   const plans = useWorkoutStore((state) => state.plans);
   const deleteCompletedSession = useWorkoutStore((state) => state.deleteCompletedSession);
+  const updateCompletedSession = useWorkoutStore((state) => state.updateCompletedSession);
   const createCustomPlan = useWorkoutStore((state) => state.createCustomPlan);
 
   const [savingSession, setSavingSession] = useState<WorkoutSession | null>(null);
@@ -18,6 +20,35 @@ export default function History() {
   const [planDescription, setPlanDescription] = useState('');
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedPlanName, setSavedPlanName] = useState<string | null>(null);
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
+
+  const editingSession = editingSessionId
+    ? completedSessions.find((session) => session.id === editingSessionId) ?? null
+    : null;
+
+  useEffect(() => {
+    if (editingSessionId && !editingSession) {
+      setEditingSessionId(null);
+    }
+  }, [editingSessionId, editingSession]);
+
+  const handleSaveEditedSession = (entries: SessionEntry[]) => {
+    if (!editingSessionId) {
+      return;
+    }
+    updateCompletedSession(editingSessionId, entries);
+    setEditingSessionId(null);
+  };
+
+  if (editingSession) {
+    return (
+      <SessionEditor
+        session={editingSession}
+        onSave={handleSaveEditedSession}
+        onCancel={() => setEditingSessionId(null)}
+      />
+    );
+  }
 
   const openSaveDialog = (session: WorkoutSession) => {
     const baseDate = new Date(session.endedAt || session.completedAt || session.startedAt);
@@ -109,6 +140,15 @@ export default function History() {
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-1">
+                <button
+                  onClick={() => setEditingSessionId(session.id)}
+                  disabled={!hasEntries}
+                  className="rounded-xl p-2 text-text-tertiary transition-colors hover:bg-brand-soft hover:text-brand-text active:bg-brand-soft cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-text-tertiary"
+                  aria-label="Edytuj sesję"
+                  title="Edytuj sesję"
+                >
+                  <Pencil className="h-5 w-5" />
+                </button>
                 {isFreestyle && (
                   <button
                     onClick={() => openSaveDialog(session)}
