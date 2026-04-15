@@ -9,6 +9,7 @@ import {
   YAxis,
 } from 'recharts';
 import { useWorkoutStore } from '../store';
+import { getEntryVolume } from '../utils/analyticsUtils';
 
 export default function Progress() {
   const completedSessions = useWorkoutStore((state) => state.completedSessions);
@@ -39,15 +40,23 @@ export default function Progress() {
           return [];
         }
 
-        const firstSet = entry.sets[0];
+        const volume = getEntryVolume(entry);
+        const topSet = entry.exerciseType === 'weight'
+          ? entry.sets.reduce((best, set) => {
+              const setVol = (set.weight ?? 0) * (set.reps ?? 0);
+              return setVol > (best.weight ?? 0) * (best.reps ?? 0) ? set : best;
+            }, entry.sets[0])
+          : entry.sets.reduce((best, set) =>
+              (set.durationSec ?? 0) > (best.durationSec ?? 0) ? set : best,
+            entry.sets[0]);
+
         return [
           {
             date: new Date(session.completedAt ?? session.startedAt).toLocaleDateString('pl-PL'),
-            primary: entry.exerciseType === 'time' ? firstSet?.durationSec ?? 0 : firstSet?.weight ?? 0,
-            secondary:
-              entry.exerciseType === 'time'
-                ? entry.sets.reduce((sum, set) => sum + (set.durationSec ?? 0), 0)
-                : entry.sets.reduce((sum, set) => sum + (set.reps ?? 0), 0),
+            volume,
+            topSet: entry.exerciseType === 'weight'
+              ? `${topSet?.weight ?? 0}kg × ${topSet?.reps ?? 0}`
+              : `${topSet?.durationSec ?? 0}s`,
           },
         ];
       });
@@ -103,11 +112,10 @@ export default function Progress() {
         <section className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm space-y-4">
           <div>
             <h3 className="text-xl font-semibold">{selectedExercise.name}</h3>
-            <p className="mt-1 text-sm text-stone-500">
-              {selectedExercise.type === 'time'
-                ? 'Primary = czas pierwszej serii, secondary = suma sekund'
-                : 'Primary = ciężar pierwszej serii, secondary = suma reps'}
-            </p>
+            <div className="mt-2 flex items-center gap-1.5 text-sm text-stone-600">
+              <span className="inline-block h-3 w-3 rounded-full bg-emerald-500" />
+              {selectedExercise.type === 'time' ? 'Czas łączny (s)' : 'Objętość (kg)'}
+            </div>
           </div>
 
           <div className="h-72">
@@ -116,9 +124,20 @@ export default function Progress() {
                 <CartesianGrid strokeDasharray="4 4" />
                 <XAxis dataKey="date" />
                 <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="primary" stroke="#10b981" strokeWidth={3} />
-                <Line type="monotone" dataKey="secondary" stroke="#1f2937" strokeWidth={2} />
+                <Tooltip content={({ active, payload }) => {
+                  if (!active || !payload?.[0]) return null;
+                  const data = payload[0].payload as { date: string; volume: number; topSet: string };
+                  return (
+                    <div className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm shadow-md">
+                      <p className="font-medium">{data.date}</p>
+                      <p className="text-emerald-600">
+                        {selectedExercise?.type === 'time' ? 'Czas' : 'Objętość'}: {data.volume.toLocaleString('pl-PL')}{selectedExercise?.type === 'time' ? 's' : ' kg'}
+                      </p>
+                      <p className="text-stone-500">Top set: {data.topSet}</p>
+                    </div>
+                  );
+                }} />
+                <Line type="monotone" dataKey="volume" stroke="#10b981" strokeWidth={3} />
               </LineChart>
             </ResponsiveContainer>
           </div>

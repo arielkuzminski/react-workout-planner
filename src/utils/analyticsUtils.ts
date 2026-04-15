@@ -16,7 +16,7 @@ export interface PersonalRecord {
   previousBest: number;
 }
 
-const getEntryVolume = (entry: SessionEntry): number =>
+export const getEntryVolume = (entry: SessionEntry): number =>
   entry.exerciseType === 'weight'
     ? entry.sets.reduce((sum, set) => sum + (set.weight ?? 0) * (set.reps ?? 0), 0)
     : entry.sets.reduce((sum, set) => sum + (set.durationSec ?? 0), 0);

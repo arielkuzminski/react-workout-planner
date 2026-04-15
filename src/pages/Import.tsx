@@ -115,11 +115,22 @@ export default function Import() {
                 exercises: [],
               });
             }
-            sessionsMap.get(key)?.exercises.push({
-              exerciseId: row.exerciseId || '',
-              weight: Number(row.weight || 0),
-              sets: row.reps ? [{ setNumber: 1, reps: Number(row.reps || 0) }] : [],
-            });
+            const session = sessionsMap.get(key)!;
+            const existingExercise = session.exercises.find((e) => e.exerciseId === row.exerciseId);
+            if (existingExercise) {
+              if (row.reps) {
+                existingExercise.sets.push({
+                  setNumber: existingExercise.sets.length + 1,
+                  reps: Number(row.reps || 0),
+                });
+              }
+            } else {
+              session.exercises.push({
+                exerciseId: row.exerciseId || '',
+                weight: Number(row.weight || 0),
+                sets: row.reps ? [{ setNumber: 1, reps: Number(row.reps || 0) }] : [],
+              });
+            }
           });
 
           importCompletedSessions(

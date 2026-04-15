@@ -243,12 +243,17 @@ export const useWorkoutStore = create<WorkoutStore>()(
       },
 
       importCompletedSessions: (sessions) => {
-        set((state) => ({
-          completedSessions: dedupeCompleted([
+        set((state) => {
+          const merged = dedupeCompleted([
             ...sessions.filter((session) => session.status === 'completed'),
             ...state.completedSessions,
-          ]),
-        }));
+          ]);
+          merged.sort((a, b) =>
+            new Date(b.completedAt ?? b.startedAt).getTime() -
+            new Date(a.completedAt ?? a.startedAt).getTime(),
+          );
+          return { completedSessions: merged };
+        });
       },
 
       getCompletedSessions: () => get().completedSessions,

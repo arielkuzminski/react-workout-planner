@@ -1,0 +1,1169 @@
+{
+  "schemaVersion": 2,
+  "completedSessions": [
+    {
+      "id": "session_1776237519831_11o2ue",
+      "startedAt": "2026-04-15T07:18:39.831Z",
+      "status": "completed",
+      "templateId": "A",
+      "notes": "",
+      "entries": [
+        {
+          "id": "entry_1776237519831_lphdy2",
+          "exerciseId": "A1",
+          "exerciseName": "Decline Chest Press Machine (Matrix)",
+          "exerciseNameSnapshot": "Decline Chest Press Machine (Matrix)",
+          "exerciseType": "weight",
+          "targetSets": 4,
+          "repRange": {
+            "min": 6,
+            "max": 10
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1776237519831_k0q48b",
+              "setNumber": 1,
+              "weight": 30,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_49cqe7",
+              "setNumber": 2,
+              "weight": 30,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_laug5g",
+              "setNumber": 3,
+              "weight": 30,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_geiqru",
+              "setNumber": 4,
+              "weight": 30,
+              "reps": 12,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1776237519831_fgnokj",
+          "exerciseId": "A2",
+          "exerciseName": "Seated Cable Row (Neutral Grip)",
+          "exerciseNameSnapshot": "Seated Cable Row (Neutral Grip)",
+          "exerciseType": "weight",
+          "targetSets": 4,
+          "repRange": {
+            "min": 8,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1776237519831_gche3j",
+              "setNumber": 1,
+              "weight": 55,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_7b86as",
+              "setNumber": 2,
+              "weight": 55,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_tb99b7",
+              "setNumber": 3,
+              "weight": 55,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_6e7q81",
+              "setNumber": 4,
+              "weight": 55,
+              "reps": 15,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1776237519831_2tia7x",
+          "exerciseId": "A3",
+          "exerciseName": "Leg Press",
+          "exerciseNameSnapshot": "Leg Press",
+          "exerciseType": "weight",
+          "targetSets": 4,
+          "repRange": {
+            "min": 8,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1776237519831_j2x8ki",
+              "setNumber": 1,
+              "weight": 100,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_iy94nk",
+              "setNumber": 2,
+              "weight": 100,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_oluixj",
+              "setNumber": 3,
+              "weight": 100,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_obwd0r",
+              "setNumber": 4,
+              "weight": 100,
+              "reps": 15,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1776237519831_gipzei",
+          "exerciseId": "A4",
+          "exerciseName": "Dumbbell Shoulder Press",
+          "exerciseNameSnapshot": "Dumbbell Shoulder Press",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 8,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1776237519831_gch6mm",
+              "setNumber": 1,
+              "weight": 15,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_j42pa6",
+              "setNumber": 2,
+              "weight": 15,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_a45b20",
+              "setNumber": 3,
+              "weight": 15,
+              "reps": 15,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1776237519831_pi3e83",
+          "exerciseId": "A5",
+          "exerciseName": "Lat Pulldown (Medium Grip)",
+          "exerciseNameSnapshot": "Lat Pulldown (Medium Grip)",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 10,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1776237519831_emngf0",
+              "setNumber": 1,
+              "weight": 55,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_88ga8l",
+              "setNumber": 2,
+              "weight": 55,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_5sn91x",
+              "setNumber": 3,
+              "weight": 55,
+              "reps": 14,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1776237519831_z0kufk",
+          "exerciseId": "A6",
+          "exerciseName": "Cable Triceps Extension (Overhead)",
+          "exerciseNameSnapshot": "Cable Triceps Extension (Overhead)",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 12,
+            "max": 15
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1776237519831_ofy2t5",
+              "setNumber": 1,
+              "weight": 29.3,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_vtgeyh",
+              "setNumber": 2,
+              "weight": 29.3,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_av3hnt",
+              "setNumber": 3,
+              "weight": 29.3,
+              "reps": 15,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1776237519831_yc3hby",
+          "exerciseId": "A7",
+          "exerciseName": "Cable Biceps Curl (Facing Away, Low Pulley)",
+          "exerciseNameSnapshot": "Cable Biceps Curl (Facing Away, Low Pulley)",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 10,
+            "max": 15
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1776237519831_zy8el3",
+              "setNumber": 1,
+              "weight": 47.3,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_aobyjf",
+              "setNumber": 2,
+              "weight": 47.3,
+              "reps": 15,
+              "completed": true
+            },
+            {
+              "id": "set_1776237519831_97qnpc",
+              "setNumber": 3,
+              "weight": 47.3,
+              "reps": 15,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        }
+      ],
+      "completedAt": "2026-04-15T07:19:38.141Z",
+      "endedAt": "2026-04-15T07:19:38.141Z"
+    },
+    {
+      "id": "session_1775458958067_osxdre",
+      "startedAt": "2026-04-10T07:02:38.067Z",
+      "status": "completed",
+      "templateId": "A",
+      "notes": "",
+      "entries": [
+        {
+          "id": "entry_1775458958067_ukptc5",
+          "exerciseId": "A1",
+          "exerciseName": "Decline Chest Press Machine (Matrix)",
+          "exerciseNameSnapshot": "Decline Chest Press Machine (Matrix)",
+          "exerciseType": "weight",
+          "targetSets": 4,
+          "repRange": {
+            "min": 6,
+            "max": 10
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775458958067_6jkgbs",
+              "setNumber": 1,
+              "weight": 30,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_4vmv3a",
+              "setNumber": 2,
+              "weight": 30,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_igg1r1",
+              "setNumber": 3,
+              "weight": 30,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_zn9m9d",
+              "setNumber": 4,
+              "weight": 30,
+              "reps": 10,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775458958067_fagk10",
+          "exerciseId": "A2",
+          "exerciseName": "Seated Cable Row (Neutral Grip)",
+          "exerciseNameSnapshot": "Seated Cable Row (Neutral Grip)",
+          "exerciseType": "weight",
+          "targetSets": 4,
+          "repRange": {
+            "min": 8,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775458958067_6puecz",
+              "setNumber": 1,
+              "weight": 55,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_qgxwx7",
+              "setNumber": 2,
+              "weight": 55,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_p88u8n",
+              "setNumber": 3,
+              "weight": 55,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_sob8z6",
+              "setNumber": 4,
+              "weight": 55,
+              "reps": 10,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775458958067_frjbr4",
+          "exerciseId": "A3",
+          "exerciseName": "Leg Press",
+          "exerciseNameSnapshot": "Leg Press",
+          "exerciseType": "weight",
+          "targetSets": 4,
+          "repRange": {
+            "min": 8,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775458958067_awap9y",
+              "setNumber": 1,
+              "weight": 100,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_w7krls",
+              "setNumber": 2,
+              "weight": 100,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_fmmz1k",
+              "setNumber": 3,
+              "weight": 100,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_tgzh6v",
+              "setNumber": 4,
+              "weight": 100,
+              "reps": 10,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775458958067_2z34vs",
+          "exerciseId": "A4",
+          "exerciseName": "Dumbbell Shoulder Press",
+          "exerciseNameSnapshot": "Dumbbell Shoulder Press",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 8,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775458958067_cnrsgg",
+              "setNumber": 1,
+              "weight": 15,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_j46zlt",
+              "setNumber": 2,
+              "weight": 15,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_ho83q4",
+              "setNumber": 3,
+              "weight": 15,
+              "reps": 10,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775458958067_6jzqat",
+          "exerciseId": "A5",
+          "exerciseName": "Lat Pulldown (Medium Grip)",
+          "exerciseNameSnapshot": "Lat Pulldown (Medium Grip)",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 10,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775458958067_mcxrsa",
+              "setNumber": 1,
+              "weight": 55,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_lon6q0",
+              "setNumber": 2,
+              "weight": 55,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_kpawck",
+              "setNumber": 3,
+              "weight": 55,
+              "reps": 10,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775458958067_8a754t",
+          "exerciseId": "A6",
+          "exerciseName": "Cable Triceps Extension (Overhead)",
+          "exerciseNameSnapshot": "Cable Triceps Extension (Overhead)",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 12,
+            "max": 15
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775458958067_tcdm09",
+              "setNumber": 1,
+              "weight": 29.3,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_xu50in",
+              "setNumber": 2,
+              "weight": 29.3,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_ex6f6c",
+              "setNumber": 3,
+              "weight": 29.3,
+              "reps": 10,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775458958067_h1jifg",
+          "exerciseId": "A7",
+          "exerciseName": "Cable Biceps Curl (Facing Away, Low Pulley)",
+          "exerciseNameSnapshot": "Cable Biceps Curl (Facing Away, Low Pulley)",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 10,
+            "max": 15
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775458958067_pc96xd",
+              "setNumber": 1,
+              "weight": 47.3,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_nnjr8p",
+              "setNumber": 2,
+              "weight": 47.3,
+              "reps": 10,
+              "completed": true
+            },
+            {
+              "id": "set_1775458958067_ovtz7s",
+              "setNumber": 3,
+              "weight": 47.3,
+              "reps": 10,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        }
+      ],
+      "completedAt": "2026-04-10T08:03:20.835Z",
+      "endedAt": "2026-04-10T08:03:20.835Z"
+    },
+    {
+      "id": "session_1775558958067_wzu381",
+      "startedAt": "2026-04-08T07:01:58.543Z",
+      "status": "completed",
+      "templateId": "A",
+      "notes": "",
+      "entries": [
+        {
+          "id": "entry_1775558958067_vno143",
+          "exerciseId": "A1",
+          "exerciseName": "Decline Chest Press Machine (Matrix)",
+          "exerciseNameSnapshot": "Decline Chest Press Machine (Matrix)",
+          "exerciseType": "weight",
+          "targetSets": 4,
+          "repRange": {
+            "min": 6,
+            "max": 10
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775558958067_ldagjk",
+              "setNumber": 1,
+              "weight": 30,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_vfv1i7",
+              "setNumber": 2,
+              "weight": 30,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_qqhb6x",
+              "setNumber": 3,
+              "weight": 30,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_r9rb33",
+              "setNumber": 4,
+              "weight": 30,
+              "reps": 5,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775558958067_34vxh1",
+          "exerciseId": "A2",
+          "exerciseName": "Seated Cable Row (Neutral Grip)",
+          "exerciseNameSnapshot": "Seated Cable Row (Neutral Grip)",
+          "exerciseType": "weight",
+          "targetSets": 4,
+          "repRange": {
+            "min": 8,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775558958067_4tcmbs",
+              "setNumber": 1,
+              "weight": 55,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_wdsafk",
+              "setNumber": 2,
+              "weight": 55,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_mlj5bt",
+              "setNumber": 3,
+              "weight": 55,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_lzmsxc",
+              "setNumber": 4,
+              "weight": 55,
+              "reps": 5,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775558958067_yshjlc",
+          "exerciseId": "A3",
+          "exerciseName": "Leg Press",
+          "exerciseNameSnapshot": "Leg Press",
+          "exerciseType": "weight",
+          "targetSets": 4,
+          "repRange": {
+            "min": 8,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775558958067_vukhgb",
+              "setNumber": 1,
+              "weight": 100,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_ks9foy",
+              "setNumber": 2,
+              "weight": 100,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_3i3625",
+              "setNumber": 3,
+              "weight": 100,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_zads1s",
+              "setNumber": 4,
+              "weight": 100,
+              "reps": 5,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775558958067_23212t",
+          "exerciseId": "A4",
+          "exerciseName": "Dumbbell Shoulder Press",
+          "exerciseNameSnapshot": "Dumbbell Shoulder Press",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 8,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775558958067_itzd45",
+              "setNumber": 1,
+              "weight": 15,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_mu7p7k",
+              "setNumber": 2,
+              "weight": 15,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_dc8dx4",
+              "setNumber": 3,
+              "weight": 15,
+              "reps": 5,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775558958067_3cpiww",
+          "exerciseId": "A5",
+          "exerciseName": "Lat Pulldown (Medium Grip)",
+          "exerciseNameSnapshot": "Lat Pulldown (Medium Grip)",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 10,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775558958067_b8m664",
+              "setNumber": 1,
+              "weight": 55,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_11ites",
+              "setNumber": 2,
+              "weight": 55,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_8la2yt",
+              "setNumber": 3,
+              "weight": 55,
+              "reps": 5,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775558958067_zq8uhi",
+          "exerciseId": "A6",
+          "exerciseName": "Cable Triceps Extension (Overhead)",
+          "exerciseNameSnapshot": "Cable Triceps Extension (Overhead)",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 12,
+            "max": 15
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775558958067_4r45uf",
+              "setNumber": 1,
+              "weight": 29.3,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_qy8wcy",
+              "setNumber": 2,
+              "weight": 29.3,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_dziz5z",
+              "setNumber": 3,
+              "weight": 29.3,
+              "reps": 5,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775558958067_fna0y1",
+          "exerciseId": "A7",
+          "exerciseName": "Cable Biceps Curl (Facing Away, Low Pulley)",
+          "exerciseNameSnapshot": "Cable Biceps Curl (Facing Away, Low Pulley)",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 10,
+            "max": 15
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775558958067_hw8p8o",
+              "setNumber": 1,
+              "weight": 47.3,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_zdy9dy",
+              "setNumber": 2,
+              "weight": 47.3,
+              "reps": 5,
+              "completed": true
+            },
+            {
+              "id": "set_1775558958067_6zgyq0",
+              "setNumber": 3,
+              "weight": 47.3,
+              "reps": 5,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        }
+      ],
+      "completedAt": "2026-04-08T08:02:26.780Z",
+      "endedAt": "2026-04-08T08:02:26.780Z"
+    },
+    {
+      "id": "session_1775668958067_z765yf",
+      "startedAt": "2026-04-06T07:01:03.289Z",
+      "status": "completed",
+      "templateId": "A",
+      "notes": "",
+      "entries": [
+        {
+          "id": "entry_1775668958067_0plruc",
+          "exerciseId": "A1",
+          "exerciseName": "Decline Chest Press Machine (Matrix)",
+          "exerciseNameSnapshot": "Decline Chest Press Machine (Matrix)",
+          "exerciseType": "weight",
+          "targetSets": 4,
+          "repRange": {
+            "min": 6,
+            "max": 10
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775668958067_q74o3o",
+              "setNumber": 1,
+              "weight": 30,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_bvmwnu",
+              "setNumber": 2,
+              "weight": 30,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_h3uc9p",
+              "setNumber": 3,
+              "weight": 30,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_17jwvm",
+              "setNumber": 4,
+              "weight": 30,
+              "reps": 3,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775668958067_fsk43b",
+          "exerciseId": "A2",
+          "exerciseName": "Seated Cable Row (Neutral Grip)",
+          "exerciseNameSnapshot": "Seated Cable Row (Neutral Grip)",
+          "exerciseType": "weight",
+          "targetSets": 4,
+          "repRange": {
+            "min": 8,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775668958067_z814fj",
+              "setNumber": 1,
+              "weight": 55,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_mrf0qv",
+              "setNumber": 2,
+              "weight": 55,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_3xbk10",
+              "setNumber": 3,
+              "weight": 55,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_e903nm",
+              "setNumber": 4,
+              "weight": 55,
+              "reps": 3,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775668958067_mwwmxn",
+          "exerciseId": "A3",
+          "exerciseName": "Leg Press",
+          "exerciseNameSnapshot": "Leg Press",
+          "exerciseType": "weight",
+          "targetSets": 4,
+          "repRange": {
+            "min": 8,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775668958067_s63afn",
+              "setNumber": 1,
+              "weight": 100,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_xgabao",
+              "setNumber": 2,
+              "weight": 100,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_5q4opk",
+              "setNumber": 3,
+              "weight": 100,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_530xtb",
+              "setNumber": 4,
+              "weight": 100,
+              "reps": 3,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775668958067_4a71m6",
+          "exerciseId": "A4",
+          "exerciseName": "Dumbbell Shoulder Press",
+          "exerciseNameSnapshot": "Dumbbell Shoulder Press",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 8,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775668958067_clcau5",
+              "setNumber": 1,
+              "weight": 15,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_i9x3k5",
+              "setNumber": 2,
+              "weight": 15,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_0dy17t",
+              "setNumber": 3,
+              "weight": 15,
+              "reps": 3,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775668958067_a2ohs8",
+          "exerciseId": "A5",
+          "exerciseName": "Lat Pulldown (Medium Grip)",
+          "exerciseNameSnapshot": "Lat Pulldown (Medium Grip)",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 10,
+            "max": 12
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775668958067_jbqg8g",
+              "setNumber": 1,
+              "weight": 55,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_7hygfz",
+              "setNumber": 2,
+              "weight": 55,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_pl52o6",
+              "setNumber": 3,
+              "weight": 55,
+              "reps": 3,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775668958067_5jspzd",
+          "exerciseId": "A6",
+          "exerciseName": "Cable Triceps Extension (Overhead)",
+          "exerciseNameSnapshot": "Cable Triceps Extension (Overhead)",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 12,
+            "max": 15
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775668958067_z20e0u",
+              "setNumber": 1,
+              "weight": 29.3,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_zaf3l7",
+              "setNumber": 2,
+              "weight": 29.3,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_ln1e7o",
+              "setNumber": 3,
+              "weight": 29.3,
+              "reps": 3,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        },
+        {
+          "id": "entry_1775668958067_ta0otu",
+          "exerciseId": "A7",
+          "exerciseName": "Cable Biceps Curl (Facing Away, Low Pulley)",
+          "exerciseNameSnapshot": "Cable Biceps Curl (Facing Away, Low Pulley)",
+          "exerciseType": "weight",
+          "targetSets": 3,
+          "repRange": {
+            "min": 10,
+            "max": 15
+          },
+          "unit": "kg",
+          "sets": [
+            {
+              "id": "set_1775668958067_t54s1y",
+              "setNumber": 1,
+              "weight": 47.3,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_rpisg9",
+              "setNumber": 2,
+              "weight": 47.3,
+              "reps": 3,
+              "completed": true
+            },
+            {
+              "id": "set_1775668958067_wzgrrk",
+              "setNumber": 3,
+              "weight": 47.3,
+              "reps": 3,
+              "completed": true
+            }
+          ],
+          "notes": ""
+        }
+      ],
+      "completedAt": "2026-04-06T08:01:48.082Z",
+      "endedAt": "2026-04-06T08:01:48.082Z"
+    }
+  ]
+}
